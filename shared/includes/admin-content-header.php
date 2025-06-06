@@ -17,7 +17,9 @@ if (isset($_SESSION['profile_image']) && !empty($_SESSION['profile_image'])) {
     
     // Get profile image from database if available
     $username = $_SESSION["user"];
-    $conn = require_once "../shared/includes/db_connection.php";
+    if (!isset($conn)) {
+        require_once "../shared/includes/db_connection.php";
+    }
     $img_query = "SELECT profile_pic FROM admins WHERE username = ?";
     $stmt = $conn->prepare($img_query);
     $stmt->bind_param("s", $username);
