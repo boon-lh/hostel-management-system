@@ -120,9 +120,115 @@
     box-shadow: 0 1px 8px rgba(110, 142, 251, 0.3);
 }
 
+/* Card Styles */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(110, 142, 251, 0.08);
+    border: 1px solid rgba(110, 142, 251, 0.12);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(110, 142, 251, 0.12);
+    background: linear-gradient(to right, rgba(110, 142, 251, 0.02), rgba(167, 119, 227, 0.02));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(110, 142, 251, 0.2);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    color: #374151;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Search Input */
+.search-container {
+    position: relative;
+}
+
+.search-container input {
+    width: 300px;
+    padding: 10px 40px 10px 16px;
+    border: 1px solid rgba(110, 142, 251, 0.2);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: #6e8efb;
+    box-shadow: 0 0 0 3px rgba(110, 142, 251, 0.1);
+}
+
+.search-container i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6e8efb;
+    font-size: 0.9rem;
+}
+
+/* Export Button */
+.btn-export {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(110, 142, 251, 0.2);
+}
+
+.btn-export:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(110, 142, 251, 0.3);
+}
+
+.btn-export i {
+    font-size: 0.9rem;
+}
+
 /* Student List Table */
 .table-responsive {
     overflow-x: auto;
+    min-height: 400px;
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -130,65 +236,29 @@
 
 .data-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
 }
 
 .data-table th {
-    background: rgba(110, 142, 251, 0.05);
-    padding: 12px 15px;
+    background: #f8faff;
+    padding: 16px 20px;
     text-align: left;
     font-weight: 600;
     color: #374151;
     border-bottom: 2px solid rgba(110, 142, 251, 0.1);
+    white-space: nowrap;
 }
 
 .data-table td {
-    padding: 12px 15px;
+    padding: 14px 20px;
     border-bottom: 1px solid rgba(110, 142, 251, 0.08);
+    color: #4b5563;
 }
 
-.data-table tr:hover {
-    background: rgba(110, 142, 251, 0.02);
-}
-
-/* Search and Export */
-.search-container {
-    position: relative;
-    margin-right: 15px;
-}
-
-.search-container input {
-    padding: 8px 12px 8px 35px;
-    border: 1px solid rgba(110, 142, 251, 0.2);
-    border-radius: 6px;
-    width: 250px;
-    font-size: 0.9rem;
-}
-
-.search-container i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6e8efb;
-}
-
-.btn-export {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: linear-gradient(to right, #6e8efb, #a777e3);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-export:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+.data-table tbody tr:hover {
+    background-color: rgba(110, 142, 251, 0.02);
 }
 
 /* Action Buttons */
@@ -198,20 +268,49 @@
 }
 
 .action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 6px;
     color: #6e8efb;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.85rem;
+    font-weight: 500;
     transition: all 0.2s ease;
+    background: rgba(110, 142, 251, 0.05);
 }
 
 .action-btn:hover {
     background: rgba(110, 142, 251, 0.1);
+    transform: translateY(-1px);
 }
+
+.action-btn i {
+    font-size: 0.9rem;
+}
+
+.action-text {
+    display: inline-block;
+}
+
+/* Empty State */
+.text-center {
+    text-align: center;
+    padding: 40px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Table Column Widths */
+.data-table th:nth-child(1) { width: 10%; } /* ID */
+.data-table th:nth-child(2) { width: 15%; } /* Name */
+.data-table th:nth-child(3) { width: 15%; } /* Course */
+.data-table th:nth-child(4) { width: 15%; } /* Email */
+.data-table th:nth-child(5) { width: 12%; } /* Phone */
+.data-table th:nth-child(6) { width: 8%; }  /* Gender */
+.data-table th:nth-child(7) { width: 10%; } /* Citizenship */
+.data-table th:nth-child(8) { width: 15%; } /* Actions */
 
 /* Student Details Modal */
 .modal {
