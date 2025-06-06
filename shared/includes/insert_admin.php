@@ -1,15 +1,15 @@
 <?php
 require_once 'db_connection.php';
 
-$name = 'Goh Jun Boon';
-$ic_number = '010203040506';
-$contact_no = '0123456789';
-$email = 'adminboon@mmu.edu.my';
-$username = 'admin02';
+$name = 'Ong Jia Yu';
+$ic_number = '020203040506';
+$contact_no = '0183456789';
+$email = 'adminyu@mmu.edu.my';
+$username = 'admin03';
 $plainPassword = 'password123';
 $password = password_hash($plainPassword, PASSWORD_DEFAULT);
 $profile_pic = null;
-$office_number = "A-101"; 
+$office_number = "A-102"; 
 
 $query = "INSERT INTO admins (name, ic_number, contact_no, email, username, password, 
           profile_pic, office_number, created_at, last_login, deleted_at) 
