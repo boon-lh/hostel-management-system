@@ -38,6 +38,10 @@ if (isset($_SESSION['profile_image']) && !empty($_SESSION['profile_image'])) {
     // Update the session variable to ensure consistency across pages
     $_SESSION["profile_image"] = $profile_image;
 }
+
+if (!isset($conn) || !($conn instanceof mysqli)) {
+    require_once __DIR__ . '/db_connection.php';
+}
 ?>
 <div class="header">
     <h1><?php echo isset($pageHeading) ? $pageHeading : 'Admin Dashboard'; ?></h1>
