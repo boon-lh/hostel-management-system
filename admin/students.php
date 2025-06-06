@@ -19,7 +19,7 @@ if ($students_result && $students_result->num_rows > 0) {
 
 // Set page title and additional CSS files
 $pageTitle = "Student Management - MMU Hostel Management";
-$additionalCSS = ["css/dashboard.css"];
+$additionalCSS = ["css/dashboard.css", "css/student-management.css"];
 
 // Include header
 require_once '../shared/includes/header.php';
@@ -34,74 +34,91 @@ require_once '../shared/includes/sidebar-admin.php';
     require_once '../shared/includes/admin-content-header.php'; 
     ?>
 
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title-area">
-                <div class="card-icon">
-                    <i class="fas fa-users"></i>
+    <div class="content-wrapper">
+        <div class="page-navigation-container">
+            <div class="page-navigation">
+                <div class="nav-tabs">
+                    <a href="students.php" class="nav-tab active">
+                        <i class="fas fa-users"></i>
+                        Student Management
+                    </a>
+                    <a href="finance.php" class="nav-tab">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        Finance Management
+                    </a>
                 </div>
-                <h2 class="card-title">All Student List</h2>
-            </div>
-            <div class="card-actions">
-                <div class="search-container">
-                    <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">
-                    <i class="fas fa-search"></i>
-                </div>
-                <button class="btn-export" title="Export to CSV">
-                    <i class="fas fa-file-export"></i>
-                    <span>Export List</span>
-                </button>
             </div>
         </div>
-        <div class="card-content">
-            <div class="table-responsive">
-                <table class="data-table" id="students-table">
-                    <thead>
-                        <tr>
-                            <th>Student ID</th>
-                            <th>Full Name</th>
-                            <th>Course</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Gender</th>
-                            <th>Citizenship</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (count($students) > 0): ?>
-                            <?php foreach ($students as $student): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($student['id']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['course']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['email']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['contact_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['gender']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['citizenship']); ?></td>
-                                    <td class="action-buttons">
-                                        <a href="javascript:void(0)" onclick="viewStudentDetails(<?php echo $student['id']; ?>)" title="View Student Details" class="action-btn">
-                                            <i class="fas fa-eye"></i>
-                                            <span class="action-text">Details</span>
-                                        </a>
-                                        <a href="javascript:void(0)" onclick="editStudent(<?php echo $student['id']; ?>)" title="Edit Student Information" class="action-btn">
-                                            <i class="fas fa-edit"></i>
-                                            <span class="action-text">Edit</span>
-                                        </a>
-                                        <a href="finance.php?student_id=<?php echo $student['id']; ?>" title="View Financial Records" class="action-btn">
-                                            <i class="fas fa-file-invoice-dollar"></i>
-                                            <span class="action-text">Finance</span>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title-area">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h2 class="card-title">All Student List</h2>
+                </div>
+                <div class="card-actions">
+                    <div class="search-container">
+                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="btn-export" title="Export to CSV">
+                        <i class="fas fa-file-export"></i>
+                        <span>Export List</span>
+                    </button>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="table-responsive">
+                    <table class="data-table" id="students-table">
+                        <thead>
                             <tr>
-                                <td colspan="8" class="text-center">No students found in the database</td>
+                                <th>Student ID</th>
+                                <th>Full Name</th>
+                                <th>Course</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Gender</th>
+                                <th>Citizenship</th>
+                                <th>Actions</th>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php if (count($students) > 0): ?>
+                                <?php foreach ($students as $student): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($student['id']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['name']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['course']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['email']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['contact_no']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['gender']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['citizenship']); ?></td>
+                                        <td class="action-buttons">
+                                            <a href="javascript:void(0)" onclick="viewStudentDetails(<?php echo $student['id']; ?>)" title="View Student Details" class="action-btn">
+                                                <i class="fas fa-eye"></i>
+                                                <span class="action-text">Details</span>
+                                            </a>
+                                            <a href="javascript:void(0)" onclick="editStudent(<?php echo $student['id']; ?>)" title="Edit Student Information" class="action-btn">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="action-text">Edit</span>
+                                            </a>
+                                            <a href="finance.php?student_id=<?php echo $student['id']; ?>" title="View Financial Records" class="action-btn">
+                                                <i class="fas fa-file-invoice-dollar"></i>
+                                                <span class="action-text">Finance</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="8" class="text-center">No students found in the database</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,246 @@
+/* Student Management specific styles */
+.content-wrapper {
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(110, 142, 251, 0.05);
+    border: 1px solid rgba(110, 142, 251, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.content-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(110, 142, 251, 0.08) 0%, rgba(167, 119, 227, 0.08) 100%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Page Navigation */
+.page-navigation-container {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(110, 142, 251, 0.08);
+    margin-bottom: 24px;
+    border: 1px solid rgba(110, 142, 251, 0.15);
+    position: relative;
+    z-index: 1;
+}
+
+.page-navigation {
+    background: linear-gradient(to right, 
+        rgba(110, 142, 251, 0.03) 0%, 
+        rgba(167, 119, 227, 0.03) 50%,
+        rgba(110, 142, 251, 0.03) 100%);
+    border-radius: 10px;
+    position: relative;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 32px;
+    padding: 0 24px;
+    margin: 0;
+    height: 60px;
+    align-items: center;
+    border-bottom: 1px solid rgba(110, 142, 251, 0.12);
+    position: relative;
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    position: relative;
+    height: 60px;
+    transition: all 0.3s ease;
+}
+
+.nav-tab i {
+    font-size: 18px;
+    color: #8896bd;
+    transition: all 0.3s ease;
+}
+
+.nav-tab:hover {
+    color: #6e8efb;
+    background: linear-gradient(to bottom, 
+        rgba(110, 142, 251, 0.05),
+        rgba(110, 142, 251, 0.08));
+}
+
+.nav-tab:hover i {
+    color: #6e8efb;
+    transform: translateY(-2px);
+}
+
+.nav-tab.active {
+    color: #6e8efb;
+    background: linear-gradient(to bottom,
+        rgba(110, 142, 251, 0.1),
+        rgba(110, 142, 251, 0.15));
+}
+
+.nav-tab.active i {
+    color: #6e8efb;
+}
+
+.nav-tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right,
+        rgba(110, 142, 251, 0.5),
+        rgba(167, 119, 227, 0.5));
+    border-radius: 0 0 3px 3px;
+}
+
+.nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, #6e8efb, #a777e3);
+    border-radius: 2px;
+    box-shadow: 0 1px 8px rgba(110, 142, 251, 0.3);
+}
+
+/* Student List Table */
+.table-responsive {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: rgba(110, 142, 251, 0.05);
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid rgba(110, 142, 251, 0.1);
+}
+
+.data-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(110, 142, 251, 0.08);
+}
+
+.data-table tr:hover {
+    background: rgba(110, 142, 251, 0.02);
+}
+
+/* Search and Export */
+.search-container {
+    position: relative;
+    margin-right: 15px;
+}
+
+.search-container input {
+    padding: 8px 12px 8px 35px;
+    border: 1px solid rgba(110, 142, 251, 0.2);
+    border-radius: 6px;
+    width: 250px;
+    font-size: 0.9rem;
+}
+
+.search-container i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6e8efb;
+}
+
+.btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(to right, #6e8efb, #a777e3);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: #6e8efb;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: rgba(110, 142, 251, 0.1);
+}
+
+/* Student Details Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
