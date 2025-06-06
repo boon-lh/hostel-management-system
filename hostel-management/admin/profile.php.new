@@ -1,0 +1,214 @@
+<?php
+session_start();
+if (!isset($_SESSION["user"]) || $_SESSION["role"] !== "admin") {
+    header("Location: ../index.php");
+    exit();
+}
+
+require_once "../shared/includes/db_connection.php";
+require_once "../shared/includes/profile-forms.php";
+
+// Reset form data if returning to the page or after form submission
+if (isset($_GET['reset']) && $_GET['reset'] == 'true') {
+    // Clear any form data in session
+    unset($_SESSION['form_data']);
+    unset($_SESSION['form_submitted']);
+    // Clear any potential leftover form fields
+    $_SESSION['form_reset'] = true;
+    
+    // Remove the reset parameter from URL after processing
+    $redirect_url = strtok($_SERVER["REQUEST_URI"], '?');
+    header("Location: $redirect_url");
+    exit();
+}
+
+// Handle profile update redirection
+if (isset($_SESSION['form_submitted']) && $_SESSION['form_submitted'] === true) {
+    // Clear the flag
+    unset($_SESSION['form_submitted']);
+    
+    // Add a success message
+    $_SESSION["profile_message"] = "Profile updated successfully!";
+    $_SESSION["profile_message_type"] = "success";
+    
+    // Redirect to reset the page and prevent form resubmission
+    header("Location: profile.php?reset=true");
+    exit();
+}
+
+// Include the profile logic file that handles database operations and form processing
+require_once "../shared/includes/admin-profile-logic.php";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Process POST data here - keep your existing code for processing profile updates, 
+    // password changes, and profile picture uploads
+    // ...
+}
+
+// Check if there's a message in session and display it, then clear it
+$message = "";
+$messageType = "";
+if (isset($_SESSION["profile_message"])) {
+    $message = $_SESSION["profile_message"];
+    $messageType = $_SESSION["profile_message_type"];
+    
+    // Clear the message from session after displaying it once
+    unset($_SESSION["profile_message"]);
+    unset($_SESSION["profile_message_type"]);
+}
+
+// Set page title and additional CSS files
+$pageTitle = "Admin Profile - MMU Hostel Management";
+$additionalCSS = ["css/dashboard.css", "css/profile.css"];
+
+// Include header
+require_once '../shared/includes/header.php';
+
+// Include admin sidebar
+require_once '../shared/includes/sidebar-admin.php';
+?>
+
+<!-- Main Content -->
+<div class="main-content">
+    <?php 
+    $pageHeading = "My Profile";
+    require_once '../shared/includes/admin-content-header.php'; 
+    ?>
+
+    <?php if (!empty($message)): ?>
+    <div class="alert alert-<?php echo $messageType; ?>" id="alert-message">
+        <?php echo $message; ?>
+        <button type="button" class="close-btn" onclick="closeAlert()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <?php endif; ?>
+    
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-picture-container">
+                <img src="<?php echo $profile_image; ?>" alt="Profile Picture" class="profile-picture">
+                <div class="profile-picture-edit" id="changeProfilePicture">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <form id="profilePictureForm" action="" method="post" enctype="multipart/form-data">
+                    <input type="file" name="profile_picture" id="profilePictureInput" accept="image/*">
+                    <input type="submit" value="Upload">
+                </form>
+            </div>
+            <div class="profile-info">
+                <h2><?php echo isset($admin['name']) ? $admin['name'] : $_SESSION["user"]; ?></h2>
+                <p><i class="fas fa-user-shield"></i> <?php echo ucfirst($_SESSION["role"]); ?></p>
+                <p><i class="fas fa-envelope"></i> <?php echo isset($admin['email']) && !empty($admin['email']) ? $admin['email'] : 'No email set'; ?></p>
+                <p><i class="fas fa-phone"></i> <?php echo isset($admin['contact_no']) && !empty($admin['contact_no']) ? $admin['contact_no'] : 'No phone set'; ?></p>
+                <p><i class="fas fa-building"></i> Office: <?php echo isset($admin['office_number']) && !empty($admin['office_number']) ? $admin['office_number'] : 'No office set'; ?></p>
+            </div>
+        </div>
+
+        <div class="profile-tabs">
+            <div class="profile-tab active" data-tab="edit-profile">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </div>
+            <div class="profile-tab" data-tab="security">
+                <i class="fas fa-lock"></i> Security
+            </div>
+        </div>
+        
+        <?php
+        display_profile_edit_form($name, $email, $phone, $office_number, $_SESSION["user"]);
+        display_security_form();
+        ?>
+    </div>
+</div>
+
+<?php
+// Include footer
+require_once '../shared/includes/footer.php';
+?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabs = document.querySelectorAll('.profile-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Clear form values if switching tabs to prevent data persistence
+                const activeTabId = document.querySelector('.profile-tab.active').getAttribute('data-tab');
+                const clickedTabId = this.getAttribute('data-tab');
+                
+                // Only reset forms if we're actually changing tabs
+                if (activeTabId !== clickedTabId) {
+                    // Reset forms in the tab we're leaving
+                    const activeForms = document.querySelectorAll(`#${activeTabId} form`);
+                    activeForms.forEach(form => {
+                        form.reset();
+                    });
+                    
+                    // Also clear password fields for security
+                    const passwordFields = document.querySelectorAll(`#${activeTabId} input[type="password"]`);
+                    passwordFields.forEach(field => {
+                        field.value = '';
+                    });
+                }
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tabContentId = this.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabContentId).classList.add('active');
+            });
+        });
+        
+        // Profile picture upload
+        const changeProfilePictureBtn = document.getElementById('changeProfilePicture');
+        const profilePictureInput = document.getElementById('profilePictureInput');
+        
+        changeProfilePictureBtn.addEventListener('click', function() {
+            profilePictureInput.click();
+        });
+        
+        profilePictureInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                // Auto-submit the form when a file is selected
+                document.getElementById('profilePictureForm').submit();
+            }
+        });
+        
+        // Auto-hide alert messages after 5 seconds
+        const alertMessage = document.getElementById('alert-message');
+        if (alertMessage) {
+            setTimeout(function() {
+                alertMessage.style.opacity = '0';
+                setTimeout(function() {
+                    alertMessage.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+        
+        // Function to close alert messages
+        window.closeAlert = function() {
+            const alert = document.getElementById('alert-message');
+            if (alert) {
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.style.display = 'none';
+                }, 500);
+            }
+        }
+        
+        // Clear form fields on page refresh or reload
+        <?php if (isset($_SESSION['form_reset']) && $_SESSION['form_reset']): ?>
+        // Reset all form fields
+        document.querySelectorAll('form').forEach(form => {
+            form.reset();
+        });
+        <?php 
+            // Clear the reset flag
+            $_SESSION['form_reset'] = false;
+        endif; 
+        ?>
+    });
+</script>

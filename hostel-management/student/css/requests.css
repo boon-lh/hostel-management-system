@@ -1,0 +1,786 @@
+/* General Styles for Service Requests Page */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+.requests-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden; /* Ensures card header background doesn't bleed */
+}
+
+.card-header {
+    background-color: #007bff; /* Primary blue */
+    color: #fff;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.card-header h3 i {
+    margin-right: 10px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 .2rem rgba(0,123,255,.25);
+}
+
+.form-control-file {
+    display: block;
+    width: 100%;
+}
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+
+/* Alerts */
+.alert {
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-danger ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+/* No Room Warning & Room Info */
+.no-room-warning, .room-info {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.no-room-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.no-room-warning i {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.room-info {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+.room-info p {
+    margin: 0;
+}
+
+/* Table Styles */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: .75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+    background-color: #f8f9fa; /* Light grey for table header */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0,0,0,.05);
+}
+
+.badge {
+    display: inline-block;
+    padding: .35em .65em;
+    font-size: .75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25rem;
+}
+
+.badge i {
+    margin-right: 3px;
+}
+
+.badge-warning {
+    color: #212529;
+    background-color: #ffc107;
+}
+
+.badge-info {
+    color: #fff;
+    background-color: #17a2b8;
+}
+
+.badge-success {
+    color: #fff;
+    background-color: #28a745;
+}
+
+.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.badge-primary {
+    color: #fff;
+    background-color: #007bff;
+}
+
+.badge-secondary {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+
+/* No Requests Message */
+.no-requests-message {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 1px dashed #ced4da;
+    border-radius: 4px;
+}
+
+.no-requests-message i {
+    font-size: 2em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1050; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+}
+
+.modal-dialog {
+    position: relative;
+    margin: 1.75rem auto;
+    pointer-events: none;
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: .3rem;
+    outline: 0;
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    border-top-left-radius: .3rem;
+    border-top-right-radius: .3rem;
+}
+
+.modal-header .close {
+    padding: 1rem 1rem;
+    margin: -1rem -1rem -1rem auto;
+    background-color: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    cursor: pointer;
+}
+.modal-header .close:hover {
+    opacity: .75;
+}
+
+
+.modal-title {
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-size: 1.25rem;
+}
+.modal-title i {
+    margin-right: 8px;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+    border-bottom-right-radius: .3rem;
+    border-bottom-left-radius: .3rem;
+}
+
+.modal-footer > :not(:first-child) {
+    margin-left: .25rem;
+}
+.modal-footer > :not(:last-child) {
+    margin-right: .25rem;
+}
+
+.modal-lg {
+    max-width: 800px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+    color: #007bff;
+}
+
+.loading-spinner i {
+    margin-right: 8px;
+    animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Request Details Modal Specifics */
+#requestContent h5 {
+    margin-top: 1rem;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    color: #007bff;
+}
+#requestContent h5 i {
+    margin-right: 5px;
+}
+
+#requestContent p {
+    margin-bottom: .5rem;
+}
+
+.request-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.request-meta-grid > div {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.request-meta-grid strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.description-box, .notes-box, .rejection-box {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 15px;
+    white-space: pre-wrap; /* Preserve line breaks in description */
+}
+
+.attachment-section .attachment-preview a {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 8px 12px;
+    background-color: #e9ecef;
+    color: #007bff;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.attachment-section .attachment-preview a:hover {
+    background-color: #d1d5da;
+}
+.attachment-section .attachment-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+}
+
+
+/* Timeline for History */
+.timeline {
+    list-style: none;
+    padding: 0;
+    position: relative;
+}
+
+.timeline:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #007bff; /* Primary blue for timeline */
+    left: 20px; /* Adjust based on icon size */
+    margin-left: -1.5px;
+}
+
+.timeline-item {
+    margin-bottom: 20px;
+    position: relative;
+    padding-left: 45px; /* Space for icon and line */
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    z-index: 1;
+    border: 2px solid white; /* To make it pop from the line */
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.timeline-content:before { /* Arrow pointing to timeline */
+    content: '';
+    position: absolute;
+    top: 15px;
+    right: 100%;
+    height: 0;
+    width: 0;
+    border: 7px solid transparent;
+    border-right-color: #f8f9fa;
+}
+
+.timeline-time {
+    font-size: 0.85em;
+    color: #6c757d;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.timeline-status {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.timeline-comment {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+    white-space: pre-wrap;
+}
+
+.timeline-changed-by {
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 8px;
+}
+.timeline-changed-by i {
+    margin-right: 4px;
+}
+
+/* Cancel Modal Specifics */
+.warning-message {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 4px;
+    color: #856404;
+}
+
+.warning-message i {
+    font-size: 1.5em;
+    margin-right: 15px;
+    color: #ffc107; /* Warning yellow */
+}
+
+.warning-message p {
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .col-md-4, .col-md-8 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .modal-dialog {
+        margin: .5rem;
+    }
+    .modal-lg {
+        max-width: none; /* Full width on small screens */
+    }
+}
+
+/* Small text muted for form hints */
+.form-text.text-muted {
+    font-size: 0.875em;
+    color: #6c757d;
+}
+.form-text.text-danger {
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+/* Ensure FontAwesome icons are styled correctly if not globally done */
+.fas {
+    line-height: inherit; /* Fix potential alignment issues */
+}
+
+/* Styling for the room info in the form */
+.room-info p strong {
+    color: #007bff;
+}
+
+/* Styling for the "My Requests" table actions column */
+.table td .btn {
+    margin-right: 5px;
+    padding: .25rem .5rem;
+    font-size: .875rem;
+}
+.table td .btn:last-child {
+    margin-right: 0;
+}
+
+/* Specific icon colors for request types in table */
+.badge .fa-wrench { color: #fff; } /* Maintenance */
+.badge .fa-broom { color: #fff; } /* Room Cleaning */
+.badge .fa-wifi { color: #fff; } /* Internet Issue */
+.badge .fa-couch { color: #fff; } /* Furniture */
+.badge .fa-exchange-alt { color: #fff; } /* Room Exchange */
+.badge .fa-sign-out-alt { color: #fff; } /* Checkout */
+.badge .fa-question-circle { color: #fff; } /* Other */
+
+/* Specific icon colors for status badges in table and modal */
+.badge-warning .fas { color: #856404; } /* Pending */
+.badge-info .fas { color: #fff; } /* Approved */
+.badge-primary .fas { color: #fff; } /* In Progress */
+.badge-success .fas { color: #fff; } /* Completed */
+.badge-danger .fas { color: #fff; } /* Rejected */
+.badge-secondary .fas { color: #fff; } /* Cancelled */
+
+/* Ensure icons in modal titles are aligned */
+.modal-title i.fas {
+    vertical-align: middle;
+}
+
+/* Style for the attachment preview in modal */
+.attachment-preview img {
+    display: block;
+    max-width: 200px; /* Limit image preview size */
+    height: auto;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.attachment-preview a {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+}
+.attachment-preview a i {
+    margin-right: 5px;
+}
+
+/* Additional styling for preferred date/time in modal */
+.preferred-datetime {
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+.preferred-datetime p {
+    margin: 0 0 5px 0;
+}
+.preferred-datetime p:last-child {
+    margin-bottom: 0;
+}
+
+/* Room exchange details in modal */
+.room-exchange-details {
+    background-color: #f0f8ff; /* AliceBlue for a light touch */
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    border: 1px solid #d1e7fd;
+}
+.room-exchange-details h5 {
+    color: #0d6efd; /* Bootstrap primary blue */
+}
+
+/* Notes from staff in modal */
+.notes-section .notes-box {
+    min-height: 80px; /* Ensure it has some height even if empty */
+}
+
+/* Rejection reason in modal */
+.rejection-section .rejection-box {
+    background-color: #f8d7da; /* Light red for rejection */
+    color: #721c24;
+    border-color: #f5c6cb;
+    min-height: 50px;
+}
+
+/* Ensure select dropdowns in forms are not overly wide if not needed */
+select.form-control:not([size]):not([multiple]) {
+    height: calc(2.25rem + 2px);
+}
+
+/* Improve spacing for submit button */
+#submitButton {
+    margin-top: 15px;
+}
+
+/* Table action buttons styling */
+.table .action-buttons .btn {
+    margin: 0 2px; /* Add small margin between buttons */
+}
+.table .action-buttons .btn-sm {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+}
+
+/* Ensure the main content area has some padding from the sidebar */
+.main-content {
+    padding-left: 20px; /* Adjust if your sidebar width is different */
+    padding-right: 20px;
+}
+
+/* Header within main content */
+.main-content .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+.main-content .header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+.main-content .header .user-info {
+    display: flex;
+    align-items: center;
+}
+.main-content .header .user-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+.main-content .header .user-info .user-name {
+    margin-right: 15px;
+    font-weight: 500;
+}
+.main-content .header .logout-btn {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+.main-content .header .logout-btn:hover {
+    text-decoration: underline;
+}
+
+/* Row class for layout */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.col-md-4, .col-md-8 {
+    position: relative;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+@media (min-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+    .col-md-8 {
+        flex: 0 0 66.666667%;
+        max-width: 66.666667%;
+    }
+}
+
+/* Ensure Font Awesome icons are available and display correctly */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
+
