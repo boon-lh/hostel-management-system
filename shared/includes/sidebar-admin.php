@@ -10,10 +10,12 @@
         <a href="dashboard.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
-        
-        <div class="menu-category">Student Management</div>
+          <div class="menu-category">Student Management</div>
         <a href="students.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'students.php' ? 'active' : ''; ?>">
             <i class="fas fa-user-graduate"></i> Students
+        </a>
+        <a href="visitors.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'visitors.php' ? 'active' : ''; ?>">
+            <i class="fas fa-user-friends"></i> Visitors
         </a>
         
         <div class="menu-category">Finance</div>
