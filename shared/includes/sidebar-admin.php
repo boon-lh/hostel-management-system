@@ -13,9 +13,11 @@
           <div class="menu-category">Student Management</div>
         <a href="students.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'students.php' ? 'active' : ''; ?>">
             <i class="fas fa-user-graduate"></i> Students
-        </a>
-        <a href="visitors.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'visitors.php' ? 'active' : ''; ?>">
+        </a>        <a href="visitors.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'visitors.php' ? 'active' : ''; ?>">
             <i class="fas fa-user-friends"></i> Visitors
+        </a>
+        <a href="announcements.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'announcements.php' ? 'active' : ''; ?>">
+            <i class="fas fa-bullhorn"></i> Announcements
         </a>
         
         <div class="menu-category">Finance</div>
