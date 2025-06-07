@@ -57,7 +57,7 @@ while ($row = $bills_result->fetch_assoc()) {
 // Set page title and additional CSS files
 $pageTitle = "Bill Details - " . $student['name'] . " - MMU Hostel Management";
 $contentTitle = "Bill Details - " . $student['name'];
-$additionalCSS = ["css/dashboard.css"];
+$additionalCSS = ["css/header.css"];
 
 // Include admin header
 require_once '../shared/includes/admin-header.php';
@@ -207,3 +207,4 @@ require_once '../shared/includes/admin-content-header.php';
 // Include admin footer
 require_once '../shared/includes/admin-footer.php';
 ?>
+
