@@ -17,9 +17,18 @@ if ($students_result && $students_result->num_rows > 0) {
     }
 }
 
-// Set page title and additional CSS files
+// Set page title and additional CSS/JS files
 $pageTitle = "Student Management - MMU Hostel Management";
+// CSS paths relative to admin directory
 $additionalCSS = ["css/dashboard.css", "css/student-management.css"];
+// Add necessary JavaScript files in correct order
+$additionalJS = [
+    "https://code.jquery.com/jquery-3.6.0.min.js",
+    "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js",
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+    "../shared/js/script.js",
+    "js/students.js"
+];
 
 // Include header
 require_once '../shared/includes/header.php';
@@ -51,21 +60,18 @@ require_once '../shared/includes/sidebar-admin.php';
                 <div class="header-title">
                     <i class="fas fa-users"></i>
                     <h2>All Student List</h2>
-                </div>
-                <div class="header-actions">
+                </div>                
+                <div class="header-actions">                    
                     <div class="search-container">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">
-                    </div>
-                    <button class="btn-export" title="Export to CSV">
+                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">                    </div>                      <button class="btn-export">
                         <i class="fas fa-file-export"></i>
                         <span>Export List</span>
                     </button>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="data-table" id="students-table">
+                </div>            
+            </div>            
+            <div class="table-responsive" role="region" aria-label="Students List">
+                <table class="data-table" id="students-table" aria-label="Students Information Table">
                     <thead>
                         <tr>
                             <th>Student ID</th>
@@ -78,23 +84,37 @@ require_once '../shared/includes/sidebar-admin.php';
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php if (count($students) > 0): ?>
+                    <tbody>                        <?php if (count($students) > 0): ?>
                             <?php foreach ($students as $student): ?>
-                                <tr>
+                                <tr data-student-id="<?php echo htmlspecialchars($student['id']); ?>">
                                     <td><?php echo htmlspecialchars($student['id']); ?></td>
                                     <td><?php echo htmlspecialchars($student['name']); ?></td>
                                     <td><?php echo htmlspecialchars($student['course']); ?></td>
                                     <td><?php echo htmlspecialchars($student['email']); ?></td>
                                     <td><?php echo htmlspecialchars($student['contact_no']); ?></td>
                                     <td><?php echo htmlspecialchars($student['gender']); ?></td>                                    
-                                    <td><?php echo htmlspecialchars($student['citizenship']); ?></td>                                    
-                                    <td class="action-buttons">                                        
+                                    <td><?php echo htmlspecialchars($student['citizenship']); ?></td>
+                                    <td class="action-buttons">                                          
                                         <button type="button" 
-                                            onclick="editStudent(<?php echo $student['id']; ?>)" 
-                                            class="action-btn edit-btn"                                            
-                                            title="Edit">
+                                            onclick="viewStudentDetails(<?php echo $student['id']; ?>)" 
+                                            class="action-btn"                                            
+                                            data-type="view"
+                                            title="View Student Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>                                        <button type="button" 
+                                            onclick="editStudent(<?php echo (int)$student['id']; ?>)" 
+                                            class="action-btn"                                            
+                                            data-type="edit"
+                                            data-student-id="<?php echo (int)$student['id']; ?>"
+                                            title="Edit Student Information">
                                             <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" 
+                                            onclick="deleteStudent(<?php echo $student['id']; ?>, '<?php echo addslashes(htmlspecialchars($student['name'])); ?>')" 
+                                            class="action-btn"                                            
+                                            data-type="delete"
+                                            title="Delete Student">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -107,42 +127,10 @@ require_once '../shared/includes/sidebar-admin.php';
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
+        </div>    </div>
 </div>
 
 <?php
-// Add specific JavaScript for this page
-$additionalJS = ["js/students.js"];
-
 // Include footer
 require_once '../shared/includes/footer.php';
 ?>
-
-<script>    // Function to redirect to edit student page
-    function editStudent(studentId) {
-        window.location.href = 'edit_student.php?id=' + studentId;
-    }
-
-    // Search functionality for student list
-    document.getElementById('student-search').addEventListener('keyup', function() {
-        const searchTerm = this.value.toLowerCase();
-        const table = document.getElementById('students-table');
-        const rows = table.getElementsByTagName('tr');
-        
-        // Start from row 1 to skip header row
-        for (let i = 1; i < rows.length; i++) {
-            const studentId = rows[i].cells[0].textContent.toLowerCase();
-            const studentName = rows[i].cells[1].textContent.toLowerCase();
-            const course = rows[i].cells[2].textContent.toLowerCase();
-            const email = rows[i].cells[3].textContent.toLowerCase();
-            
-            const shouldShow = studentId.includes(searchTerm) || 
-                             studentName.includes(searchTerm) || 
-                             course.includes(searchTerm) || 
-                             email.includes(searchTerm);
-            
-            rows[i].style.display = shouldShow ? '' : 'none';
-        }
-    });
-</script>

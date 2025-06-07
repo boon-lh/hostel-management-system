@@ -3,46 +3,65 @@
  * Hostel Management System - Admin Panel
  * 
  * This file contains all JavaScript functionality for the students page:
- * - Tab switching between student list and finance info
- * - Search functionality for both student and finance tables
+ * - CRUD operations for students
+ * - Search functionality
  * - Modal handling for student details
- * - AJAX calls for dynamic content loading
+ * - Data export capabilities
  */
+console.log('Students.js file is being loaded - ' + new Date().toLocaleTimeString());
 
 // Wait for document to be ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Students.js loading...');
     
     // Initialize search functionality
     initializeSearchFunctionality();
+
+    // Initialize form validation if on create student page
+    if (document.querySelector('.student-form')) {
+        initializeFormValidation();
+    }
     
-    // Initialize modal functionality
-    initializeModalFunctionality();
+    // Add export button functionality
+    const exportButton = document.querySelector('.btn-export');
+    if (exportButton) {
+        exportButton.addEventListener('click', exportStudentData);
+    }
     
-    // Initialize export functionality
-    initializeExportFunctionality();
+    // Setup table hover effects
+    setupTableHoverEffects();
+    
+    // Restore search filter from session storage
+    const savedSearch = sessionStorage.getItem('studentSearchTerm');
+    if (savedSearch) {
+        const searchInput = document.getElementById('student-search');
+        if (searchInput) {
+            searchInput.value = savedSearch;
+            filterStudentTable(savedSearch);
+        }
+    }
     
     console.log('Students.js loaded successfully');
 });
 
+// Utility function for email validation
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
 /**
- * Initialize search functionality for both tables
+ * Initialize search functionality for student table
  */
 function initializeSearchFunctionality() {
-    // Student list search
-    const studentSearch = document.getElementById('student-search');
-    if (studentSearch) {
-        studentSearch.addEventListener('keyup', function() {
-            filterStudentTable(this.value);
-        });
-    }
-    
-    // Finance search
-    const financeSearch = document.getElementById('finance-search');
-    if (financeSearch) {
-        financeSearch.addEventListener('keyup', function() {
-            filterFinanceTable(this.value);
-        });
-    }
+    const searchInput = document.getElementById('student-search');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value;
+        sessionStorage.setItem('studentSearchTerm', searchTerm);
+        filterStudentTable(searchTerm);
+    });
 }
 
 /**
@@ -50,170 +69,77 @@ function initializeSearchFunctionality() {
  * @param {string} searchTerm - The search term to filter by
  */
 function filterStudentTable(searchTerm) {
-    const table = document.getElementById('students-table');
+    const table = document.querySelector('.student-table');
     if (!table) return;
-    
-    const rows = table.getElementsByTagName('tr');
-    const normalizedSearch = searchTerm.toLowerCase().trim();
-    
-    // Start from row 1 to skip header row
-    for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.cells;
-        let shouldShow = false;
-        
-        // Search in ID, Name, Course, Email columns
-        const searchableColumns = [0, 1, 2, 3]; // Student ID, Name, Course, Email
-        
-        for (let j of searchableColumns) {
-            if (cells[j] && cells[j].textContent.toLowerCase().includes(normalizedSearch)) {
-                shouldShow = true;
-                break;
-            }
-        }
-        
-        row.style.display = shouldShow ? '' : 'none';
-    }
-}
 
-/**
- * Filter finance table based on search term
- * @param {string} searchTerm - The search term to filter by
- */
-function filterFinanceTable(searchTerm) {
-    const table = document.getElementById('finance-table');
-    if (!table) return;
-    
-    const rows = table.getElementsByTagName('tr');
-    const normalizedSearch = searchTerm.toLowerCase().trim();
-    
-    // Start from row 1 to skip header row
-    for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.cells;
-        let shouldShow = false;
-        
-        // Search in Student ID and Name columns
-        const searchableColumns = [0, 1]; // Student ID, Name
-        
-        for (let j of searchableColumns) {
-            if (cells[j] && cells[j].textContent.toLowerCase().includes(normalizedSearch)) {
-                shouldShow = true;
-                break;
-            }
-        }
-        
-        row.style.display = shouldShow ? '' : 'none';
-    }
-}
+    const rows = table.querySelectorAll('tbody tr');
+    const searchLower = searchTerm.toLowerCase();
+    let found = false;
 
-/**
- * Initialize modal functionality
- */
-function initializeModalFunctionality() {
-    const modal = document.getElementById('student-details-modal');
-    const closeBtn = document.querySelector('.modal .close');
-    
-    if (closeBtn) {
-        closeBtn.onclick = function() {
-            if (modal) {
-                modal.style.display = "none";
-            }
-        }
-    }
-    
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-}
-
-/**
- * Initialize export functionality
- */
-function initializeExportFunctionality() {
-    const exportButtons = document.querySelectorAll('.btn-export');
-    
-    exportButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const activeTab = document.querySelector('.tab-content.active');
-            
-            if (activeTab && activeTab.id === 'student-list') {
-                exportStudentData();
-            } else if (activeTab && activeTab.id === 'finance-info') {
-                exportFinanceData();
-            }
-        });
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const match = text.includes(searchLower);
+        row.style.display = match ? '' : 'none';
+        if (match) found = true;
     });
+
+    // Show/hide no results message
+    let noResults = table.querySelector('.no-results');
+    if (!found && !noResults) {
+        const tbody = table.querySelector('tbody');
+        noResults = document.createElement('tr');
+        noResults.className = 'no-results';
+        noResults.innerHTML = `<td colspan="6" class="text-center">No students found matching "${searchTerm}"</td>`;
+        tbody.appendChild(noResults);
+    } else if (found && noResults) {
+        noResults.remove();
+    }
 }
+
+// Note: Unused function filterFinanceTable was removed
+
+// Note: Unused functions initializeModalFunctionality and initializeExportFunctionality were removed
 
 /**
  * Export student data to CSV
  */
 function exportStudentData() {
-    const table = document.getElementById('students-table');
-    if (!table) return;
-    
-    const rows = table.querySelectorAll('tr');
-    let csvContent = '';
-    
-    // Process each row
-    rows.forEach((row, index) => {
-        const cells = row.querySelectorAll('th, td');
-        const rowData = [];
-        
-        cells.forEach((cell, cellIndex) => {
-            // Skip actions column (last column)
-            if (cellIndex < cells.length - 1) {
-                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
-            }
-        });
-        
-        if (rowData.length > 0) {
-            csvContent += rowData.join(',') + '\n';
-        }
-    });
-    
-    // Download CSV
-    downloadCSV(csvContent, 'students_list.csv');
-}
+    try {
+        const table = document.querySelector('.student-table');
+        if (!table) throw new Error('Student table not found');
 
-/**
- * Export finance data to CSV
- */
-function exportFinanceData() {
-    const table = document.getElementById('finance-table');
-    if (!table) return;
-    
-    const rows = table.querySelectorAll('tr');
-    let csvContent = '';
-    
-    // Process each row
-    rows.forEach((row, index) => {
-        const cells = row.querySelectorAll('th, td');
-        const rowData = [];
-        
-        cells.forEach((cell, cellIndex) => {
-            // Skip actions column (last column)
-            if (cellIndex < cells.length - 1) {
-                let cellText = cell.textContent.trim();
-                // Clean up status badges
-                if (cell.querySelector('.status')) {
-                    cellText = cell.querySelector('.status').textContent.trim();
-                }
-                rowData.push('"' + cellText.replace(/"/g, '""') + '"');
-            }
-        });
-        
-        if (rowData.length > 0) {
-            csvContent += rowData.join(',') + '\n';
+        const rows = Array.from(table.querySelectorAll('tbody tr')).filter(row => 
+            row.style.display !== 'none' && !row.classList.contains('no-results')
+        );
+
+        if (rows.length === 0) {
+            throw new Error('No students to export');
         }
-    });
-    
-    // Download CSV
-    downloadCSV(csvContent, 'finance_data.csv');
+
+        const headers = Array.from(table.querySelectorAll('thead th'))
+            .map(th => th.textContent.trim())
+            .filter(header => header !== 'Actions');
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => 
+                Array.from(row.querySelectorAll('td'))
+                    .slice(0, -1) // Remove actions column
+                    .map(cell => `"${cell.textContent.trim()}"`)
+                    .join(',')
+            )
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', 'students.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        handleError(error, 'exporting student data');
+    }
 }
 
 /**
@@ -253,6 +179,130 @@ function showError(element, message) {
     if (element) {
         element.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
     }
+}
+
+/**
+ * Setup export button functionality
+ */
+function setupExportButton() {
+    const exportButton = document.querySelector('.btn-export');
+    if (exportButton) {
+        exportButton.addEventListener('click', exportStudentData);
+    }
+}
+
+/**
+ * Setup table row hover effects
+ */
+function setupTableHoverEffects() {
+    const tableRows = document.querySelectorAll('.student-table tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', () => {
+            row.style.backgroundColor = '#f5f5f5';
+            row.style.cursor = 'pointer';
+        });
+        row.addEventListener('mouseleave', () => {
+            row.style.backgroundColor = '';
+        });
+    });
+}
+
+/**
+ * Initialize form validation
+ */
+function initializeFormValidation() {
+    const form = document.querySelector('.student-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const errorMessages = [];
+
+        // Clear previous validation states
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+        // Name validation
+        const nameInput = form.querySelector('[name="name"]');
+        if (!nameInput?.value.trim()) {
+            isValid = false;
+            showFieldError(nameInput, 'Name is required');
+        } else if (nameInput.value.length > 100) {
+            isValid = false;
+            showFieldError(nameInput, 'Name must be less than 100 characters');
+        }
+
+        // Contact number validation
+        const contactInput = form.querySelector('[name="contact_no"]');
+        if (!contactInput?.value.trim()) {
+            isValid = false;
+            showFieldError(contactInput, 'Contact Number is required');
+        } else {
+            const cleanNumber = contactInput.value.replace(/[-\s]/g, '');
+            if (!/^\d{10,15}$/.test(cleanNumber)) {
+                isValid = false;
+                showFieldError(contactInput, 'Contact Number must be 10-15 digits');
+            }
+        }
+
+        // Email validation
+        const emailInput = form.querySelector('[name="email"]');
+        if (!emailInput?.value.trim()) {
+            isValid = false;
+            showFieldError(emailInput, 'Email is required');
+        } else if (!isValidEmail(emailInput.value)) {
+            isValid = false;
+            showFieldError(emailInput, 'Invalid email format');
+        } else if (emailInput.value.length > 100) {
+            isValid = false;
+            showFieldError(emailInput, 'Email must be less than 100 characters');
+        }
+
+        // Address validation
+        const addressInput = form.querySelector('[name="address"]');
+        if (!addressInput?.value.trim()) {
+            isValid = false;
+            showFieldError(addressInput, 'Address is required');
+        } else if (addressInput.value.length > 255) {
+            isValid = false;
+            showFieldError(addressInput, 'Address must be less than 255 characters');
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+}
+
+// Show error message for a specific field
+function showFieldError(element, message) {
+    if (!element) return;
+    
+    element.classList.add('is-invalid');
+    
+    // Create error message element if it doesn't exist
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'invalid-feedback';
+    errorDiv.textContent = message;
+    
+    // Remove any existing error message
+    const existingError = element.nextElementSibling;
+    if (existingError?.classList.contains('invalid-feedback')) {
+        existingError.remove();
+    }
+    
+    // Insert error message after the input
+    element.parentNode.insertBefore(errorDiv, element.nextSibling);
+}
+
+/**
+ * Handle server errors
+ * @param {Error} error - Error object
+ * @param {string} customMessage - Custom error message to show user
+ */
+function handleError(error, customMessage = 'An error occurred. Please try again.') {
+    console.error('Error:', error);
+    alert(customMessage);
 }
 
 // Global functions used by inline JavaScript in the HTML
@@ -295,47 +345,82 @@ window.viewStudentDetails = function(studentId) {
  * @param {number} studentId - The student ID
  */
 window.editStudent = function(studentId) {
-    window.location.href = `edit_student.php?id=${studentId}`;
-};
+    try {
+        // Input validation
+        if (!studentId || isNaN(studentId)) {
+            throw new Error('Invalid student ID');
+        }
 
-/**
- * Switch to finance tab and filter for specific student
- * @param {number} studentId - The student ID
- */
-window.viewFinance = function(studentId) {
-    // Switch to finance tab
-    const financeTabButton = document.querySelector('[data-tab="finance-info"]');
-    if (financeTabButton) {
-        financeTabButton.click();
+        // Save current page state
+        const currentSearchTerm = document.getElementById('student-search')?.value;
+        if (currentSearchTerm) {
+            sessionStorage.setItem('studentSearchTerm', currentSearchTerm);
+        }
         
-        // Wait a bit for the tab to switch, then filter
-        setTimeout(() => {
-            const financeSearch = document.getElementById('finance-search');
-            if (financeSearch) {
-                financeSearch.value = studentId;
-                filterFinanceTable(studentId);
-                financeSearch.focus();
-            }
-        }, 100);
+        // Navigate to edit page
+        window.location.href = `edit_student.php?id=${studentId}`;
+    } catch (error) {
+        handleError(error, 'editing student');
     }
 };
 
 /**
- * View bill details for a student
+ * Delete student record after confirmation
  * @param {number} studentId - The student ID
+ * @param {string} studentName - The student name (for confirmation message)
  */
-window.viewBillDetails = function(studentId) {
-    // For now, redirect to a bill details page
-    // This can be enhanced with a modal in the future
-    window.location.href = `bill_details.php?student_id=${studentId}`;
-};
-
-/**
- * View payment receipt for a student
- * @param {number} studentId - The student ID
- */
-window.viewPaymentReceipt = function(studentId) {
-    // For now, redirect to a payment receipt page
-    // This can be enhanced with a modal in the future
-    window.location.href = `payment_receipt.php?student_id=${studentId}`;
+window.deleteStudent = function(studentId, studentName) {
+    // Confirm deletion
+    if (confirm(`Are you sure you want to delete ${studentName}? This action cannot be undone.`)) {
+        console.log(`Attempting to delete student ID: ${studentId}`);
+        
+        // Show loading overlay or indicator
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="sr-only">Deleting...</span></div>';
+        document.body.appendChild(overlay);
+        
+        // Create form data for the request
+        const formData = new FormData();
+        formData.append('id', studentId);
+        
+        // Make AJAX call to delete the student
+        fetch('delete_student.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove loading overlay
+            document.body.removeChild(overlay);
+            
+            if (data.success) {
+                // Show success message
+                alert('Student deleted successfully.');
+                
+                // Remove row from table
+                const row = document.querySelector(`tr[data-student-id="${studentId}"]`) || 
+                            document.querySelector(`button[onclick*="deleteStudent(${studentId}"]`).closest('tr');
+                
+                if (row) {
+                    row.remove();
+                } else {
+                    // If row can't be found, reload the page
+                    window.location.reload();
+                }
+            } else {
+                // Show error message
+                alert('Error deleting student: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            // Remove loading overlay
+            if (document.body.contains(overlay)) {
+                document.body.removeChild(overlay);
+            }
+            
+            console.error('Error:', error);
+            alert('An error occurred while deleting the student. Please try again.');
+        });
+    }
 };

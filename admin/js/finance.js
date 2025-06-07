@@ -51,8 +51,3 @@ async function submitPayment(event, studentId) {
         alert('Failed to record payment. Please try again.');
     }
 }
-
-// Initialize tooltips if needed
-document.addEventListener('DOMContentLoaded', function() {
-    // Add any initialization code here
-});
