@@ -310,35 +310,100 @@ function handleError(error, customMessage = 'An error occurred. Please try again
  * View student details in modal
  * @param {number} studentId - The student ID
  */
-window.viewStudentDetails = function(studentId) {
-    const modal = document.getElementById('student-details-modal');
-    const contentDiv = document.getElementById('student-details-content');
-    
-    if (!modal || !contentDiv) {
-        console.error('Modal elements not found');
-        return;
+window.viewStudentDetails = async function(studentId) {
+    try {
+        // Show loading indicator
+        const modalBody = document.querySelector('#studentDetailsModal .modal-body');
+        modalBody.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+        // Show modal while loading
+        const modal = new bootstrap.Modal(document.getElementById('studentDetailsModal'));
+        modal.show();
+
+        // Fetch student details
+        const response = await fetch(`get_student_details.php?id=${studentId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch student details');
+        }
+        
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to load student details');
+        }
+
+        const { student, emergency_contact, hostel_info, finance_summary, complaints_summary } = data;
+        
+        // Update Basic Info
+        document.querySelector('.student-name').textContent = student.name;
+        document.querySelector('.student-id').textContent = `Student ID: ${student.id}`;
+        document.querySelector('.student-gender').textContent = student.gender;
+        document.querySelector('.student-dob').textContent = formatDate(student.dob);
+        document.querySelector('.student-citizenship').textContent = student.citizenship;
+        document.querySelector('.student-ic').textContent = student.ic_number;
+        document.querySelector('.student-contact').textContent = student.contact_no;
+        document.querySelector('.student-email').textContent = student.email;
+        document.querySelector('.student-course').textContent = student.course;
+        document.querySelector('.student-address').textContent = student.address;
+
+        // Update Emergency Contact Info
+        if (emergency_contact) {
+            document.querySelector('.emergency-contact-name').textContent = emergency_contact.name;
+            document.querySelector('.emergency-contact-relationship').textContent = emergency_contact.relationship;
+            document.querySelector('.emergency-contact-phone').textContent = emergency_contact.contact_no;
+            document.querySelector('.emergency-contact-email').textContent = emergency_contact.email;
+        }
+
+        // Update Hostel Info
+        if (hostel_info) {
+            document.querySelector('.hostel-room').textContent = hostel_info.room_number || 'Not Assigned';
+            document.querySelector('.hostel-block').textContent = hostel_info.block_name || 'Not Assigned';
+            document.querySelector('.hostel-room-type').textContent = hostel_info.room_type || 'N/A';
+        }
+
+        // Update Financial Summary
+        if (finance_summary) {
+            document.querySelector('.finance-total-bills').textContent = finance_summary.total_bills;
+            document.querySelector('.finance-total-billed').textContent = `RM ${parseFloat(finance_summary.total_billed).toFixed(2)}`;
+            document.querySelector('.finance-total-paid').textContent = `RM ${parseFloat(finance_summary.total_paid).toFixed(2)}`;
+            document.querySelector('.finance-outstanding').textContent = `RM ${parseFloat(finance_summary.outstanding_balance).toFixed(2)}`;
+        }
+
+        // Update Complaints Summary
+        if (complaints_summary) {
+            document.querySelector('.complaints-total').textContent = complaints_summary.complaint_count;
+            document.querySelector('.complaints-pending').textContent = complaints_summary.pending_complaints;
+        }
+
+        // Setup edit button
+        const editBtn = document.querySelector('.edit-student-btn');
+        editBtn.onclick = () => {
+            document.getElementById('studentDetailsModal').querySelector('[data-bs-dismiss="modal"]').click();
+            editStudent(student.id);
+        };
+
+    } catch (error) {
+        console.error('Error loading student details:', error);
+        const modalBody = document.querySelector('#studentDetailsModal .modal-body');
+        modalBody.innerHTML = `<div class="alert alert-danger">Error loading student details: ${error.message}</div>`;
     }
-    
-    // Show loading
-    showLoading(contentDiv);
-    modal.style.display = "block";
-    
-    // Make AJAX call
-    fetch(`get_student_details.php?id=${studentId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .then(data => {
-            contentDiv.innerHTML = data;
-        })
-        .catch(error => {
-            console.error('Error fetching student details:', error);
-            showError(contentDiv, 'Error loading student details. Please try again.');
+}
+
+// Helper function to format date
+function formatDate(dateString) {
+    if (!dateString) return 'Not provided';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Invalid date';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
-};
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Error formatting date';
+    }
+}
 
 /**
  * Redirect to edit student page

@@ -11,36 +11,40 @@ session_start();
 
 // Check if admin is logged in
 if (!isset($_SESSION["user"]) || $_SESSION["role"] !== "admin") {
-    http_response_code(403);
-    echo '<div class="error-message">Access denied. Please login as admin.</div>';
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit();
 }
 
-// Check if student ID is provided
+// Set header to return JSON
+header('Content-Type: application/json');
+
+// Check if ID is provided
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    http_response_code(400);
-    echo '<div class="error-message">Student ID is required.</div>';
+    echo json_encode(['success' => false, 'message' => 'Student ID is required']);
     exit();
 }
 
 require_once '../shared/includes/db_connection.php';
 
-$studentId = intval($_GET['id']);
+// Validate student ID is numeric
+$studentId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if ($studentId === false || $studentId === null) {
+    echo json_encode(['success' => false, 'message' => 'Invalid student ID format']);
+    exit();
+}
 
 try {
-    // Fetch student details
-    $student_query = "SELECT * FROM students WHERE id = ?";
-    $stmt = $conn->prepare($student_query);
+    // Prepare and execute query
+    $stmt = $conn->prepare("SELECT * FROM students WHERE id = ?");
     $stmt->bind_param("i", $studentId);
     $stmt->execute();
-    $student_result = $stmt->get_result();
-    
-    if ($student_result->num_rows === 0) {
-        echo '<div class="error-message">Student not found.</div>';
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Student not found']);
         exit();
-    }
-    
-    $student = $student_result->fetch_assoc();
+    }    $student = $result->fetch_assoc();
     
     // Fetch emergency contact information
     $emergency_query = "SELECT * FROM emergency_contacts WHERE student_id = ?";
@@ -88,6 +92,16 @@ try {
     $stmt->execute();
     $complaints_result = $stmt->get_result();
     $complaints_summary = $complaints_result->fetch_assoc();
+    
+    // Return all data in JSON response
+    echo json_encode([
+        'success' => true,
+        'student' => $student,
+        'emergency_contact' => $emergency_contact,
+        'hostel_info' => $hostel_info,
+        'finance_summary' => $finance_summary,
+        'complaints_summary' => $complaints_summary
+    ]);
     
 } catch (Exception $e) {
     echo '<div class="error-message">Error fetching student details: ' . htmlspecialchars($e->getMessage()) . '</div>';

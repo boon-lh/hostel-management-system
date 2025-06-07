@@ -94,14 +94,12 @@ require_once '../shared/includes/sidebar-admin.php';
                                     <td><?php echo htmlspecialchars($student['contact_no']); ?></td>
                                     <td><?php echo htmlspecialchars($student['gender']); ?></td>                                    
                                     <td><?php echo htmlspecialchars($student['citizenship']); ?></td>
-                                    <td class="action-buttons">                                          
-                                        <button type="button" 
-                                            onclick="viewStudentDetails(<?php echo $student['id']; ?>)" 
+                                    <td class="action-buttons">                                            <a href="student_details.php?id=<?php echo $student['id']; ?>" 
                                             class="action-btn"                                            
                                             data-type="view"
                                             title="View Student Details">
                                             <i class="fas fa-eye"></i>
-                                        </button>                                        <button type="button" 
+                                        </a>                                        <button type="button" 
                                             onclick="editStudent(<?php echo (int)$student['id']; ?>)" 
                                             class="action-btn"                                            
                                             data-type="edit"
@@ -127,7 +125,8 @@ require_once '../shared/includes/sidebar-admin.php';
                     </tbody>
                 </table>
             </div>
-        </div>    </div>
+        </div>    
+    </div>
 </div>
 
 <?php
