@@ -22,19 +22,23 @@ if ($result && $result->num_rows > 0) {
         $visitors[] = $row;
     }
 }
-?>
 
 // Set page title and additional CSS files
 $pageTitle = "Visitor Records - MMU Hostel Management System";
 $pageHeading = "Visitor Records";
 $additionalCSS = ["css/dashboard.css"];
 
-// Include admin header
-include '../shared/includes/admin-header.php';<?php include '../shared/includes/sidebar-admin.php'; ?>
+// Include header
+require_once '../shared/includes/header.php';
+
+// Include admin sidebar
+require_once '../shared/includes/sidebar-admin.php';
+?>
 
 <!-- Main Content -->
 <div class="main-content">
     <?php 
+    // Include admin content header
     require_once '../shared/includes/admin-content-header.php'; 
     ?>
 
@@ -56,44 +60,46 @@ include '../shared/includes/admin-header.php';<?php include '../shared/includes/
         </div>
         <div class="card-content">
             <div class="table-responsive">
-                <table class="data-table"><thead>
-                            <tr>
-                                <th>Visitor Name</th>
-                                <th>Phone Number</th>
-                                <th>Gender</th>
-                                <th>IC Number</th>
-                                <th>Visit Date</th>
-                                <th>Time In</th>
-                                <th>Time Out</th>
-                                <th>Room Number</th>
-                                <th>Car Plate</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (count($visitors) > 0): ?>
-                                <?php foreach ($visitors as $visitor): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($visitor['name']); ?></td>
-                                        <td><?php echo htmlspecialchars($visitor['contact_no']); ?></td>
-                                        <td><?php echo htmlspecialchars($visitor['gender']); ?></td>
-                                        <td><?php echo htmlspecialchars($visitor['ic_number']); ?></td>
-                                        <td><?php echo date('d M Y', strtotime($visitor['visit_date'])); ?></td>
-                                        <td><?php echo date('h:i A', strtotime($visitor['time_in'])); ?></td>
-                                        <td>
-                                            <?php 
-                                                echo $visitor['time_out'] ? date('h:i A', strtotime($visitor['time_out'])) : 'Not checked out';
-                                            ?>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($visitor['room_number']); ?></td>
-                                        <td><?php echo htmlspecialchars($visitor['car_plate'] ?? 'N/A'); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>                            <?php else: ?>
+                <table class="data-table" id="visitors-table">
+                    <thead>
+                        <tr>
+                            <th>Visitor Name</th>
+                            <th>Phone Number</th>
+                            <th>Gender</th>
+                            <th>IC Number</th>
+                            <th>Visit Date</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Room Number</th>
+                            <th>Car Plate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($visitors) > 0): ?>
+                            <?php foreach ($visitors as $visitor): ?>
                                 <tr>
-                                    <td colspan="9" class="text-center">No visitor records found</td>
+                                    <td><?php echo htmlspecialchars($visitor['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($visitor['contact_no']); ?></td>
+                                    <td><?php echo htmlspecialchars($visitor['gender']); ?></td>
+                                    <td><?php echo htmlspecialchars($visitor['ic_number']); ?></td>
+                                    <td><?php echo date('d M Y', strtotime($visitor['visit_date'])); ?></td>
+                                    <td><?php echo date('h:i A', strtotime($visitor['time_in'])); ?></td>
+                                    <td>
+                                        <?php 
+                                            echo $visitor['time_out'] ? date('h:i A', strtotime($visitor['time_out'])) : 'Not checked out';
+                                        ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($visitor['room_number']); ?></td>
+                                    <td><?php echo htmlspecialchars($visitor['car_plate'] ?? 'N/A'); ?></td>
                                 </tr>
-                            <?php endif; ?>                        </tbody>
-                    </table>
-                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="9" class="text-center">No visitor records found</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
