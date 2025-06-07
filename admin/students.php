@@ -35,33 +35,27 @@ require_once '../shared/includes/sidebar-admin.php';
     ?>
 
     <div class="content-wrapper">
-        <div class="page-navigation-container">
-            <div class="page-navigation">
-                <div class="nav-tabs">
-                    <a href="students.php" class="nav-tab active">
-                        <i class="fas fa-users"></i>
-                        Student Management
-                    </a>
-                    <a href="finance.php" class="nav-tab">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        Finance Management
-                    </a>
-                </div>
-            </div>
-        </div>
+        <nav class="page-navigation">
+            <a href="students.php" class="nav-tab active">
+                <i class="fas fa-users"></i>
+                Student Management
+            </a>
+            <a href="finance.php" class="nav-tab">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Finance Management
+            </a>
+        </nav>
 
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title-area">
-                    <div class="card-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h2 class="card-title">All Student List</h2>
+        <div class="students-list">
+            <div class="list-header">
+                <div class="header-title">
+                    <i class="fas fa-users"></i>
+                    <h2>All Student List</h2>
                 </div>
-                <div class="card-actions">
+                <div class="header-actions">
                     <div class="search-container">
-                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">
                         <i class="fas fa-search"></i>
+                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">
                     </div>
                     <button class="btn-export" title="Export to CSV">
                         <i class="fas fa-file-export"></i>
@@ -69,67 +63,47 @@ require_once '../shared/includes/sidebar-admin.php';
                     </button>
                 </div>
             </div>
-            <div class="card-content">
-                <div class="table-responsive">
-                    <table class="data-table" id="students-table">
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Full Name</th>
-                                <th>Course</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Gender</th>
-                                <th>Citizenship</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (count($students) > 0): ?>
-                                <?php foreach ($students as $student): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($student['id']); ?></td>
-                                        <td><?php echo htmlspecialchars($student['name']); ?></td>
-                                        <td><?php echo htmlspecialchars($student['course']); ?></td>
-                                        <td><?php echo htmlspecialchars($student['email']); ?></td>
-                                        <td><?php echo htmlspecialchars($student['contact_no']); ?></td>
-                                        <td><?php echo htmlspecialchars($student['gender']); ?></td>
-                                        <td><?php echo htmlspecialchars($student['citizenship']); ?></td>
-                                        <td class="action-buttons">
-                                            <a href="javascript:void(0)" onclick="viewStudentDetails(<?php echo $student['id']; ?>)" title="View Student Details" class="action-btn">
-                                                <i class="fas fa-eye"></i>
-                                                <span class="action-text">Details</span>
-                                            </a>
-                                            <a href="javascript:void(0)" onclick="editStudent(<?php echo $student['id']; ?>)" title="Edit Student Information" class="action-btn">
-                                                <i class="fas fa-edit"></i>
-                                                <span class="action-text">Edit</span>
-                                            </a>
-                                            <a href="finance.php?student_id=<?php echo $student['id']; ?>" title="View Financial Records" class="action-btn">
-                                                <i class="fas fa-file-invoice-dollar"></i>
-                                                <span class="action-text">Finance</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="8" class="text-center">No students found in the database</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Student Details Modal -->
-<div id="student-details-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <div id="student-details-content">
-            <!-- Student details will be loaded here via AJAX -->
+            <div class="table-responsive">
+                <table class="data-table" id="students-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Full Name</th>
+                            <th>Course</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Gender</th>
+                            <th>Citizenship</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($students) > 0): ?>
+                            <?php foreach ($students as $student): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($student['id']); ?></td>
+                                    <td><?php echo htmlspecialchars($student['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($student['course']); ?></td>
+                                    <td><?php echo htmlspecialchars($student['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($student['contact_no']); ?></td>
+                                    <td><?php echo htmlspecialchars($student['gender']); ?></td>                                    <td><?php echo htmlspecialchars($student['citizenship']); ?></td>                                    <td class="action-buttons">
+                                        <button type="button" 
+                                            onclick="editStudent(<?php echo $student['id']; ?>)" 
+                                            class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="8" class="text-center">No students found in the database</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -142,39 +116,7 @@ $additionalJS = ["js/students.js"];
 require_once '../shared/includes/footer.php';
 ?>
 
-<script>
-    // Modal functionality
-    const modal = document.getElementById('student-details-modal');
-    const closeBtn = document.querySelector('.close');
-    
-    closeBtn.onclick = function() {
-        modal.style.display = "none";
-    }
-    
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-    // Function to view student details
-    function viewStudentDetails(studentId) {
-        // AJAX call to get student details
-        $.ajax({
-            url: 'get_student_details.php',
-            type: 'GET',
-            data: { id: studentId },
-            success: function(response) {
-                document.getElementById('student-details-content').innerHTML = response;
-                modal.style.display = "block";
-            },
-            error: function() {
-                alert('Error fetching student details');
-            }
-        });
-    }
-
-    // Function to redirect to edit student page
+<script>    // Function to redirect to edit student page
     function editStudent(studentId) {
         window.location.href = 'edit_student.php?id=' + studentId;
     }
