@@ -6,7 +6,7 @@ if (!isset($_SESSION["user"]) || $_SESSION["role"] !== "student") {
 }
 
 require_once '../shared/includes/db_connection.php';
-require_once '../shared/includes/request_functions.php';  // Include the functions file
+require_once 'request_functions.php';
 
 // Set page title and additional CSS files
 $pageTitle = "MMU Hostel Management - Complaints & Feedback";

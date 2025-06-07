@@ -61,7 +61,7 @@ $additionalCSS = ["css/header.css"];
 require_once '../shared/includes/header.php';
 
 // Include admin sidebar
-require_once '../shared/includes/sidebar-admin.php';
+require_once 'sidebar-admin.php';
 ?>
 
 <!-- Main Content -->

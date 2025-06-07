@@ -1,9 +1,41 @@
 /* Dashboard Specific Styles for Admin */
+:root {
+    --primary-gradient: linear-gradient(to right, #6e8efb, #a777e3);
+    --vertical-gradient: linear-gradient(180deg, #6e8efb, #a777e3);
+    --primary-color: #6e8efb;
+    --secondary-color: #a777e3;
+    --border-color: #e1e1e1;
+    --text-primary: #333;
+    --text-secondary: #777;
+    --bg-light: #f5f5f5;
+    --bg-white: #fff;
+    --shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 15px rgba(110, 142, 251, 0.06);
+}
+
+/* Common Utility Classes */
+.flex-center {
+    display: flex;
+    align-items: center;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Base Styles */
 body {
     display: block;
     height: 100%;
-    background: #f5f5f5;
-    color: #333;
+    background: var(--bg-light);
+    color: var(--text-primary);
     padding: 0;
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,7 +49,7 @@ body {
 /* Sidebar Styles */
 .sidebar {
     width: 200px;
-    background: linear-gradient(180deg, #6e8efb, #a777e3);
+    background: var(--vertical-gradient);
     color: white;
     padding-top: 20px;
     position: fixed;
@@ -146,7 +178,7 @@ body {
 .stat-card {
     background: white;
     border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     padding: 15px;
     display: flex;
     align-items: center;
@@ -155,7 +187,7 @@ body {
 .stat-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    background: var(--primary-gradient);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -189,7 +221,7 @@ body {
 .card {
     background: white;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(110, 142, 251, 0.06);
+    box-shadow: var(--shadow-md);
     margin-bottom: 24px;
     border: 1px solid rgba(110, 142, 251, 0.12);
     position: relative;
@@ -219,7 +251,7 @@ body {
 .card-icon {
     width: 35px;
     height: 35px;
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    background: var(--primary-gradient);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -287,48 +319,102 @@ body {
     background-color: #f8f9fa;
 }
 
+/* Status Styles - Common */
 .status {
-    padding: 4px 8px;
-    border-radius: 50px;
-    font-size: 11px;
-    font-weight: 500;
-    white-space: nowrap;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Gender Status Classes */
+.status-male {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-female {
+    background-color: #f8bbd0;
+    color: #c2185b;
+}
+
+.status-mixed {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+/* Nationality Status Classes */
+.status-local {
+    background-color: #fff8e1;
+    color: #ffa000;
+}
+
+.status-international {
+    background-color: #e8eaf6;
+    color: #3f51b5;
+}
+
+.status-neutral, .status-none {
+    background-color: #f5f5f5;
+    color: #757575;
+}
+
+/* Room Status Classes */
+.status-available {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid rgba(46, 125, 50, 0.2);
 }
 
 .status-occupied {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: #e74c3c;
-}
-
-.status-vacant {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: #2ecc71;
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid rgba(13, 71, 161, 0.2);
 }
 
 .status-maintenance {
-    background-color: rgba(241, 196, 15, 0.1);
-    color: #f39c12;
+    background-color: #fff8e1;
+    color: #e65100;
+    border: 1px solid rgba(230, 81, 0, 0.2);
 }
 
-.status-pending {
-    background-color: rgba(52, 152, 219, 0.1);
-    color: #3498db;
-}
-
-.status-paid {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: #2ecc71;
-}
-
-.status-overdue {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: #e74c3c;
+.status-unknown {
+    background-color: #f5f5f5;
+    color: #616161;
+    border: 1px solid rgba(97, 97, 97, 0.2);
 }
 
 .action-buttons a {
     margin-right: 8px;
     color: #6e8efb;
     text-decoration: none;
+}
+
+/* Action Buttons */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    background-color: rgba(110, 142, 251, 0.1);
+}
+
+.view-btn {
+    color: #6e8efb;
+}
+
+.edit-btn {
+    color: #4caf50;
 }
 
 /* Forms */
@@ -379,7 +465,7 @@ textarea.form-control {
 }
 
 .btn-primary {
-    background: linear-gradient(to right, #6e8efb, #a777e3);
+    background: var(--primary-gradient);
     color: white;
 }
 

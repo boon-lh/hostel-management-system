@@ -13,14 +13,14 @@ $additionalCSS = ["css/dashboard.css"];
 require_once '../shared/includes/header.php';
 
 // Include admin sidebar
-require_once '../shared/includes/sidebar-admin.php';
+require_once 'sidebar-admin.php';
 ?>
 
 <!-- Main Content -->
 <div class="main-content">
     <?php 
     $pageHeading = "Admin Dashboard";
-    require_once '../shared/includes/admin-content-header.php'; 
+    require_once 'admin-content-header.php'; 
     ?>
 
     <!-- Stats Overview -->

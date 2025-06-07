@@ -7,7 +7,7 @@ if (!isset($_SESSION["user"]) || $_SESSION["role"] !== "admin") {
 }
 
 require_once '../shared/includes/db_connection.php';
-require_once '../shared/includes/admin_request_functions.php';
+require_once 'admin_request_functions.php';
 
 // Set page title and additional CSS files
 $pageTitle = "MMU Hostel Management - Complaints & Feedback";
@@ -95,14 +95,14 @@ if (!$complaint) {
 require_once '../shared/includes/header.php';
 
 // Include admin sidebar
-require_once '../shared/includes/sidebar-admin.php';
+require_once 'sidebar-admin.php';
 ?>
 
 <!-- Main Content -->
 <div class="main-content">
     <?php 
     $pageHeading = "Complaints & Feedback Management";
-    require_once '../shared/includes/admin-content-header.php'; 
+    require_once 'admin-content-header.php'; 
     ?>
     
     <?php if (!empty($errors)): ?>
@@ -467,7 +467,8 @@ require_once '../shared/includes/sidebar-admin.php';
     <?php else: ?>        <!-- Complaints List View -->
         <div class="complaints-list-container">
             <div class="card">
-                <div class="card-header">                        <div class="card-title-area">
+                <div class="card-header">                        
+                    <div class="card-title-area">
                         <div class="card-icon">
                             <i class="fas fa-clipboard-list"></i>
                         </div>
@@ -479,7 +480,8 @@ require_once '../shared/includes/sidebar-admin.php';
                         </a>
                     </div>
                 </div>
-                <div class="card-body">                    <div class="filter-form">
+                <div class="card-body">                    
+                    <div class="filter-form">
                         <div class="filter-header">
                             <h4 class="filter-title">Filter Complaints</h4>
                         </div>

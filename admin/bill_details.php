@@ -60,13 +60,13 @@ $contentTitle = "Bill Details - " . $student['name'];
 $additionalCSS = ["css/header.css"];
 
 // Include admin header
-require_once '../shared/includes/admin-header.php';
+require_once 'admin-header.php';
 
 // Include admin sidebar
-require_once '../shared/includes/sidebar-admin.php';
+require_once 'sidebar-admin.php';
 
 // Include admin content header
-require_once '../shared/includes/admin-content-header.php';
+require_once 'admin-content-header.php';
 ?>
 
 <!-- Bill details content starts here -->

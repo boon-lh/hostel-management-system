@@ -31,8 +31,6 @@ if (isset($_POST['delete'])) {
     $deleteStmt->close();
 }
 
-// Status change functionality removed as requested
-
 // Get announcement for editing
 if (isset($_GET['edit'])) {
     $edit_id = $_GET['edit'];
@@ -111,7 +109,7 @@ $additionalCSS = ["css/dashboard.css"];
 require_once '../shared/includes/header.php';
 
 // Include admin sidebar
-require_once '../shared/includes/sidebar-admin.php';
+require_once 'sidebar-admin.php';
 ?>
 
 <style>
@@ -135,7 +133,7 @@ require_once '../shared/includes/sidebar-admin.php';
 <div class="main-content">
     <?php 
     // Include admin content header
-    require_once '../shared/includes/admin-content-header.php'; 
+    require_once 'admin-content-header.php'; 
     ?>
 
     <!-- Display Alert Messages -->
@@ -209,7 +207,8 @@ require_once '../shared/includes/sidebar-admin.php';
                 </div>
                 <div class="card-content">
                     <div class="table-responsive">
-                        <table class="data-table" id="announcements-table">                            <thead>
+                        <table class="data-table" id="announcements-table">                            
+                            <thead>
                                 <tr>
                                     <th>Title</th>
                                     <th>Content</th>
@@ -259,8 +258,6 @@ require_once '../shared/includes/sidebar-admin.php';
         </div>
     </div>
 </div>
-
-<?php include '../shared/includes/admin-footer.php'; ?>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>

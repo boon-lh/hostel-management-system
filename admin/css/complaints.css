@@ -1,5 +1,3 @@
-/* Admin Complaints Management Page Styles */
-
 /* General Page Layout - Matching Dashboard Style */
 .main-content {
     flex-grow: 1;
@@ -321,73 +319,41 @@
     margin-right: 6px;
 }
 
-.apply-filters-btn {
-    padding: 6px 20px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 /* Table Styles */
-.table-responsive {
-    margin-bottom: 20px;
-    overflow-x: auto;
-}
-
-.table {
-    background-color: white;
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th {
-    background-color: #f2f2f2;
-    text-align: left;
-    padding: 12px 15px;
-    font-weight: 500;
-    color: #333;
-    border-bottom: 1px solid #e1e1e1;
-}
-
-.table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e1e1e1;
-    vertical-align: middle;
-}
-
-.table tr:hover {
-    background-color: #f9f9f9;
-}
-
-/* Data Table - Matching Dashboard */
-.data-table {
+.data-table,
+.complaints-table {
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
     font-size: 14px;
 }
 
+/* Standard table cells */
+.data-table td,
+.complaints-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    vertical-align: middle;
+}
+
+/* Standard table headers */
+.data-table th,
+.complaints-table th {
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 500;
+}
+
+/* Data table specific styles */
 .data-table th {
     background-color: #f5f5f5;
     color: #555;
     font-weight: 600;
-    text-align: left;
-    padding: 12px 15px;
     border-bottom: 1px solid #e1e1e1;
 }
 
-.data-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #f0f0f0;
-    color: #333;
-}
-
-.data-table tr:hover {
-    background-color: #f8f9fa;
-}
-
-/* Complaints Table Styles */
+/* Complaints table specific styles */
 .complaints-table-container {
     margin-top: 20px;
     background: white;
@@ -396,31 +362,18 @@
     overflow: hidden;
 }
 
-.complaints-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    font-size: 14px;
-}
-
 .complaints-table thead {
     background: linear-gradient(45deg, #6e8efb, #a777e3);
 }
 
 .complaints-table th {
     color: white;
-    font-weight: 500;
-    text-align: left;
-    padding: 15px;
     border: none;
+    padding: 15px;
 }
 
-.complaints-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #f0f0f0;
-    vertical-align: middle;
-}
-
+/* Hover effects */
+.data-table tr:hover,
 .complaints-table tbody tr:hover {
     background-color: #f8f9fa;
 }
@@ -429,25 +382,13 @@
     border-bottom: none;
 }
 
+/* Action button styles for the table */
 .action-buttons {
     display: flex;
     gap: 10px;
     justify-content: center;
 }
 
-.action-buttons a {
-    color: #6e8efb;
-    margin-right: 8px;
-    font-size: 16px;
-    transition: all 0.2s ease;
-}
-
-.action-buttons a:hover {
-    color: #a777e3;
-    transform: scale(1.15);
-}
-
-/* Action Button Styles */
 .action-btn {
     display: inline-flex;
     align-items: center;
@@ -455,35 +396,21 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
+    color: #6e8efb;
+    font-size: 16px;
     transition: all 0.2s ease;
 }
 
 .action-btn:hover {
     background-color: rgba(110, 142, 251, 0.1);
+    color: #a777e3;
+    transform: scale(1.15);
 }
 
-.view-btn {
-    color: #6e8efb;
-}
+.view-btn { color: #6e8efb; }
+.edit-btn { color: #4caf50; }
+.delete-btn { color: #f44336; }
 
-.edit-btn {
-    color: #4caf50;
-}
-
-.delete-btn {
-    color: #f44336;
-}
-
-/* Badge and Status Styles */
-.badge {
-    padding: 6px 10px;
-    font-weight: normal;
-    font-size: 12px;
-    border-radius: 4px;
-    display: inline-block;
-}
-
-/* Status badges - matching dashboard */
 .status {
     padding: 5px 10px;
     font-size: 12px;
@@ -553,24 +480,6 @@
     padding: 5px;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Rating Styles */
-.rating {
-    display: flex;
-    align-items: center;
-}
-
-.rating i {
-    margin-right: 3px;
-}
-
-.rating .text-warning {
-    color: #ffc107 !important;
-}
-
-.rating .text-muted {
-    color: #d1d1d1 !important;
 }
 
 /* No Data Container */
@@ -647,6 +556,7 @@
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
+    /* Card adjustments */
     .card-header {
         flex-direction: column;
     }
@@ -655,10 +565,12 @@
         margin-top: 10px;
     }
     
+    /* Grid adjustments */
     .stat-cards {
         grid-template-columns: repeat(2, 1fr);
     }
     
+    /* Filter and search adjustments */
     .filter-controls {
         flex-wrap: wrap;
         gap: 10px;
@@ -672,7 +584,8 @@
     .search-form {
         margin: 10px 0;
         flex: 1 1 100%;
-        order: 2; 
+        order: 2;
+        width: 100%;
     }
     
     .search-input {
@@ -686,6 +599,7 @@
     }
 }
 
+/* Extra small devices */
 @media (max-width: 576px) {
     .filter-control {
         flex: 1 1 100%;
@@ -703,13 +617,6 @@
         margin-top: 10px;
         margin-left: 0;
         margin-right: 0;
-    }
-    
-    .search-input {
-        width: 100%;
-    }
-    
-    .apply-filters-btn {
         width: 100%;
     }
     

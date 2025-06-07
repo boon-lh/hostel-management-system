@@ -34,13 +34,13 @@ $additionalJS = [
 require_once '../shared/includes/header.php';
 
 // Include admin sidebar
-require_once '../shared/includes/sidebar-admin.php';
+require_once 'sidebar-admin.php';
 ?>
 
 <div class="main-content">
     <?php 
     $pageHeading = "Student Management";
-    require_once '../shared/includes/admin-content-header.php'; 
+    require_once 'admin-content-header.php'; 
     ?>
 
     <div class="content-wrapper">

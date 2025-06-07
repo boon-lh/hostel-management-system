@@ -37,7 +37,7 @@ if (isset($_SESSION['form_submitted']) && $_SESSION['form_submitted'] === true) 
 }
 
 // Include the profile logic file that handles database operations and form processing
-require_once "../shared/includes/admin-profile-logic.php";
+require_once "admin-profile-logic.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Add a log to ensure we're getting POST data
@@ -314,7 +314,7 @@ $additionalCSS = ["css/dashboard.css", "css/profile.css"];
 require_once '../shared/includes/header.php';
 
 // Include admin sidebar
-require_once '../shared/includes/sidebar-admin.php';
+require_once 'sidebar-admin.php';
 ?>
 
 <!-- Main Content -->
