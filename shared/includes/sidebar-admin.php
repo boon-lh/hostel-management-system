@@ -15,9 +15,11 @@
             <i class="fas fa-user-graduate"></i> Students
         </a>        <a href="visitors.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'visitors.php' ? 'active' : ''; ?>">
             <i class="fas fa-user-friends"></i> Visitors
-        </a>
-        <a href="announcements.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'announcements.php' ? 'active' : ''; ?>">
+        </a>        <a href="announcements.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'announcements.php' ? 'active' : ''; ?>">
             <i class="fas fa-bullhorn"></i> Announcements
+        </a>
+        <a href="complaints.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'complaints.php' ? 'active' : ''; ?>">
+            <i class="fas fa-comment-alt"></i> Complaints
         </a>
         
         <div class="menu-category">Finance</div>
@@ -26,6 +28,11 @@
         </a>
         <a href="payment_receipt.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'payment_receipt.php' ? 'active' : ''; ?>">
             <i class="fas fa-receipt"></i> Payments
+        </a>
+        
+        <div class="menu-category">Hostel Management</div>
+        <a href="hostel_blocks.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'hostel_blocks.php' ? 'active' : ''; ?>">
+            <i class="fas fa-building"></i> Hostel Blocks
         </a>
         
         <div class="menu-category">Admin</div>

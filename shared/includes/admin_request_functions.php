@@ -53,12 +53,11 @@ function getAdminComplaints($conn, $filters = [], $page = 1, $limit = 10) {
         $params[] = $search;
         $types .= "ss";
     }
-    
-    // Calculate offset for pagination
+      // Calculate offset for pagination
     $offset = ($page - 1) * $limit;
     
     // Prepare base query
-    $query = "SELECT c.*, s.name as student_name, s.contact_number, 
+    $query = "SELECT c.*, s.name as student_name, s.contact_no, 
               (SELECT COUNT(*) FROM complaint_status_history WHERE complaint_id = c.id) as updates_count
               FROM complaints c
               JOIN students s ON c.student_id = s.id";
@@ -67,9 +66,8 @@ function getAdminComplaints($conn, $filters = [], $page = 1, $limit = 10) {
     if (!empty($whereClause)) {
         $query .= " WHERE " . implode(" AND ", $whereClause);
     }
-    
-    // Get total count for pagination
-    $countQuery = str_replace("c.*, s.name as student_name, s.contact_number, 
+      // Get total count for pagination
+    $countQuery = str_replace("c.*, s.name as student_name, s.contact_no, 
               (SELECT COUNT(*) FROM complaint_status_history WHERE complaint_id = c.id) as updates_count", 
               "COUNT(*) as total", $query);
               
@@ -132,11 +130,10 @@ function getAdminComplaints($conn, $filters = [], $page = 1, $limit = 10) {
  * @param int $complaintId Complaint ID
  * @return array|false Complaint data or false if not found
  */
-function getAdminComplaintDetails($conn, $complaintId) {
-    // Get complaint details
-    $stmt = $conn->prepare("SELECT c.*, s.name as student_name, s.contact_number, s.email,
+function getAdminComplaintDetails($conn, $complaintId) {    // Get complaint details
+    $stmt = $conn->prepare("SELECT c.*, s.name as student_name, s.contact_no, s.email,
                            r.room_number, r.block, 
-                           (SELECT name FROM admin WHERE id = c.resolved_by) as resolved_by_name
+                           (SELECT name FROM admins WHERE id = c.resolved_by) as resolved_by_name
                            FROM complaints c
                            JOIN students s ON c.student_id = s.id
                            LEFT JOIN student_room_assignments sra ON s.id = sra.student_id AND sra.status = 'active'
@@ -151,10 +148,9 @@ function getAdminComplaintDetails($conn, $complaintId) {
     }
     
     $complaint = $result->fetch_assoc();
-    
-    // Get complaint status history
+      // Get complaint status history
     $stmt = $conn->prepare("SELECT csh.*, 
-                          (SELECT name FROM admin WHERE id = csh.changed_by) as changed_by_name
+                          (SELECT name FROM admins WHERE id = csh.changed_by) as changed_by_name
                           FROM complaint_status_history csh
                           WHERE csh.complaint_id = ?
                           ORDER BY csh.created_at ASC");
@@ -287,9 +283,8 @@ function getAdminServiceRequests($conn, $filters = [], $page = 1, $limit = 10) {
     
     // Calculate offset for pagination
     $offset = ($page - 1) * $limit;
-    
-    // Prepare base query
-    $query = "SELECT sr.*, s.name as student_name, s.contact_number, 
+      // Prepare base query
+    $query = "SELECT sr.*, s.name as student_name, s.contact_no, 
               r.room_number, r.block,
               (SELECT COUNT(*) FROM request_status_history WHERE request_id = sr.id) as updates_count
               FROM service_requests sr
@@ -300,9 +295,8 @@ function getAdminServiceRequests($conn, $filters = [], $page = 1, $limit = 10) {
     if (!empty($whereClause)) {
         $query .= " WHERE " . implode(" AND ", $whereClause);
     }
-    
-    // Get total count for pagination
-    $countQuery = str_replace("sr.*, s.name as student_name, s.contact_number, 
+      // Get total count for pagination
+    $countQuery = str_replace("sr.*, s.name as student_name, s.contact_no, 
               r.room_number, r.block,
               (SELECT COUNT(*) FROM request_status_history WHERE request_id = sr.id) as updates_count", 
               "COUNT(*) as total", $query);
@@ -368,10 +362,10 @@ function getAdminServiceRequests($conn, $filters = [], $page = 1, $limit = 10) {
 function getAdminRequestDetails($conn, $requestId) {
     // Get request details
     $stmt = $conn->prepare("SELECT sr.*, 
-                          s.name as student_name, s.contact_number, s.email,
+                          s.name as student_name, s.contact_no, s.email,
                           r.room_number, r.block,
                           nr.room_number as new_room_number, nr.block as new_room_block,
-                          (SELECT name FROM admin WHERE id = sr.handled_by) as handled_by_name
+                          (SELECT name FROM admins WHERE id = sr.handled_by) as handled_by_name
                           FROM service_requests sr
                           JOIN students s ON sr.student_id = s.id
                           LEFT JOIN rooms r ON sr.room_id = r.id
@@ -389,7 +383,7 @@ function getAdminRequestDetails($conn, $requestId) {
     
     // Get request status history
     $stmt = $conn->prepare("SELECT rsh.*, 
-                          (SELECT name FROM admin WHERE id = rsh.changed_by) as changed_by_name
+                          (SELECT name FROM admins WHERE id = rsh.changed_by) as changed_by_name
                           FROM request_status_history rsh
                           WHERE rsh.request_id = ?
                           ORDER BY rsh.created_at ASC");
