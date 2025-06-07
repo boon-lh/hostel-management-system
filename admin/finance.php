@@ -133,10 +133,13 @@ require_once '../shared/includes/sidebar-admin.php';
                                         }
                                         ?>
                                         <span class="status <?php echo $statusClass; ?>"><?php echo ucfirst(str_replace('_', ' ', $status)); ?></span>
-                                    </td>                                    <td class="action-buttons">                                        <button 
+                                    </td>                                    
+                                    <td class="action-buttons">                                        
+                                        <button 
                                             onclick="viewBillDetails(<?php echo $finance['student_id']; ?>)"
                                             class="action-btn" 
-                                            data-type="view">
+                                            data-type="view"
+                                            title="View Bill Details">
                                             <i class="fas fa-file-invoice"></i>
                                         </button>
                                     </td>

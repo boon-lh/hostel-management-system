@@ -87,10 +87,13 @@ require_once '../shared/includes/sidebar-admin.php';
                                     <td><?php echo htmlspecialchars($student['course']); ?></td>
                                     <td><?php echo htmlspecialchars($student['email']); ?></td>
                                     <td><?php echo htmlspecialchars($student['contact_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['gender']); ?></td>                                    <td><?php echo htmlspecialchars($student['citizenship']); ?></td>                                    <td class="action-buttons">
+                                    <td><?php echo htmlspecialchars($student['gender']); ?></td>                                    
+                                    <td><?php echo htmlspecialchars($student['citizenship']); ?></td>                                    
+                                    <td class="action-buttons">                                        
                                         <button type="button" 
                                             onclick="editStudent(<?php echo $student['id']; ?>)" 
-                                            class="action-btn edit-btn">
+                                            class="action-btn edit-btn"                                            
+                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                     </td>
