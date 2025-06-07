@@ -177,7 +177,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <option value="" selected disabled>Select Gender</option>
                                                 <option value="Male">Male</option>
                                                 <option value="Female">Female</option>
-                                                <option value="Other">Other</option>
                                             </select>
                                         </div>
                                     </div>
@@ -211,7 +210,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
                                             </div>
-                                            <input type="text" name="course" id="course" class="form-control" required>
+                                            <select name="course" id="course" class="form-control" required>
+                                                <option value="" selected disabled>Select Course</option>
+                                                <optgroup label="Foundation Programmes">
+                                                    <option value="Foundation in Business">Foundation in Business</option>
+                                                    <option value="Foundation in Law">Foundation in Law</option>
+                                                    <option value="Foundation in Science & Technology">Foundation in Science & Technology</option>
+                                                </optgroup>
+                                                <optgroup label="Faculty of Business (FOB)">
+                                                    <option value="Diploma in Digital Business">Diploma in Digital Business</option>
+                                                    <option value="Master of Philosophy (Management) (By Research)">Master of Philosophy (Management) (By Research)</option>
+                                                    <option value="Doctor of Philosophy (Ph.D.) Management (By Research)">Doctor of Philosophy (Ph.D.) Management (By Research)</option>
+                                                    <option value="Master of Business Administration (M.B.A) (By Coursework)">Master of Business Administration (M.B.A) (By Coursework)</option>
+                                                    <option value="Diploma in Business Administration">Diploma in Business Administration</option>
+                                                    <option value="Diploma in Accounting">Diploma in Accounting</option>
+                                                    <option value="Bachelor in Accounting (Hons.)">Bachelor in Accounting (Hons.)</option>
+                                                    <option value="Bachelor of Business Administration (Hons.) (Banking and Finance)">Bachelor of Business Administration (Hons.) (Banking and Finance)</option>
+                                                    <option value="Bachelor of Business Administration (Hons.) (Human Resource Management)">Bachelor of Business Administration (Hons.) (Human Resource Management)</option>
+                                                    <option value="Bachelor of Business Administration (Hons.) (International Business)">Bachelor of Business Administration (Hons.) (International Business)</option>
+                                                    <option value="Bachelor of Business Administration (Hons.) (Marketing Management)">Bachelor of Business Administration (Hons.) (Marketing Management)</option>
+                                                    <option value="Bachelor of Business Administration (Hons.) Digital Business Management">Bachelor of Business Administration (Hons.) Digital Business Management</option>
+                                                </optgroup>
+                                                <optgroup label="Faculty of Law (FOL)">
+                                                    <option value="Master of Laws (By Research)">Master of Laws (By Research)</option>
+                                                    <option value="Doctor of Philosophy (Ph.D.) Laws (By Research)">Doctor of Philosophy (Ph.D.) Laws (By Research)</option>
+                                                    <option value="Bachelor of Law (Hons.)">Bachelor of Law (Hons.)</option>
+                                                </optgroup>
+                                                <optgroup label="Faculty of Engineering & Technology (FET)">
+                                                    <option value="Master of Engineering Science (By Research)">Master of Engineering Science (By Research)</option>
+                                                    <option value="Doctor of Philosophy (Ph.D.) Engineering (By Research)">Doctor of Philosophy (Ph.D.) Engineering (By Research)</option>
+                                                    <option value="Diploma in Electronic Engineering">Diploma in Electronic Engineering</option>
+                                                    <option value="Diploma in Mechanical Engineering">Diploma in Mechanical Engineering</option>
+                                                    <option value="Bachelor of Engineering (Hons.) Electronics majoring in Telecommunications">Bachelor of Engineering (Hons.) Electronics majoring in Telecommunications</option>
+                                                    <option value="Bachelor of Electronics Engineering (Robotics & Automation) with Honours">Bachelor of Electronics Engineering (Robotics & Automation) with Honours</option>
+                                                    <option value="Bachelor of Mechanical Engineering with Honours">Bachelor of Mechanical Engineering with Honours</option>
+                                                </optgroup>
+                                                <optgroup label="Faculty of Information Science & Technology (FIST)">
+                                                    <option value="Diploma in Information Technology">Diploma in Information Technology</option>
+                                                    <option value="Master of Computing (By Research)">Master of Computing (By Research)</option>
+                                                    <option value="Master of Information Technology via ODL (By Coursework)">Master of Information Technology via ODL (By Coursework)</option>
+                                                    <option value="Doctor of Philosophy (Ph.D.) in Computing (By Research)">Doctor of Philosophy (Ph.D.) in Computing (By Research)</option>
+                                                    <option value="Bachelor of Information Technology (Honours) (Data Communications and Networking)">Bachelor of Information Technology (Honours) (Data Communications and Networking)</option>
+                                                    <option value="Bachelor of Information Technology (Honours) (Business Intelligence and Analytics)">Bachelor of Information Technology (Honours) (Business Intelligence and Analytics)</option>
+                                                    <option value="Bachelor of Computer Science (Honours) (Artificial Intelligence)">Bachelor of Computer Science (Honours) (Artificial Intelligence)</option>
+                                                    <option value="Bachelor of Information Technology (Honours) (Security Technology)">Bachelor of Information Technology (Honours) (Security Technology)</option>
+                                                    <option value="Bachelor of Science (Hons.) Bioinformatics">Bachelor of Science (Hons.) Bioinformatics</option>
+                                                </optgroup>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-6">

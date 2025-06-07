@@ -22,14 +22,6 @@
             <i class="fas fa-comment-alt"></i> Complaints
         </a>
         
-        <div class="menu-category">Finance</div>
-        <a href="bill_details.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'bill_details.php' ? 'active' : ''; ?>">
-            <i class="fas fa-file-invoice-dollar"></i> Billing
-        </a>
-        <a href="payment_receipt.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'payment_receipt.php' ? 'active' : ''; ?>">
-            <i class="fas fa-receipt"></i> Payments
-        </a>
-        
         <div class="menu-category">Hostel Management</div>
         <a href="hostel_blocks.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'hostel_blocks.php' ? 'active' : ''; ?>">
             <i class="fas fa-building"></i> Hostel Blocks
