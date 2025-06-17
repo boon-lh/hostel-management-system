@@ -146,16 +146,7 @@ CREATE TABLE `hostel_blocks` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `hostel_blocks`
---
-
-INSERT INTO `hostel_blocks` (`id`, `block_name`, `gender_restriction`, `nationality_restriction`, `description`, `created_at`) VALUES
-(1, 'Block B', 'Female', 'None', 'Female dormitory with common kitchen and laundry facilities', '2025-05-14 16:38:57'),
-(2, 'Block C', 'Mixed', 'None', 'Mixed gender block for senior students with suite-style accommodations', '2025-05-14 16:38:57'),
-(3, 'Block D', 'Male', 'Local', 'Specialized block for local male students with traditional facilities', '2025-05-14 16:38:57'),
-(4, 'Block E', 'Female', 'International', 'Designated block for international female students with integrated cultural spaces', '2025-05-14 16:38:57'),
-(5, 'Block F', 'Mixed', 'Mixed', 'Premium accommodation block with enhanced amenities and 24/7 security', '2025-05-14 16:38:57');
+-- No sample data for hostel blocks - to be added through the admin interface
 
 -- --------------------------------------------------------
 
