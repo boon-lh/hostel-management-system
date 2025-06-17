@@ -41,6 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Initialize sort functionality
+    initializeSortFunctionality();
+    
     console.log('Students.js loaded successfully');
 });
 
@@ -489,3 +492,60 @@ window.deleteStudent = function(studentId, studentName) {
         });
     }
 };
+
+/**
+ * Sort functionality for student table
+ */
+function initializeSortFunctionality() {
+    const sortSelect = document.getElementById('sort-select');
+    const sortDirectionBtn = document.getElementById('sort-direction');
+    
+    if (!sortSelect || !sortDirectionBtn) return;
+    
+    // Get current sort parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort') || 'id';
+    const currentDirection = urlParams.get('direction') || 'ASC';
+    
+    // Set initial values based on URL parameters
+    sortSelect.value = currentSort;
+    updateSortIcon(sortDirectionBtn, currentDirection);
+    
+    // Add event listeners
+    sortSelect.addEventListener('change', () => {
+        applySorting(sortSelect.value, currentDirection);
+    });
+    
+    sortDirectionBtn.addEventListener('click', () => {
+        const newDirection = currentDirection === 'ASC' ? 'DESC' : 'ASC';
+        applySorting(currentSort, newDirection);
+    });
+}
+
+/**
+ * Update the sort direction icon
+ * @param {HTMLElement} button - The sort direction button
+ * @param {string} direction - The sort direction ('ASC' or 'DESC')
+ */
+function updateSortIcon(button, direction) {
+    const icon = button.querySelector('i');
+    if (direction === 'ASC') {
+        icon.className = 'fas fa-sort-up';
+        button.title = 'Sort Ascending';
+    } else {
+        icon.className = 'fas fa-sort-down';
+        button.title = 'Sort Descending';
+    }
+}
+
+/**
+ * Apply sorting to the table and reload the page
+ * @param {string} column - The column to sort by
+ * @param {string} direction - The sort direction ('ASC' or 'DESC')
+ */
+function applySorting(column, direction) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', column);
+    url.searchParams.set('direction', direction);
+    window.location.href = url.toString();
+}

@@ -646,22 +646,78 @@
     color: #f6c23e !important;
 }
 
+/* Sorting controls */
+.sort-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f9fafb;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.sort-buttons label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-right: 4px;
+}
+
+.sort-select {
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.btn-sort {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-sort:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.btn-sort i {
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.sort-indicator {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-left: 12px;
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* Additional responsive adjustments for sort buttons */
 @media (max-width: 768px) {
-    .profile-section {
+    .header-actions {
         flex-direction: column;
-        text-align: center;
+        align-items: flex-start;
     }
-
-    .student-basic-info {
-        text-align: center;
+    
+    .sort-buttons {
+        margin-top: 8px;
+        width: 100%;
     }
-
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .details-grid {
-        grid-template-columns: 1fr;
+    
+    .sort-select {
+        flex-grow: 1;
     }
 }
 

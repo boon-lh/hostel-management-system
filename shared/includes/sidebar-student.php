@@ -8,10 +8,12 @@
     </div>    <div class="sidebar-menu">
         <a href="dashboard.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
             <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a href="hostel_registration.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'hostel_registration.php' ? 'active' : ''; ?>">
+        </a>        <a href="hostel_registration.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'hostel_registration.php' ? 'active' : ''; ?>">
             <i class="fas fa-hotel"></i> Hostel Registration
-        </a>        <a href="billing.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'billing.php' ? 'active' : ''; ?>">
+        </a>
+        <a href="my_registrations.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'my_registrations.php' ? 'active' : ''; ?>">
+            <i class="fas fa-history"></i> My Registrations
+        </a><a href="billing.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'billing.php' ? 'active' : ''; ?>">
             <i class="fas fa-file-invoice"></i> Billing
         </a>
         <a href="complaints.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'complaints.php' ? 'active' : ''; ?>">

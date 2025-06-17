@@ -8,6 +8,28 @@ if (!isset($_SESSION["user"]) || $_SESSION["role"] !== "admin") {
 
 require_once "../shared/includes/db_connection.php";
 
+// Reset all rooms to "Available" status if DB tables exist
+function resetAllRoomsToAvailable($conn) {
+    $result = $conn->query("SHOW TABLES LIKE 'rooms'");
+    if ($result && $result->num_rows > 0) {
+        // Check column name first (status or availability_status)
+        $result = $conn->query("SHOW COLUMNS FROM rooms LIKE 'status'");
+        if ($result && $result->num_rows > 0) {
+            // If status column exists
+            $conn->query("UPDATE rooms SET status = 'Available' WHERE 1");
+        } else {
+            // Try with availability_status column
+            $result = $conn->query("SHOW COLUMNS FROM rooms LIKE 'availability_status'");
+            if ($result && $result->num_rows > 0) {
+                $conn->query("UPDATE rooms SET availability_status = 'Available' WHERE 1");
+            }
+        }
+    }
+}
+
+// Call the function to reset all rooms
+resetAllRoomsToAvailable($conn);
+
 // Check if block ID is provided
 if (!isset($_GET['block_id']) || empty($_GET['block_id'])) {
     header("Location: hostel_blocks.php");
@@ -116,40 +138,55 @@ $features = [
     'Suite' => ['Wi-Fi', 'Study Desk', 'Wardrobe', 'Air Conditioning', 'Mini Fridge']
 ];
 
-// Different room availability and types for different blocks
+// Define room types and numbers for each block (all rooms available)
 $blockSpecificRooms = [
-    1 => [ // Block A
-        ['number' => 'A101', 'type' => 'Single', 'status' => 'Occupied'],
+    1 => [ // Block A - 10 rooms, all available
+        ['number' => 'A101', 'type' => 'Single', 'status' => 'Available'],
         ['number' => 'A102', 'type' => 'Single', 'status' => 'Available'],
         ['number' => 'A103', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'A104', 'type' => 'Double', 'status' => 'Maintenance'],
-        ['number' => 'A105', 'type' => 'Double', 'status' => 'Occupied'],
-        ['number' => 'A201', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'A202', 'type' => 'Suite', 'status' => 'Occupied'],
+        ['number' => 'A104', 'type' => 'Double', 'status' => 'Available'],
+        ['number' => 'A105', 'type' => 'Double', 'status' => 'Available'],
+        ['number' => 'A106', 'type' => 'Double', 'status' => 'Available'],
+        ['number' => 'A107', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'A108', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'A109', 'type' => 'Suite', 'status' => 'Available'],
+        ['number' => 'A110', 'type' => 'Suite', 'status' => 'Available'],
     ],
-    2 => [ // Block B
+    2 => [ // Block B - 10 rooms, all available
         ['number' => 'B101', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'B102', 'type' => 'Single', 'status' => 'Occupied'],
-        ['number' => 'B103', 'type' => 'Single', 'status' => 'Occupied'],
+        ['number' => 'B102', 'type' => 'Single', 'status' => 'Available'],
+        ['number' => 'B103', 'type' => 'Single', 'status' => 'Available'],
         ['number' => 'B104', 'type' => 'Double', 'status' => 'Available'],
         ['number' => 'B105', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'B201', 'type' => 'Suite', 'status' => 'Occupied'],
+        ['number' => 'B106', 'type' => 'Double', 'status' => 'Available'],
+        ['number' => 'B107', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'B108', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'B109', 'type' => 'Suite', 'status' => 'Available'],
+        ['number' => 'B110', 'type' => 'Suite', 'status' => 'Available'],
     ],
-    3 => [ // Block C
+    3 => [ // Block C - 10 rooms, all available
         ['number' => 'C101', 'type' => 'Double', 'status' => 'Available'],
         ['number' => 'C102', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'C103', 'type' => 'Triple', 'status' => 'Occupied'],
-        ['number' => 'C104', 'type' => 'Triple', 'status' => 'Maintenance'],
-        ['number' => 'C105', 'type' => 'Suite', 'status' => 'Available'],
-        ['number' => 'C201', 'type' => 'Suite', 'status' => 'Occupied'],
+        ['number' => 'C103', 'type' => 'Double', 'status' => 'Available'],
+        ['number' => 'C104', 'type' => 'Double', 'status' => 'Available'],
+        ['number' => 'C105', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'C106', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'C107', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'C108', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'C109', 'type' => 'Suite', 'status' => 'Available'],
+        ['number' => 'C110', 'type' => 'Suite', 'status' => 'Available'],
     ],
-    4 => [ // Block D
-        ['number' => 'D101', 'type' => 'Single', 'status' => 'Occupied'],
+    4 => [ // Block D - 10 rooms, all available
+        ['number' => 'D101', 'type' => 'Single', 'status' => 'Available'],
         ['number' => 'D102', 'type' => 'Single', 'status' => 'Available'],
         ['number' => 'D103', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'D104', 'type' => 'Double', 'status' => 'Occupied'],
+        ['number' => 'D104', 'type' => 'Double', 'status' => 'Available'],
         ['number' => 'D105', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'D201', 'type' => 'Suite', 'status' => 'Occupied'],
+        ['number' => 'D106', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'D107', 'type' => 'Triple', 'status' => 'Available'],
+        ['number' => 'D108', 'type' => 'Suite', 'status' => 'Available'],
+        ['number' => 'D109', 'type' => 'Suite', 'status' => 'Available'],
+        ['number' => 'D110', 'type' => 'Suite', 'status' => 'Available'],
     ]
 ];
 

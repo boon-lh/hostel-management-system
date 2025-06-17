@@ -14,6 +14,88 @@ require_once '../shared/includes/header.php';
 
 // Include admin sidebar
 require_once 'sidebar-admin.php';
+
+// Include database connection
+require_once '../shared/includes/db_connection.php';
+
+// Calculate statistics from database
+// 1. Total Residents (students with active hostel registrations)
+$residentsQuery = "SELECT COUNT(DISTINCT student_id) as total_residents 
+                  FROM hostel_registrations 
+                  WHERE status IN ('Approved', 'Checked In')";
+$residentsResult = $conn->query($residentsQuery);
+$residentsRow = $residentsResult->fetch_assoc();
+$totalResidents = $residentsRow['total_residents'];
+
+// 2. Occupancy Rate
+$roomsQuery = "SELECT 
+                COUNT(*) as total_rooms,
+                SUM(CASE WHEN availability_status IN ('Occupied', 'Pending Confirmation') THEN 1 ELSE 0 END) as occupied_rooms
+               FROM rooms";
+$roomsResult = $conn->query($roomsQuery);
+$roomsRow = $roomsResult->fetch_assoc();
+$totalRooms = $roomsRow['total_rooms'];
+$occupiedRooms = $roomsRow['occupied_rooms'];
+$occupancyRate = ($totalRooms > 0) ? round(($occupiedRooms / $totalRooms) * 100) : 0;
+
+// 3. Pending Maintenance
+$maintenanceQuery = "SELECT COUNT(*) as pending_maintenance 
+                    FROM service_requests 
+                    WHERE request_type = 'maintenance' 
+                    AND status IN ('pending', 'approved', 'in_progress')";
+$maintenanceResult = $conn->query($maintenanceQuery);
+$maintenanceRow = $maintenanceResult->fetch_assoc();
+$pendingMaintenance = $maintenanceRow['pending_maintenance'];
+
+// 4. Monthly Revenue
+$month = date('m');
+$year = date('Y');
+$revenueQuery = "SELECT SUM(amount) as monthly_revenue 
+                FROM payments 
+                WHERE MONTH(payment_date) = ? 
+                AND YEAR(payment_date) = ? 
+                AND status = 'completed'";
+$revenueStmt = $conn->prepare($revenueQuery);
+$revenueStmt->bind_param("ii", $month, $year);
+$revenueStmt->execute();
+$revenueResult = $revenueStmt->get_result();
+$revenueRow = $revenueResult->fetch_assoc();
+$monthlyRevenue = $revenueRow['monthly_revenue'] ?: 0;
+
+// Recent Applications (hostel registrations)
+$applicationsQuery = "SELECT hr.id, hr.student_id, s.name, hr.registration_date, hr.status 
+                     FROM hostel_registrations hr
+                     JOIN students s ON hr.student_id = s.id
+                     ORDER BY hr.registration_date DESC
+                     LIMIT 3";
+$applicationsResult = $conn->query($applicationsQuery);
+
+// Room Status
+$roomStatusQuery = "SELECT r.room_number, hb.block_name, r.type, r.availability_status, r.id
+                   FROM rooms r
+                   JOIN hostel_blocks hb ON r.block_id = hb.id
+                   ORDER BY r.updated_at DESC
+                   LIMIT 4";
+$roomStatusResult = $conn->query($roomStatusQuery);
+
+// Recent Payments
+$paymentsQuery = "SELECT p.id, p.student_id, p.amount, p.payment_date, p.status
+                 FROM payments p
+                 ORDER BY p.payment_date DESC
+                 LIMIT 4";
+$paymentsResult = $conn->query($paymentsQuery);
+
+// Complaints and Feedback
+$complaintsQuery = "SELECT c.id, c.subject, c.description, c.complaint_type, c.status, c.created_at, 
+                    s.name as student_name, s.id as student_id  
+                   FROM complaints c
+                   JOIN students s ON c.student_id = s.id
+                   ORDER BY c.created_at DESC
+                   LIMIT 3";
+$complaintsResult = $conn->query($complaintsQuery);
+
+// Remove reference to old $requestsResult variable to avoid errors
+$requestsResult = null;
 ?>
 
 <!-- Main Content -->
@@ -30,7 +112,7 @@ require_once 'sidebar-admin.php';
                 <i class="fas fa-user-graduate"></i>
             </div>
             <div class="stat-info">
-                <h3>842</h3>
+                <h3><?php echo $totalResidents; ?></h3>
                 <p>Total Residents</p>
             </div>
         </div>
@@ -40,7 +122,7 @@ require_once 'sidebar-admin.php';
                 <i class="fas fa-door-open"></i>
             </div>
             <div class="stat-info">
-                <h3>92%</h3>
+                <h3><?php echo $occupancyRate; ?>%</h3>
                 <p>Occupancy Rate</p>
             </div>
         </div>
@@ -50,7 +132,7 @@ require_once 'sidebar-admin.php';
                 <i class="fas fa-tools"></i>
             </div>
             <div class="stat-info">
-                <h3>17</h3>
+                <h3><?php echo $pendingMaintenance; ?></h3>
                 <p>Pending Maintenance</p>
             </div>
         </div>
@@ -60,7 +142,7 @@ require_once 'sidebar-admin.php';
                 <i class="fas fa-hand-holding-usd"></i>
             </div>
             <div class="stat-info">
-                <h3>RM 24.5k</h3>
+                <h3>RM <?php echo number_format($monthlyRevenue, 2); ?></h3>
                 <p>Monthly Revenue</p>
             </div>
         </div>
@@ -94,39 +176,35 @@ require_once 'sidebar-admin.php';
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1191301382</td>
-                                <td>Amir Bin Razak</td>
-                                <td>Apr 20, 2025</td>
-                                <td><span class="status status-pending">Pending</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-check"></i></a>
-                                    <a href="#"><i class="fas fa-times"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>1191302476</td>
-                                <td>Nurul Huda</td>
-                                <td>Apr 19, 2025</td>
-                                <td><span class="status status-pending">Pending</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-check"></i></a>
-                                    <a href="#"><i class="fas fa-times"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>1191303539</td>
-                                <td>Liu Wei Ming</td>
-                                <td>Apr 18, 2025</td>
-                                <td><span class="status status-pending">Pending</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-check"></i></a>
-                                    <a href="#"><i class="fas fa-times"></i></a>
-                                </td>
-                            </tr>
+                            <?php if ($applicationsResult->num_rows > 0): ?>
+                                <?php while ($app = $applicationsResult->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($app['student_id']); ?></td>
+                                        <td><?php echo htmlspecialchars($app['name']); ?></td>
+                                        <td><?php echo date('M d, Y', strtotime($app['registration_date'])); ?></td>
+                                        <td>
+                                            <?php 
+                                            $statusClass = 'status-pending';
+                                            if ($app['status'] == 'Approved') $statusClass = 'status-approved';
+                                            else if ($app['status'] == 'Rejected') $statusClass = 'status-rejected';
+                                            else if ($app['status'] == 'Cancelled by Student') $statusClass = 'status-cancelled';
+                                            ?>
+                                            <span class="status <?php echo $statusClass; ?>"><?php echo $app['status']; ?></span>
+                                        </td>
+                                        <td class="action-buttons">
+                                            <a href="student_details.php?id=<?php echo $app['student_id']; ?>"><i class="fas fa-eye"></i></a>
+                                            <?php if($app['status'] == 'Pending'): ?>
+                                                <a href="#"><i class="fas fa-check"></i></a>
+                                                <a href="#"><i class="fas fa-times"></i></a>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center">No recent applications</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -143,7 +221,7 @@ require_once 'sidebar-admin.php';
                     <h2 class="card-title">Room Status</h2>
                 </div>
                 <div class="card-actions">
-                    <a href="#">View All</a>
+                    <a href="block_rooms.php">View All</a>
                 </div>
             </div>
             <div class="card-content">
@@ -159,46 +237,45 @@ require_once 'sidebar-admin.php';
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>A-101</td>
-                                <td>Cyber Heights A</td>
-                                <td>Single</td>
-                                <td><span class="status status-occupied">Occupied</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-edit"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>B-203</td>
-                                <td>Cyber Heights B</td>
-                                <td>Twin</td>
-                                <td><span class="status status-occupied">Occupied</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-edit"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>C-305</td>
-                                <td>Cyber Heights C</td>
-                                <td>Twin</td>
-                                <td><span class="status status-vacant">Vacant</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-edit"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>D-407</td>
-                                <td>Cyber Heights D</td>
-                                <td>Single</td>
-                                <td><span class="status status-maintenance">Maintenance</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-edit"></i></a>
-                                </td>
-                            </tr>
+                            <?php if ($roomStatusResult->num_rows > 0): ?>
+                                <?php while ($room = $roomStatusResult->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($room['room_number']); ?></td>
+                                        <td><?php echo htmlspecialchars($room['block_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($room['type']); ?></td>
+                                        <td>
+                                            <?php 
+                                            $roomStatusClass = '';
+                                            switch ($room['availability_status']) {
+                                                case 'Available':
+                                                    $roomStatusClass = 'status-vacant';
+                                                    break;
+                                                case 'Occupied':
+                                                    $roomStatusClass = 'status-occupied';
+                                                    break;
+                                                case 'Under Maintenance':
+                                                    $roomStatusClass = 'status-maintenance';
+                                                    break;
+                                                case 'Pending Confirmation':
+                                                    $roomStatusClass = 'status-pending';
+                                                    break;
+                                                default:
+                                                    $roomStatusClass = 'status-reserved';
+                                            }
+                                            ?>
+                                            <span class="status <?php echo $roomStatusClass; ?>"><?php echo $room['availability_status']; ?></span>
+                                        </td>
+                                        <td class="action-buttons">
+                                            <a href="#"><i class="fas fa-eye"></i></a>
+                                            <a href="#"><i class="fas fa-edit"></i></a>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center">No rooms found</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -215,7 +292,7 @@ require_once 'sidebar-admin.php';
                     <h2 class="card-title">Recent Payments</h2>
                 </div>
                 <div class="card-actions">
-                    <a href="#">View All</a>
+                    <a href="finance.php">View All</a>
                 </div>
             </div>
             <div class="card-content">
@@ -230,47 +307,43 @@ require_once 'sidebar-admin.php';
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1191303672</td>
-                                <td>RM 850.00</td>
-                                <td>Apr 19, 2025</td>
-                                <td><span class="status status-paid">Paid</span></td>
-                            </tr>
-                            <tr>
-                                <td>1191302156</td>
-                                <td>RM 850.00</td>
-                                <td>Apr 18, 2025</td>
-                                <td><span class="status status-paid">Paid</span></td>
-                            </tr>
-                            <tr>
-                                <td>1191301943</td>
-                                <td>RM 1,200.00</td>
-                                <td>Apr 17, 2025</td>
-                                <td><span class="status status-paid">Paid</span></td>
-                            </tr>
-                            <tr>
-                                <td>1191302789</td>
-                                <td>RM 850.00</td>
-                                <td>Apr 01, 2025</td>
-                                <td><span class="status status-overdue">Overdue</span></td>
-                            </tr>
+                            <?php if ($paymentsResult->num_rows > 0): ?>
+                                <?php while ($payment = $paymentsResult->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($payment['student_id']); ?></td>
+                                        <td>RM <?php echo number_format($payment['amount'], 2); ?></td>
+                                        <td><?php echo date('M d, Y', strtotime($payment['payment_date'])); ?></td>
+                                        <td>
+                                            <?php 
+                                            $paymentStatusClass = 'status-paid';
+                                            if ($payment['status'] == 'pending') $paymentStatusClass = 'status-pending';
+                                            else if ($payment['status'] == 'failed') $paymentStatusClass = 'status-overdue';
+                                            else if ($payment['status'] == 'refunded') $paymentStatusClass = 'status-refunded';
+                                            ?>
+                                            <span class="status <?php echo $paymentStatusClass; ?>"><?php echo ucfirst($payment['status']); ?></span>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent payments</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
-
-        <!-- Maintenance Requests -->
+        </div>        <!-- Complaints and Feedback -->
         <div class="card">
             <div class="card-header">
                 <div class="card-title-area">
                     <div class="card-icon">
-                        <i class="fas fa-tools"></i>
+                        <i class="fas fa-comment-alt"></i>
                     </div>
-                    <h2 class="card-title">Maintenance Requests</h2>
+                    <h2 class="card-title">Complaints and Feedback</h2>
                 </div>
                 <div class="card-actions">
-                    <a href="#">View All</a>
+                    <a href="complaints.php">View All</a>
                 </div>
             </div>
             <div class="card-content">
@@ -278,44 +351,46 @@ require_once 'sidebar-admin.php';
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Room</th>
-                                <th>Issue</th>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Type</th>
                                 <th>Date</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>B-203</td>
-                                <td>AC repair</td>
-                                <td>Apr 19, 2025</td>
-                                <td><span class="status status-pending">In Progress</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-check"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>A-105</td>
-                                <td>Ceiling light</td>
-                                <td>Apr 18, 2025</td>
-                                <td><span class="status status-pending">Pending</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-check"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>D-407</td>
-                                <td>Water heater</td>
-                                <td>Apr 17, 2025</td>
-                                <td><span class="status status-maintenance">Scheduled</span></td>
-                                <td class="action-buttons">
-                                    <a href="#"><i class="fas fa-eye"></i></a>
-                                    <a href="#"><i class="fas fa-check"></i></a>
-                                </td>
-                            </tr>
+                            <?php if ($complaintsResult && $complaintsResult->num_rows > 0): ?>
+                                <?php while ($complaint = $complaintsResult->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($complaint['student_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($complaint['subject']); ?></td>
+                                        <td><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $complaint['complaint_type']))); ?></td>
+                                        <td><?php echo date('M d, Y', strtotime($complaint['created_at'])); ?></td>
+                                        <td>
+                                            <?php 
+                                            $statusClass = 'status-pending';
+                                            if ($complaint['status'] == 'in_progress') $statusClass = 'status-in-progress';
+                                            else if ($complaint['status'] == 'resolved') $statusClass = 'status-approved';
+                                            else if ($complaint['status'] == 'closed') $statusClass = 'status-completed';
+                                            ?>
+                                            <span class="status <?php echo $statusClass; ?>">
+                                                <?php echo ucfirst(str_replace('_', ' ', $complaint['status'])); ?>
+                                            </span>
+                                        </td>
+                                        <td class="action-buttons">
+                                            <a href="complaints.php?id=<?php echo $complaint['id']; ?>"><i class="fas fa-eye"></i></a>
+                                            <?php if ($complaint['status'] != 'resolved' && $complaint['status'] != 'closed'): ?>
+                                                <a href="#"><i class="fas fa-reply"></i></a>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6" class="text-center">No complaints or feedback found</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

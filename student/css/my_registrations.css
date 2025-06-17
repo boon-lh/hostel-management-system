@@ -1,0 +1,383 @@
+/* My Room Registrations CSS */
+:root {
+    /* Color palette */
+    --primary-color: #4CAF50;
+    --primary-dark: #3b8c3f;
+    --primary-light: #e8f5e9;
+    --secondary-color: #2196F3;
+    --accent-color: #FF9800;
+    --danger-color: #f44336;
+    --success-color: #4CAF50;
+    --warning-color: #ff9800;
+    --info-color: #2196F3;
+    --text-dark: #333333;
+    --text-light: #666666;
+    --gray-light: #f5f5f5;
+    --gray-mid: #e0e0e0;
+    --white: #ffffff;
+    --shadow-light: 0 2px 5px rgba(0,0,0,0.05);
+    --shadow-medium: 0 5px 15px rgba(0,0,0,0.1);
+    
+    /* Transitions */
+    --transition-speed: 0.25s;
+}
+
+.main-content {
+    margin-left: 250px; /* Adjust if sidebar width changes */
+    padding: 20px;
+    background-color: #f9f9f9;
+    min-height: calc(100vh - 60px);
+    transition: margin-left 0.3s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.page-header {
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 15px;
+}
+
+.page-header h2 {
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header h2 i {
+    color: var(--primary-color);
+}
+
+.page-header p {
+    color: var(--text-light);
+    margin: 0;
+}
+
+.card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+    overflow: hidden;
+    margin-bottom: 30px;
+    border: none;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+/* Alert styling */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+.alert-success {
+    background-color: var(--success-color);
+}
+
+.alert-success::before {
+    content: "\f00c";
+}
+
+.alert-warning {
+    background-color: var(--warning-color);
+}
+
+.alert-warning::before {
+    content: "\f071";
+}
+
+.alert-danger {
+    background-color: var(--danger-color);
+}
+
+.alert-danger::before {
+    content: "\f06a";
+}
+
+/* Table styling */
+.registration-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.registration-table thead th {
+    background-color: #f7f7f7;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-dark);
+    border-bottom: 2px solid #ddd;
+}
+
+.registration-table tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.registration-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.registration-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Room info styling */
+.room-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.room-info small {
+    color: var(--text-light);
+    font-size: 0.85em;
+}
+
+/* Status badge styling */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+/* Status colors */
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.status-approved {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-checked-in {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-checked-out {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+.status-cancelled-by-student {
+    background-color: #f5f5f5;
+    color: #6c757d;
+    border: 1px solid #ddd;
+}
+
+/* Payment status colors */
+.payment-unpaid {
+    background-color: #ffeeba;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.payment-paid {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.payment-partially {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.payment-refunded {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+.payment-waived {
+    background-color: #cff4fc;
+    color: #055160;
+    border: 1px solid #b6effb;
+}
+
+/* Button styling */
+.btn {
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #3a9a3f;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #d32f2f;
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #0d8af0;
+}
+
+.btn-secondary {
+    background-color: #bdbdbd;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #aaa;
+}
+
+/* Empty state styling */
+.no-registrations {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.no-registrations i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.no-registrations p {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    margin-bottom: 25px;
+}
+
+/* Status legend */
+.registration-summary {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.registration-summary h4 {
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-dark);
+}
+
+.status-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.legend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.legend-item p {
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+/* Table responsiveness */
+@media (max-width: 992px) {
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .status-legend {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 15px;
+    }
+    
+    .registration-table {
+        font-size: 0.85rem;
+    }
+    
+    .registration-table thead th,
+    .registration-table tbody td {
+        padding: 8px;
+    }
+    
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+}

@@ -7,8 +7,24 @@ if (!isset($_SESSION["user"]) || $_SESSION["role"] !== "admin") {
 
 require_once '../shared/includes/db_connection.php';
 
-// Get all students
-$students_query = "SELECT * FROM students ORDER BY id ASC";
+// Get all students with sorting
+$sortColumn = 'id'; // Default sort by id
+$sortDirection = 'ASC'; // Default direction
+
+// Check if sort parameters exist
+if (isset($_GET['sort']) && !empty($_GET['sort'])) {
+    // Whitelist of allowed columns for sorting
+    $allowedColumns = ['id', 'name', 'course', 'email', 'gender', 'citizenship'];
+    if (in_array($_GET['sort'], $allowedColumns)) {
+        $sortColumn = $_GET['sort'];
+    }
+}
+
+if (isset($_GET['direction']) && in_array(strtoupper($_GET['direction']), ['ASC', 'DESC'])) {
+    $sortDirection = strtoupper($_GET['direction']);
+}
+
+$students_query = "SELECT * FROM students ORDER BY {$sortColumn} {$sortDirection}";
 $students_result = $conn->query($students_query);
 $students = [];
 if ($students_result && $students_result->num_rows > 0) {
@@ -56,22 +72,46 @@ require_once 'sidebar-admin.php';
         </nav>
 
         <div class="students-list">
-            <div class="list-header">
-                <div class="header-title">
+            <div class="list-header">                <div class="header-title">
                     <i class="fas fa-users"></i>
                     <h2>All Student List</h2>
-                </div>                
-                <div class="header-actions">                    
+                    <?php
+                    $sortName = '';
+                    switch($sortColumn) {
+                        case 'id': $sortName = 'Student ID'; break;
+                        case 'name': $sortName = 'Name'; break;
+                        case 'course': $sortName = 'Course'; break;
+                        case 'gender': $sortName = 'Gender'; break;
+                        case 'citizenship': $sortName = 'Citizenship'; break;
+                        default: $sortName = 'Student ID';
+                    }
+                    $sortDirText = ($sortDirection == 'ASC') ? 'Ascending' : 'Descending';
+                    ?>
+                    <span class="sort-indicator">(Sorted by: <?= $sortName ?> - <?= $sortDirText ?>)</span>
+                </div><div class="header-actions">                    
                     <div class="search-container">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">                    </div>                      <button class="btn-export">
+                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">                    </div>
+                    <div class="sort-buttons">
+                        <label for="sort-select">Sort by:</label>
+                        <select id="sort-select" class="sort-select">
+                            <option value="id">Student ID</option>
+                            <option value="name">Name</option>
+                            <option value="course">Course</option>
+                            <option value="gender">Gender</option>
+                            <option value="citizenship">Citizenship</option>
+                        </select>
+                        <button id="sort-direction" class="btn-sort" title="Toggle Sort Direction">
+                            <i class="fas fa-sort-up"></i>
+                        </button>
+                    </div>
+                    <button class="btn-export">
                         <i class="fas fa-file-export"></i>
                         <span>Export List</span>
                     </button>
                 </div>            
             </div>            
-            <div class="table-responsive" role="region" aria-label="Students List">
-                <table class="data-table" id="students-table" aria-label="Students Information Table">
+            <div class="table-responsive" role="region" aria-label="Students List">                <table class="data-table" id="students-table" aria-label="Students Information Table">
                     <thead>
                         <tr>
                             <th>Student ID</th>
