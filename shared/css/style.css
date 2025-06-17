@@ -256,6 +256,40 @@ body.login-page {
     margin-right: 5px;
 }
 
+/* Notification badge styles */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-radius: 10px;
+    margin-left: 5px;
+}
+
+.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.badge-warning {
+    color: #212529;
+    background-color: #ffc107;
+}
+
+.badge-success {
+    color: #fff;
+    background-color: #28a745;
+}
+
+.badge-info {
+    color: #fff;
+    background-color: #17a2b8;
+}
+
 /* General Responsive Styles */
 @media (max-width: 768px) {
     .sidebar {

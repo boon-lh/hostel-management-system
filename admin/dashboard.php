@@ -85,6 +85,14 @@ $paymentsQuery = "SELECT p.id, p.student_id, p.amount, p.payment_date, p.status
                  LIMIT 4";
 $paymentsResult = $conn->query($paymentsQuery);
 
+// Count pending room registration requests
+$pendingRegistrationsQuery = "SELECT COUNT(*) as count FROM hostel_registrations WHERE status = 'Pending'";
+$pendingRegistrationsResult = $conn->query($pendingRegistrationsQuery);
+$pendingRegistrationsCount = 0;
+if ($pendingRegistrationsResult && $pendingRegistrationsResult->num_rows > 0) {
+    $pendingRegistrationsCount = $pendingRegistrationsResult->fetch_assoc()['count'];
+}
+
 // Complaints and Feedback
 $complaintsQuery = "SELECT c.id, c.subject, c.description, c.complaint_type, c.status, c.created_at, 
                     s.name as student_name, s.id as student_id  
@@ -103,9 +111,7 @@ $requestsResult = null;
     <?php 
     $pageHeading = "Admin Dashboard";
     require_once 'admin-content-header.php'; 
-    ?>
-
-    <!-- Stats Overview -->
+    ?>    <!-- Stats Overview -->
     <div class="stat-cards">
         <div class="stat-card">
             <div class="stat-icon">
@@ -125,6 +131,21 @@ $requestsResult = null;
                 <h3><?php echo $occupancyRate; ?>%</h3>
                 <p>Occupancy Rate</p>
             </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3><?php echo $pendingRegistrationsCount; ?></h3>
+                <p>Pending Registrations</p>
+            </div>
+            <?php if ($pendingRegistrationsCount > 0): ?>
+            <a href="room_registrations.php?status=Pending" class="stat-action">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <?php endif; ?>
         </div>
         
         <div class="stat-card">
@@ -158,9 +179,8 @@ $requestsResult = null;
                         <i class="fas fa-clipboard-list"></i>
                     </div>
                     <h2 class="card-title">Recent Applications</h2>
-                </div>
-                <div class="card-actions">
-                    <a href="#">View All</a>
+                </div>                <div class="card-actions">
+                    <a href="room_registrations.php">View All</a>
                 </div>
             </div>
             <div class="card-content">
@@ -190,12 +210,12 @@ $requestsResult = null;
                                             else if ($app['status'] == 'Cancelled by Student') $statusClass = 'status-cancelled';
                                             ?>
                                             <span class="status <?php echo $statusClass; ?>"><?php echo $app['status']; ?></span>
-                                        </td>
-                                        <td class="action-buttons">
-                                            <a href="student_details.php?id=<?php echo $app['student_id']; ?>"><i class="fas fa-eye"></i></a>
+                                        </td>                                        <td class="action-buttons">
+                                            <a href="student_details.php?id=<?php echo $app['student_id']; ?>" title="View Student Details"><i class="fas fa-user"></i></a>
+                                            <a href="room_registrations.php?id=<?php echo $app['id']; ?>" title="View Registration Details"><i class="fas fa-clipboard-check"></i></a>
                                             <?php if($app['status'] == 'Pending'): ?>
-                                                <a href="#"><i class="fas fa-check"></i></a>
-                                                <a href="#"><i class="fas fa-times"></i></a>
+                                                <a href="room_registrations.php?action=approve&id=<?php echo $app['id']; ?>" title="Approve Registration"><i class="fas fa-check text-success"></i></a>
+                                                <a href="room_registrations.php?action=reject&id=<?php echo $app['id']; ?>" title="Reject Registration"><i class="fas fa-times text-danger"></i></a>
                                             <?php endif; ?>
                                         </td>
                                     </tr>

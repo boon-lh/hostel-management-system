@@ -172,8 +172,7 @@ require_once 'sidebar-admin.php';
                     </span>
                 </div>
             </div>
-            
-            <div class="block-info-right">
+              <div class="block-info-right">
                 <div class="room-stats">                    
                     <div class="stat-item">
                         <span class="stat-label">Total Rooms</span>
@@ -181,15 +180,15 @@ require_once 'sidebar-admin.php';
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Available</span>
-                        <span class="stat-value"><?= count(array_filter($rooms, function($room) { return isset($room['status']) && $room['status'] === 'Available'; })) ?></span>
+                        <span class="stat-value"><?= count(array_filter($rooms, function($room) { return $room['availability_status'] === 'Available'; })) ?></span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Occupied</span>
-                        <span class="stat-value"><?= count(array_filter($rooms, function($room) { return isset($room['status']) && $room['status'] === 'Occupied'; })) ?></span>
+                        <span class="stat-value"><?= count(array_filter($rooms, function($room) { return $room['availability_status'] === 'Occupied'; })) ?></span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Maintenance</span>
-                        <span class="stat-value"><?= count(array_filter($rooms, function($room) { return isset($room['status']) && $room['status'] === 'Maintenance'; })) ?></span>
+                        <span class="stat-value"><?= count(array_filter($rooms, function($room) { return $room['availability_status'] === 'Under Maintenance'; })) ?></span>
                     </div>
                 </div>
                 <a href="hostel_blocks.php" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Blocks</a>
@@ -206,20 +205,17 @@ require_once 'sidebar-admin.php';
                 </div>
                 <h2 class="card-title">Rooms</h2>
             </div>
-            <div class="card-actions">
-                <div class="filter-container">
+            <div class="card-actions">                <div class="filter-container">
                     <select id="roomTypeFilter" class="filter-select">
                         <option value="all">All Room Types</option>
                         <option value="Single">Single</option>
                         <option value="Double">Double</option>
                         <option value="Triple">Triple</option>
-                        <option value="Suite">Suite</option>
-                    </select>
-                    <select id="statusFilter" class="filter-select">
+                    </select>                    <select id="statusFilter" class="filter-select">
                         <option value="all">All Statuses</option>
                         <option value="Available">Available</option>
                         <option value="Occupied">Occupied</option>
-                        <option value="Maintenance">Maintenance</option>
+                        <option value="Under Maintenance">Under Maintenance</option>
                     </select>
                 </div>
             </div>
@@ -234,15 +230,13 @@ require_once 'sidebar-admin.php';
                     <p>There are no rooms assigned to this block yet.</p>
                 </div>
             <?php else: ?>
-                <div class="rooms-grid">
-                    <?php foreach ($rooms as $room): ?>                        <div class="room-card" data-room-type="<?= htmlspecialchars($room['type']) ?>" data-status="<?= htmlspecialchars($room['availability_status']) ?>">
+                <div class="rooms-grid">                    <?php foreach ($rooms as $room): ?>                        <div class="room-card" data-room-type="<?= htmlspecialchars($room['type']) ?>" data-status="<?= htmlspecialchars($room['availability_status']) ?>">
                             <div class="room-header">
                                 <h3><?= htmlspecialchars($room['room_number']) ?></h3>
                                 <?php 
                                 $statusClass = '';
                                 $statusIcon = '';
-                                
-                                switch ($room['availability_status']) {
+                                  switch ($room['availability_status']) {
                                     case 'Available':
                                         $statusClass = 'status-available';
                                         $statusIcon = 'fa-check-circle';
@@ -251,17 +245,9 @@ require_once 'sidebar-admin.php';
                                         $statusClass = 'status-occupied';
                                         $statusIcon = 'fa-user';
                                         break;
-                                    case 'Pending Confirmation':
-                                        $statusClass = 'status-pending';
-                                        $statusIcon = 'fa-clock';
-                                        break;
                                     case 'Under Maintenance':
                                         $statusClass = 'status-maintenance';
                                         $statusIcon = 'fa-tools';
-                                        break;
-                                    case 'Reserved':
-                                        $statusClass = 'status-reserved';
-                                        $statusIcon = 'fa-bookmark';
                                         break;
                                     default:
                                         $statusClass = 'status-unknown';
@@ -269,42 +255,38 @@ require_once 'sidebar-admin.php';
                                 }
                                 ?>
                                 <span class="room-status <?= $statusClass ?>">
-                                    <i class="fas <?= $statusIcon ?>"></i> <?= htmlspecialchars($room['status']) ?>
+                                    <i class="fas <?= $statusIcon ?>"></i> <?= htmlspecialchars($room['availability_status']) ?>
                                 </span>
                             </div>
-                            <div class="room-details">                                <div class="room-info">
-                                    <p class="room-type"><strong>Type:</strong> <?= isset($room['room_type']) ? htmlspecialchars($room['room_type']) : 'Standard' ?></p><p><strong>Beds:</strong> <?= isset($room['num_beds']) ? htmlspecialchars($room['num_beds']) : '1' ?></p>
-                                    <p><strong>Bathroom:</strong> <?= isset($room['bathroom_type']) ? htmlspecialchars($room['bathroom_type']) : 'Standard' ?></p>
-                                    <p class="room-price"><strong>Price:</strong> RM<?= isset($room['rate_per_semester']) ? number_format($room['rate_per_semester'], 2) : number_format(1200, 2) ?>/semester</p>
-                                </div>                                <?php 
-                                // Generate features based on room type if not available
+                            <div class="room-details">
+                                <div class="room-info">
+                                    <p class="room-type"><strong>Type:</strong> <?= htmlspecialchars($room['type']) ?></p>
+                                    <p><strong>Capacity:</strong> <?= htmlspecialchars($room['capacity']) ?> person(s)</p>
+                                    <p class="room-price"><strong>Price:</strong> RM<?= number_format($room['price'], 2) ?>/semester</p>
+                                </div>
+                                <?php 
+                                // Parse features from database
                                 $featuresList = [];
                                 
                                 if (!empty($room['features'])) {
-                                    // Try to decode if it's a JSON string
-                                    $featuresList = json_decode($room['features'], true);
+                                    // Split features by comma if it's a string
+                                    $featuresList = array_map('trim', explode(',', $room['features']));
                                 }
                                 
-                                // If features is empty or invalid JSON, generate features based on room type
-                                if (!is_array($featuresList) || empty($featuresList)) {
-                                    $roomType = isset($room['room_type']) ? $room['room_type'] : '';
-                                    
-                                    // Default features for each room type
-                                    switch ($roomType) {
+                                // If no features found, provide default based on room type
+                                if (empty($featuresList)) {
+                                    switch ($room['type']) {
                                         case 'Single':
-                                            $featuresList = ['Wi-Fi', 'Study Desk', 'Wardrobe', 'Fan'];
+                                            $featuresList = ['Study Desk', 'Wardrobe', 'Wi-Fi'];
                                             break;
                                         case 'Double':
-                                            $featuresList = ['Wi-Fi', 'Study Desks (2)', 'Wardrobes (2)', 'Fan'];
+                                            $featuresList = ['Study Desks (2)', 'Wardrobes (2)', 'Wi-Fi'];
                                             break;
                                         case 'Triple':
-                                            $featuresList = ['Wi-Fi', 'Study Desks (3)', 'Wardrobes (3)', 'Ceiling Fan'];
-                                            break;
-                                        case 'Suite':
-                                            $featuresList = ['Wi-Fi', 'Study Desk', 'Wardrobe', 'Air Conditioning', 'Mini Fridge'];
+                                            $featuresList = ['Study Desks (3)', 'Wardrobes (3)', 'Wi-Fi'];
                                             break;
                                         default:
-                                            $featuresList = ['Wi-Fi', 'Study Desk', 'Wardrobe'];
+                                            $featuresList = ['Study Desk', 'Wardrobe', 'Wi-Fi'];
                                     }
                                 }
                                 ?>
@@ -316,18 +298,17 @@ require_once 'sidebar-admin.php';
                                             <li><i class="fas fa-check"></i> <?= htmlspecialchars($feature) ?></li>
                                         <?php endforeach; ?>
                                     </ul>
-                                </div>
-                                
-                                <div class="room-actions">
-                                    <a href="#" class="action-btn view-details-btn" title="View Details" data-room-id="<?= $room['id'] ?>" data-room-number="<?= htmlspecialchars($room['room_number']) ?>">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
-                                    <a href="#" class="action-btn edit-room-btn" title="Edit Room" data-room-id="<?= $room['id'] ?>" data-room-number="<?= htmlspecialchars($room['room_number']) ?>">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="#" class="action-btn change-status-btn" title="Change Status" data-room-id="<?= $room['id'] ?>" data-room-number="<?= htmlspecialchars($room['room_number']) ?>" data-current-status="<?= htmlspecialchars($room['status']) ?>">
-                                        <i class="fas fa-exchange-alt"></i>
-                                    </a>
+                                </div>                                <div class="room-actions">
+                                    <!-- Edit Room Button -->
+                                    <button type="button" 
+                                            class="action-btn edit-room-btn" 
+                                            title="Edit Room Status" 
+                                            data-room-id="<?= $room['id'] ?>" 
+                                            data-room-number="<?= htmlspecialchars($room['room_number']) ?>" 
+                                            data-current-status="<?= htmlspecialchars($room['availability_status']) ?>" 
+                                            onclick="editRoomStatus(this)">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -339,12 +320,122 @@ require_once 'sidebar-admin.php';
 </div>
 
 <script>
+    // Global function for editing room status - called directly from button onclick
+    function editRoomStatus(button) {
+        console.log('Edit button clicked', button);
+        
+        const roomId = button.getAttribute('data-room-id');
+        const roomNumber = button.getAttribute('data-room-number');
+        const currentStatus = button.getAttribute('data-current-status');
+        
+        console.log('Room data:', roomId, roomNumber, currentStatus);
+          // Prompt for the new status - simplified to 3 options
+        const newStatus = prompt(
+            `Change status for Room ${roomNumber}\nCurrent status: ${currentStatus}\n\nEnter new status:\n- Available\n- Occupied\n- Under Maintenance`, 
+            currentStatus
+        );
+        
+        if (newStatus && ['Available', 'Occupied', 'Under Maintenance'].includes(newStatus)) {
+            // Create form data
+            const formData = new FormData();
+            formData.append('room_id', roomId);
+            formData.append('status', newStatus);
+            
+            // Show loading indicator
+            const card = button.closest('.room-card');
+            const statusElement = card.querySelector('.room-status');
+            const originalContent = statusElement.innerHTML;
+            statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            
+            // Send AJAX request to update database
+            fetch('update_room_status.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {                    // Get the appropriate icon for the new status - simplified to 3 options
+                    let statusIcon = 'fa-question-circle';
+                    switch (newStatus) {
+                        case 'Available': statusIcon = 'fa-check-circle'; break;
+                        case 'Occupied': statusIcon = 'fa-user'; break;
+                        case 'Under Maintenance': statusIcon = 'fa-tools'; break;
+                    }
+                      // Update UI on success
+                    statusElement.innerHTML = `<i class="fas ${statusIcon}"></i> ${newStatus}`;
+                    
+                    // Update status class
+                    const newClass = newStatus.toLowerCase().replace(/\s+/g, '-');
+                    statusElement.className = `room-status status-${newClass}`;
+                    
+                    // Update dataset for filtering
+                    card.dataset.status = newStatus;
+                    
+                    // Update the button's data attribute
+                    button.setAttribute('data-current-status', newStatus);
+                      // Update stat cards if stats were returned
+                    if (data.stats) {
+                        // Update the stat cards with new values
+                        const statCards = document.querySelectorAll('.stat-item .stat-value');
+                        if (statCards.length >= 4) {
+                            // Function to update with animation
+                            function updateStatWithAnimation(element, newValue) {
+                                const oldValue = parseInt(element.textContent);
+                                
+                                // Only animate if value has changed
+                                if (oldValue !== parseInt(newValue)) {
+                                    // Update the value
+                                    element.textContent = newValue;
+                                    
+                                    // Add highlight class
+                                    element.classList.add('stat-updated');
+                                    
+                                    // Remove highlight class after animation completes
+                                    setTimeout(() => {
+                                        element.classList.remove('stat-updated');
+                                    }, 1500);
+                                }
+                            }
+                            
+                            // Update each stat with animation
+                            updateStatWithAnimation(statCards[0], data.stats.total_rooms);          // Total Rooms
+                            updateStatWithAnimation(statCards[1], data.stats.available_rooms);      // Available
+                            updateStatWithAnimation(statCards[2], data.stats.occupied_rooms);       // Occupied
+                            updateStatWithAnimation(statCards[3], data.stats.maintenance_rooms);    // Maintenance
+                        }
+                    }
+                    
+                    // Show success notification
+                    showNotification(`Room ${roomNumber} status updated to ${newStatus}`, 'success');
+                } else {
+                    // Restore original status on error
+                    statusElement.innerHTML = originalContent;
+                    showNotification('Failed to update room status: ' + data.message, 'error');
+                    console.error('Status update error:', data.message);
+                }
+            })
+            .catch(error => {
+                // Restore original status on error
+                statusElement.innerHTML = originalContent;
+                showNotification('An error occurred while updating room status', 'error');
+                console.error('Error:', error);
+            });
+        }
+    }
+    
+    // Document ready function
     document.addEventListener('DOMContentLoaded', function() {
         // Room filtering functionality
         const roomTypeFilter = document.getElementById('roomTypeFilter');
         const statusFilter = document.getElementById('statusFilter');
         const roomCards = document.querySelectorAll('.room-card');
         
+        // Setup notification container
+        const notificationContainer = document.createElement('div');
+        notificationContainer.className = 'notification-container';
+        document.body.appendChild(notificationContainer);
+        
+        // Apply filters function
         function applyFilters() {
             const selectedRoomType = roomTypeFilter.value;
             const selectedStatus = statusFilter.value;
@@ -364,47 +455,34 @@ require_once 'sidebar-admin.php';
             });
         }
         
+        // Add event listeners for filters
         roomTypeFilter.addEventListener('change', applyFilters);
         statusFilter.addEventListener('change', applyFilters);
-        
-        // Button functionality (placeholder for now)
-        document.querySelectorAll('.view-details-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const roomId = this.getAttribute('data-room-id');
-                const roomNumber = this.getAttribute('data-room-number');
-                alert(`View details for Room ${roomNumber} functionality will be implemented here.`);
-            });
-        });
-        
-        document.querySelectorAll('.edit-room-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const roomId = this.getAttribute('data-room-id');
-                const roomNumber = this.getAttribute('data-room-number');
-                alert(`Edit Room ${roomNumber} functionality will be implemented here.`);
-            });
-        });
-        
-        document.querySelectorAll('.change-status-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const roomId = this.getAttribute('data-room-id');
-                const roomNumber = this.getAttribute('data-room-number');
-                const currentStatus = this.getAttribute('data-current-status');
-                
-                const newStatus = prompt(
-                    `Change status for Room ${roomNumber}\nCurrent status: ${currentStatus}\n\nEnter new status (Available, Occupied, Maintenance):`, 
-                    currentStatus
-                );
-                
-                if (newStatus && ['Available', 'Occupied', 'Maintenance'].includes(newStatus)) {
-                    alert(`Status for Room ${roomNumber} would be updated to ${newStatus} in a real implementation.`);
-                    // In a real implementation, this would update the database and refresh the page
-                }
-            });
-        });
     });
+    
+    // Function to show notifications
+    function showNotification(message, type = 'success') {
+        const notificationContainer = document.querySelector('.notification-container');
+        if (!notificationContainer) return; // Safety check
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-icon">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            </div>
+            <div class="notification-message">${message}</div>
+        `;
+        notificationContainer.appendChild(notification);
+        
+        // Auto remove after a few seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
 </script>
 
 <?php require_once '../shared/includes/footer.php'; ?>

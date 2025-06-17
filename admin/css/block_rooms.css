@@ -1,5 +1,22 @@
 /* Block Room Management Specific Styles */
 
+/* Container and Layout Management */
+.dashboard-container {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* Main Content Container */
+.main-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
 /* Block Info Banner */
 .block-info-banner {
     background-color: #fff;
@@ -25,6 +42,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .block-info-left h3 {
@@ -36,18 +55,38 @@
 .block-details-inline {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .block-info-right {
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-wrap: wrap;
 }
+
+/* Status Classes for Block Info */
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-male { background-color: #e3f2fd; color: #0d47a1; }
+.status-female { background-color: #fce4ec; color: #880e4f; }
+.status-mixed { background-color: #f3e5f5; color: #4a148c; }
+.status-none { background-color: #e8f5e8; color: #2e7d32; }
+.status-neutral { background-color: #f5f5f5; color: #424242; }
 
 /* Room Stats */
 .room-stats {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .stat-item {
@@ -85,6 +124,27 @@
     font-size: 22px;
     font-weight: 700;
     color: #333;
+    transition: all 0.3s ease;
+}
+
+/* Animation for stat updates */
+.stat-updated {
+    animation: stat-highlight 1.5s ease;
+}
+
+@keyframes stat-highlight {
+    0% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+    20% {
+        background-color: rgba(255, 255, 0, 0.3);
+        transform: scale(1.2);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
 }
 
 /* Navigation */
@@ -108,9 +168,10 @@
 /* Rooms Grid */
 .rooms-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
     margin-top: 20px;
+    width: 100%;
 }
 
 .room-card {
@@ -119,9 +180,12 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    height: 100%;
+    height: fit-content;
     display: flex;
     flex-direction: column;
+    position: relative;
+    width: 100%;
+    padding-bottom: 10px;
 }
 
 .room-card:hover {
@@ -136,30 +200,75 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .room-header h3 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* Room Status Styles - Using consistent color scheme */
+.room-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+/* Status styles - simplified to 3 main statuses */
+.status-available { 
+    background-color: #e8f5e8; 
+    color: #2e7d32; 
+    border-left: 3px solid #2e7d32;
+}
+
+.status-occupied { 
+    background-color: rgba(110, 142, 251, 0.1); 
+    color: #6e8efb;
+    border-left: 3px solid #6e8efb;
+}
+
+.status-maintenance,
+.status-under-maintenance { 
+    background-color: rgba(255, 152, 0, 0.1); 
+    color: #ff9800;
+    border-left: 3px solid #ff9800;
+}
+
+/* Default/fallback status for any other status in the database */
+.status-unknown { 
+    background-color: #f5f5f5; 
+    color: #424242;
+    border-left: 3px solid #9e9e9e;
 }
 
 /* Room Details */
 .room-details {
     padding: 15px;
-    flex: 1;
     display: flex;
     flex-direction: column;
+    height: auto;
+    overflow: visible;
 }
 
 .room-info {
     margin-bottom: 15px;
+    width: 100%;
 }
 
 .room-info p {
     margin: 5px 0;
     font-size: 14px;
     line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .room-price {
@@ -178,11 +287,10 @@
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid #f0f0f0;
-    flex: 1;
 }
 
 .room-features p {
-    margin: 5px 0;
+    margin: 0 0 10px 0;
     font-size: 14px;
     font-weight: 600;
     color: #333;
@@ -191,21 +299,22 @@
 .features-list {
     list-style: none;
     padding: 0;
-    margin: 10px 0 0 0;
+    margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 8px;
 }
 
 .features-list li {
     font-size: 13px;
-    padding: 5px;
+    padding: 6px 8px;
     display: flex;
     align-items: center;
     gap: 6px;
     background-color: #f9f9f9;
     border-radius: 4px;
     transition: all 0.2s ease;
+    word-break: break-word;
 }
 
 .features-list li:hover {
@@ -214,14 +323,75 @@
 
 .features-list li i {
     color: #4caf50;
-    font-size: 12px;
-    background-color: rgba(76, 175, 80, 0.1);
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+/* Card Structure */
+.card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.card-title-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-icon {
+    background: rgba(110, 142, 251, 0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #6e8efb;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Clear float issues */
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Prevent overflow issues */
+* {
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
 }
 
 /* Room Actions */
@@ -231,29 +401,39 @@
     border-top: 1px solid #f0f0f0;
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
+    position: relative;
+    min-height: 40px;
+    clear: both;
 }
 
 .room-actions .action-btn {
-    width: 36px;
-    height: 36px;
+    min-width: 70px;
+    height: 40px;
     border-radius: 8px;
     background-color: #f5f7ff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    z-index: 10; /* Ensure button stays above other elements */
+    padding: 0 15px;
+    border: 1px solid rgba(0,0,0,0.1);
+    gap: 8px;
 }
 
 .room-actions .action-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    background-color: #e8f5e9;
 }
 
-.view-details-btn {
-    color: #6e8efb;
-    background-color: rgba(110, 142, 251, 0.1);
-}
-
-.view-details-btn:hover {
-    background-color: rgba(110, 142, 251, 0.2);
+.room-actions .action-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .edit-room-btn {
@@ -265,13 +445,38 @@
     background-color: rgba(76, 175, 80, 0.2);
 }
 
-.change-status-btn {
-    color: #ffa000;
-    background-color: rgba(255, 160, 0, 0.1);
+.edit-room-btn i {
+    font-size: 18px;
+    display: block;
 }
 
-.change-status-btn:hover {
-    background-color: rgba(255, 160, 0, 0.2);
+/* Make buttons more noticeable */
+button.edit-room-btn {
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.15) !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+button.edit-room-btn:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.25) !important;
+}
+
+button.edit-room-btn:active {
+    transform: translateY(1px) !important;
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.15) !important;
+}
+
+/* Add a pulse animation to draw attention to the buttons */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+button.edit-room-btn {
+    animation: pulse 2s infinite;
 }
 
 /* Filters */
@@ -307,6 +512,127 @@
 .card-actions {
     display: flex;
     gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Filters */
+.filter-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 8px 15px;
+    border: 1px solid #e0e6ff;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    background-color: #f8faff;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-width: 140px;
+}
+
+.filter-select:focus {
+    border-color: #6e8efb;
+    box-shadow: 0 0 0 3px rgba(110, 142, 251, 0.1);
+}
+
+.filter-select:hover {
+    border-color: #a0b4ff;
+    background-color: #f0f4ff;
+}
+
+/* No Data Container */
+.no-data-container {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.no-data-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #ccc;
+}
+
+.no-data-container h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.no-data-container p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Notification styles */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+}
+
+.notification {
+    background-color: white;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.notification::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+}
+
+.notification.success::before {
+    background-color: #4caf50;
+}
+
+.notification.error::before {
+    background-color: #f44336;
+}
+
+.notification-icon {
+    margin-right: 12px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification.success .notification-icon {
+    color: #4caf50;
+}
+
+.notification.error .notification-icon {
+    color: #f44336;
+}
+
+.notification-message {
+    font-size: 14px;
+    color: #333;
+    flex: 1;
 }
 
 /* Responsive Design */
@@ -324,20 +650,46 @@
 
     .room-stats {
         flex-wrap: wrap;
+        justify-content: flex-start;
     }
 
     .stat-item {
-        min-width: 70px;
+        min-width: 80px;
+    }
+
+    .rooms-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
 }
 
 @media (max-width: 768px) {
+    .main-content {
+        padding: 15px;
+    }
+
     .rooms-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
     }
 
     .filter-container {
         flex-direction: column;
+        width: 100%;
+    }
+
+    .filter-select {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .card-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .block-details-inline {
+        flex-direction: column;
+        gap: 8px;
     }
 }
 
@@ -352,7 +704,22 @@
         gap: 15px;
     }
     
-    .card-actions {
+    .room-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .room-stats {
+        grid-template-columns: repeat(2, 1fr);
         width: 100%;
+    }
+
+    .stat-item {
+        min-width: auto;
+    }
+
+    .features-list {
+        grid-template-columns: 1fr;
     }
 }

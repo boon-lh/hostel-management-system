@@ -229,6 +229,26 @@ body {
     font-size: 13px;
 }
 
+/* Stat card action link */
+.stat-action {
+    margin-left: auto;
+    background: #f8f9fa;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6e8efb;
+    transition: all 0.2s ease;
+}
+
+.stat-action:hover {
+    background: #6e8efb;
+    color: white;
+    transform: scale(1.1);
+}
+
 .dashboard-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -383,9 +403,8 @@ body {
 
 /* Room Status Classes */
 .status-available {
-    background-color: #e8f5e9;
+    background-color: #e8f5e8;
     color: #2e7d32;
-    border: 1px solid rgba(46, 125, 50, 0.2);
 }
 
 .status-occupied {
@@ -400,9 +419,13 @@ body {
     border: 1px solid rgba(230, 81, 0, 0.2);
 }
 
+.status-reserved {
+    background-color: var(--status-reserved);
+}
+
 .status-unknown {
     background-color: #f5f5f5;
-    color: #616161;
+    color: #424242;
     border: 1px solid rgba(97, 97, 97, 0.2);
 }
 

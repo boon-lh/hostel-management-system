@@ -21,10 +21,25 @@
         <a href="complaints.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'complaints.php' ? 'active' : ''; ?>">
             <i class="fas fa-comment-alt"></i> Complaints
         </a>
-        
-        <div class="menu-category">Hostel Management</div>
+          <div class="menu-category">Hostel Management</div>
         <a href="hostel_blocks.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'hostel_blocks.php' ? 'active' : ''; ?>">
             <i class="fas fa-building"></i> Hostel Blocks
+        </a>        <?php
+        // Get count of pending room registrations
+        $pending_count = 0;
+        if (isset($conn)) {
+            $pending_query = "SELECT COUNT(*) as count FROM hostel_registrations WHERE status = 'Pending'";
+            $pending_result = $conn->query($pending_query);
+            if ($pending_result && $pending_result->num_rows > 0) {
+                $pending_count = $pending_result->fetch_assoc()['count'];
+            }
+        }
+        ?>
+        <a href="room_registrations.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'room_registrations.php' ? 'active' : ''; ?>">
+            <i class="fas fa-clipboard-check"></i> Room Registrations
+            <?php if ($pending_count > 0): ?>
+                <span class="badge badge-danger"><?php echo $pending_count; ?></span>
+            <?php endif; ?>
         </a>
         
         <div class="menu-category">Admin</div>
