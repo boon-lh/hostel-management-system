@@ -180,12 +180,7 @@ CREATE TABLE `hostel_registrations` (
   `processed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `hostel_registrations`
---
-
-INSERT INTO `hostel_registrations` (`id`, `student_id`, `room_id`, `registration_date`, `requested_check_in_date`, `approved_check_in_date`, `approved_check_out_date`, `status`, `payment_status`, `total_amount`, `paid_amount`, `notes`, `admin_id`, `processed_at`) VALUES
-(11, 1, 1, '2025-05-14 10:49:53', '2025-05-21', NULL, NULL, 'Pending', 'Unpaid', NULL, 0.00, NULL, NULL, NULL);
+-- No sample data for hostel registrations - to be added through the registration interface
 
 -- --------------------------------------------------------
 
@@ -303,52 +298,9 @@ CREATE TABLE `rooms` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `rooms`
---
+-- No sample data for rooms - to be added through the admin interface
 
-INSERT INTO `rooms` (`id`, `block_id`, `room_number`, `type`, `capacity`, `price`, `features`, `availability_status`, `created_at`, `updated_at`) VALUES
-(1, 1, '1-111', 'Single', 1, 1000.00, 'Air-conditioned, Study desk, Single bed, Wardrobe, Window view', 'Pending Confirmation', '2025-05-14 16:44:27', '2025-05-14 16:49:53'),
-(2, 2, '2-111', 'Double', 1, 2000.00, 'Air-conditioned, Study desk, Single bed, Wardrobe, Window view', 'Available', '2025-05-14 16:48:07', '2025-05-14 16:48:07'),
-(3, 3, '3-111', 'Triple', 1, 1500.00, 'Air-conditioned, Study desk, Single bed, Wardrobe, Window view', 'Available', '2025-05-14 16:48:07', '2025-05-14 16:48:07'),
-(33, 1, '101', 'Single', 1, 500.00, 'Attached bathroom, Wi-Fi, Study Table, Wardrobe', 'Available', '2025-05-14 17:18:23', '2025-05-14 17:18:23'),
-(34, 1, '102', 'Double', 2, 350.00, 'Shared bathroom, Wi-Fi, Study Table, Wardrobe', 'Available', '2025-05-14 17:18:23', '2025-05-14 17:18:23'),
-(35, 2, '201', 'Single', 1, 500.00, 'Attached bathroom, Wi-Fi, Study Table, Wardrobe', 'Available', '2025-05-14 17:18:23', '2025-05-14 17:18:23'),
-(36, 2, '202', 'Double', 2, 350.00, 'Shared bathroom, Wi-Fi, Study Table, Wardrobe', 'Available', '2025-05-14 17:18:23', '2025-05-14 17:18:23'),
-(37, 3, '301', 'Single', 1, 600.00, 'Attached bathroom, Air-Conditioning, Wi-Fi, Study Table, Wardrobe', 'Available', '2025-05-14 17:18:23', '2025-05-14 17:18:23'),
-(38, 4, '401', 'Double', 2, 450.00, 'Shared bathroom, Air-Conditioning, Wi-Fi, Study Table, Wardrobe', 'Available', '2025-05-14 17:18:23', '2025-05-14 17:18:23');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `room_rates`
---
-
-CREATE TABLE `room_rates` (
-  `id` int(11) NOT NULL,
-  `room_type` varchar(50) NOT NULL,
-  `block` varchar(10) NOT NULL,
-  `price_per_semester` decimal(10,2) NOT NULL,
-  `description` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `room_rates`
---
-
-INSERT INTO `room_rates` (`id`, `room_type`, `block`, `price_per_semester`, `description`, `created_at`, `updated_at`) VALUES
-(1, 'Single Room', 'Block A', 2500.00, 'Single room with private bathroom for local male students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(2, 'Twin Sharing', 'Block A', 1800.00, 'Twin sharing room with shared bathroom for local male students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(3, 'Triple Room', 'Block A', 1500.00, 'Triple sharing room with shared bathroom for local male students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(4, 'Single Room', 'Block B', 2500.00, 'Single room with private bathroom for local female students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(5, 'Twin Sharing', 'Block B', 1800.00, 'Twin sharing room with shared bathroom for local female students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(6, 'Triple Room', 'Block B', 1500.00, 'Triple sharing room with shared bathroom for local female students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(7, 'Single Room', 'Block C', 3000.00, 'Single room with private bathroom for international male students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(8, 'Twin Sharing', 'Block C', 2200.00, 'Twin sharing room with shared bathroom for international male students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(9, 'Single Room', 'Block D', 3000.00, 'Single room with private bathroom for international female students', '2025-05-15 08:27:38', '2025-05-15 08:27:38'),
-(10, 'Twin Sharing', 'Block D', 2200.00, 'Twin sharing room with shared bathroom for international female students', '2025-05-15 08:27:38', '2025-05-15 08:27:38');
+-- Room rates are managed directly in the rooms table with the price field
 
 -- --------------------------------------------------------
 
@@ -399,12 +351,7 @@ CREATE TABLE `students` (
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `students`
---
-
-INSERT INTO `students` (`id`, `name`, `gender`, `dob`, `ic_number`, `course`, `contact_no`, `email`, `citizenship`, `address`, `username`, `password`, `profile_pic`, `created_at`) VALUES
-(1, 'lcs', 'Male', '2025-05-02', '11111111', 'aaa', '111111', 'example@gmail.com', 'Malaysian', '1111122', 'lcs', '$2y$10$VU1mb4XadddElEAyxCWRYeKqN8MJSedGleQ7dFhKECARbzy7QZ89C', NULL, '2025-05-14 16:12:48');
+-- No sample student data - this will be added through the registration system
 
 -- --------------------------------------------------------
 
@@ -542,11 +489,7 @@ ALTER TABLE `rooms`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_room_in_block` (`block_id`,`room_number`);
 
---
--- Indexes for table `room_rates`
---
-ALTER TABLE `room_rates`
-  ADD PRIMARY KEY (`id`);
+-- Room rates table removed
 
 --
 -- Indexes for table `service_requests`
@@ -665,11 +608,7 @@ ALTER TABLE `request_status_history`
 ALTER TABLE `rooms`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
---
--- AUTO_INCREMENT for table `room_rates`
---
-ALTER TABLE `room_rates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+-- Room rates table removed
 
 --
 -- AUTO_INCREMENT for table `service_requests`

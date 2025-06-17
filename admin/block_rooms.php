@@ -38,48 +38,20 @@ if (!isset($_GET['block_id']) || empty($_GET['block_id'])) {
 
 $block_id = $_GET['block_id'];
 
-// Get block details
-$blocks = [
-    1 => [
-        'id' => 1,
-        'block_name' => 'Block A',
-        'gender_restriction' => 'Male',
-        'nationality_restriction' => 'Local',
-        'description' => 'Hostel block for local male students with standard facilities.',
-        'created_at' => date('Y-m-d H:i:s')
-    ],
-    2 => [
-        'id' => 2,
-        'block_name' => 'Block B',
-        'gender_restriction' => 'Female',
-        'nationality_restriction' => 'Local',
-        'description' => 'Hostel block for local female students with standard facilities.',
-        'created_at' => date('Y-m-d H:i:s')
-    ],
-    3 => [
-        'id' => 3,
-        'block_name' => 'Block C',
-        'gender_restriction' => 'Male',
-        'nationality_restriction' => 'International',
-        'description' => 'Hostel block for international male students with cultural integration facilities.',
-        'created_at' => date('Y-m-d H:i:s')
-    ],
-    4 => [
-        'id' => 4,
-        'block_name' => 'Block D',
-        'gender_restriction' => 'Female',
-        'nationality_restriction' => 'International',
-        'description' => 'Hostel block for international female students with cultural integration facilities.',
-        'created_at' => date('Y-m-d H:i:s')
-    ]
-];
+// Get block details from database
+$blockQuery = "SELECT * FROM hostel_blocks WHERE id = ?";
+$blockStmt = $conn->prepare($blockQuery);
+$blockStmt->bind_param("i", $block_id);
+$blockStmt->execute();
+$blockResult = $blockStmt->get_result();
 
-if (!isset($blocks[$block_id])) {
+if ($blockResult->num_rows === 0) {
     header("Location: hostel_blocks.php");
     exit();
 }
 
-$block = $blocks[$block_id];
+$block = $blockResult->fetch_assoc();
+$blockStmt->close();
 
 // Set page title and additional CSS files
 $pageTitle = "MMU Hostel Management - " . htmlspecialchars($block['block_name']) . " Rooms";
@@ -88,130 +60,27 @@ $additionalCSS = ["css/block_rooms.css", "css/dashboard.css"];
 // Get rooms data from database
 $rooms = [];
 
-// Check if relevant tables exist before querying
-$tablesExist = false;
-$result = $conn->query("SHOW TABLES LIKE 'rooms'");
-if ($result && $result->num_rows > 0) {
-    // Tables exist, now check for columns
-    try {
-        // Try a simpler query first without joining to room_rates
-        $sql = "SELECT * FROM rooms WHERE block_id = ? ORDER BY room_number";
-        $stmt = $conn->prepare($sql);
-        
-        if ($stmt) {
-            $stmt->bind_param("i", $block_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    // Add a default rate if rate_per_semester isn't available
-                    if (!isset($row['rate_per_semester'])) {
-                        $row['rate_per_semester'] = rand(800, 2000); // Fallback default rate
-                    }
-                    $rooms[] = $row;
-                }
-            }
-            $stmt->close();
-        }
-    } catch (Exception $e) {
-        // Query failed, we'll use mock data instead
-        $rooms = [];
-    }
-}
+// Query to get rooms for this block
+$roomsQuery = "SELECT * FROM rooms WHERE block_id = ? ORDER BY room_number";
+$roomsStmt = $conn->prepare($roomsQuery);
 
-// Always use predefined mock data to ensure consistent display
-$rooms = []; // Clear any partially loaded data
-
-// Generate mock room data based on block type
-$roomTypes = [
-    'Single' => ['beds' => 1, 'bathroom' => 'Shared', 'rate' => 1200],
-    'Double' => ['beds' => 2, 'bathroom' => 'Shared', 'rate' => 900],
-    'Triple' => ['beds' => 3, 'bathroom' => 'Shared', 'rate' => 750],
-    'Suite' => ['beds' => 1, 'bathroom' => 'Private', 'rate' => 1800],
-];
-
-$features = [
-    'Single' => ['Wi-Fi', 'Study Desk', 'Wardrobe', 'Fan'],
-    'Double' => ['Wi-Fi', 'Study Desks (2)', 'Wardrobes (2)', 'Fan'],
-    'Triple' => ['Wi-Fi', 'Study Desks (3)', 'Wardrobes (3)', 'Ceiling Fan'],
-    'Suite' => ['Wi-Fi', 'Study Desk', 'Wardrobe', 'Air Conditioning', 'Mini Fridge']
-];
-
-// Define room types and numbers for each block (all rooms available)
-$blockSpecificRooms = [
-    1 => [ // Block A - 10 rooms, all available
-        ['number' => 'A101', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'A102', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'A103', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'A104', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'A105', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'A106', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'A107', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'A108', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'A109', 'type' => 'Suite', 'status' => 'Available'],
-        ['number' => 'A110', 'type' => 'Suite', 'status' => 'Available'],
-    ],
-    2 => [ // Block B - 10 rooms, all available
-        ['number' => 'B101', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'B102', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'B103', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'B104', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'B105', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'B106', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'B107', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'B108', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'B109', 'type' => 'Suite', 'status' => 'Available'],
-        ['number' => 'B110', 'type' => 'Suite', 'status' => 'Available'],
-    ],
-    3 => [ // Block C - 10 rooms, all available
-        ['number' => 'C101', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'C102', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'C103', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'C104', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'C105', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'C106', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'C107', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'C108', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'C109', 'type' => 'Suite', 'status' => 'Available'],
-        ['number' => 'C110', 'type' => 'Suite', 'status' => 'Available'],
-    ],
-    4 => [ // Block D - 10 rooms, all available
-        ['number' => 'D101', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'D102', 'type' => 'Single', 'status' => 'Available'],
-        ['number' => 'D103', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'D104', 'type' => 'Double', 'status' => 'Available'],
-        ['number' => 'D105', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'D106', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'D107', 'type' => 'Triple', 'status' => 'Available'],
-        ['number' => 'D108', 'type' => 'Suite', 'status' => 'Available'],
-        ['number' => 'D109', 'type' => 'Suite', 'status' => 'Available'],
-        ['number' => 'D110', 'type' => 'Suite', 'status' => 'Available'],
-    ]
-];
-
-// Generate rooms for the current block
-if (isset($blockSpecificRooms[$block_id])) {
-    $mockRooms = $blockSpecificRooms[$block_id];
+if ($roomsStmt) {
+    $roomsStmt->bind_param("i", $block_id);
+    $roomsStmt->execute();
+    $roomsResult = $roomsStmt->get_result();
     
-    foreach ($mockRooms as $room) {
-        $roomTypeInfo = $roomTypes[$room['type']];
-        $roomFeatures = $features[$room['type']];
-        
-        $rooms[] = [
-            'id' => rand(1000, 9999),
-            'block_id' => $block_id,
-            'room_number' => $room['number'],
-            'room_type' => $room['type'],
-            'room_type_id' => array_search($room['type'], array_keys($roomTypes)) + 1,
-            'num_beds' => $roomTypeInfo['beds'],
-            'bathroom_type' => $roomTypeInfo['bathroom'],
-            'features' => json_encode($roomFeatures),
-            'status' => $room['status'], // Status is explicitly set for each room
-            'rate_per_semester' => $roomTypeInfo['rate']
-        ];
+    if ($roomsResult && $roomsResult->num_rows > 0) {
+        while ($row = $roomsResult->fetch_assoc()) {
+            $rooms[] = $row;
+        }
     }
+    $roomsStmt->close();
 }
+
+// If no rooms found for this block, show an empty array
+if (empty($rooms)) {
+    $rooms = [];
+}// No mock data needed anymore, we're using real database data
 
 // Include header
 require_once '../shared/includes/header.php';
@@ -366,15 +235,14 @@ require_once 'sidebar-admin.php';
                 </div>
             <?php else: ?>
                 <div class="rooms-grid">
-                    <?php foreach ($rooms as $room): ?>
-                        <div class="room-card" data-room-type="<?= htmlspecialchars($room['room_type']) ?>" data-status="<?= htmlspecialchars($room['status']) ?>">
+                    <?php foreach ($rooms as $room): ?>                        <div class="room-card" data-room-type="<?= htmlspecialchars($room['type']) ?>" data-status="<?= htmlspecialchars($room['availability_status']) ?>">
                             <div class="room-header">
                                 <h3><?= htmlspecialchars($room['room_number']) ?></h3>
                                 <?php 
                                 $statusClass = '';
                                 $statusIcon = '';
                                 
-                                switch ($room['status']) {
+                                switch ($room['availability_status']) {
                                     case 'Available':
                                         $statusClass = 'status-available';
                                         $statusIcon = 'fa-check-circle';
@@ -383,9 +251,17 @@ require_once 'sidebar-admin.php';
                                         $statusClass = 'status-occupied';
                                         $statusIcon = 'fa-user';
                                         break;
-                                    case 'Maintenance':
+                                    case 'Pending Confirmation':
+                                        $statusClass = 'status-pending';
+                                        $statusIcon = 'fa-clock';
+                                        break;
+                                    case 'Under Maintenance':
                                         $statusClass = 'status-maintenance';
                                         $statusIcon = 'fa-tools';
+                                        break;
+                                    case 'Reserved':
+                                        $statusClass = 'status-reserved';
+                                        $statusIcon = 'fa-bookmark';
                                         break;
                                     default:
                                         $statusClass = 'status-unknown';
