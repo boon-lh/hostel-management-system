@@ -165,9 +165,6 @@ require_once 'sidebar-admin.php';
                                     <a href="block_rooms.php?block_id=<?= $block['id'] ?>" class="action-btn view-btn" title="View Rooms" data-id="<?= $block['id'] ?>">
                                         <i class="fas fa-door-open"></i> <span class="action-text">View Rooms</span>
                                     </a>
-                                    <a href="#" class="action-btn edit-btn" title="Edit Block" data-id="<?= $block['id'] ?>">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -186,16 +183,6 @@ require_once 'sidebar-admin.php';
                 e.preventDefault();
                 const blockId = this.getAttribute('data-id');
                 window.location.href = `block_rooms.php?block_id=${blockId}`;
-            });
-        });
-        
-        // Edit block button functionality (placeholder for now)
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const blockId = this.getAttribute('data-id');
-                const blockName = this.closest('.block-card').querySelector('.block-header h3').textContent;
-                alert(`Edit ${blockName} functionality will be implemented here.`);
             });
         });
     });

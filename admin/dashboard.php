@@ -63,7 +63,7 @@ $revenueRow = $revenueResult->fetch_assoc();
 $monthlyRevenue = $revenueRow['monthly_revenue'] ?: 0;
 
 // Recent Applications (hostel registrations)
-$applicationsQuery = "SELECT hr.id, hr.student_id, s.name, hr.registration_date, hr.status 
+$applicationsQuery = "SELECT hr.id, hr.student_id, s.name, s.ic_number, hr.registration_date, hr.status 
                      FROM hostel_registrations hr
                      JOIN students s ON hr.student_id = s.id
                      ORDER BY hr.registration_date DESC
@@ -79,8 +79,9 @@ $roomStatusQuery = "SELECT r.room_number, hb.block_name, r.type, r.availability_
 $roomStatusResult = $conn->query($roomStatusQuery);
 
 // Recent Payments
-$paymentsQuery = "SELECT p.id, p.student_id, p.amount, p.payment_date, p.status
+$paymentsQuery = "SELECT p.id, p.student_id, s.ic_number, p.amount, p.payment_date, p.status
                  FROM payments p
+                 JOIN students s ON p.student_id = s.id
                  ORDER BY p.payment_date DESC
                  LIMIT 4";
 $paymentsResult = $conn->query($paymentsQuery);
@@ -199,7 +200,7 @@ $requestsResult = null;
                             <?php if ($applicationsResult->num_rows > 0): ?>
                                 <?php while ($app = $applicationsResult->fetch_assoc()): ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($app['student_id']); ?></td>
+                                        <td><?php echo htmlspecialchars($app['ic_number']); ?></td>
                                         <td><?php echo htmlspecialchars($app['name']); ?></td>
                                         <td><?php echo date('M d, Y', strtotime($app['registration_date'])); ?></td>
                                         <td>
@@ -330,7 +331,7 @@ $requestsResult = null;
                             <?php if ($paymentsResult->num_rows > 0): ?>
                                 <?php while ($payment = $paymentsResult->fetch_assoc()): ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($payment['student_id']); ?></td>
+                                        <td><?php echo htmlspecialchars($payment['ic_number']); ?></td>
                                         <td>RM <?php echo number_format($payment['amount'], 2); ?></td>
                                         <td><?php echo date('M d, Y', strtotime($payment['payment_date'])); ?></td>
                                         <td>

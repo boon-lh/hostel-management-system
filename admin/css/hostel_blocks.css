@@ -143,17 +143,6 @@
     font-size: 14px;
 }
 
-.edit-btn {
-    color: #4caf50;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
 @media (max-width: 768px) {
     .hostel-blocks-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

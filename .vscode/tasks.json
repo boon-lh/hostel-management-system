@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Open admin room_registrations page",
+			"type": "shell",
+			"command": "start http://localhost/hostel-management-system/admin/room_registrations.php",
+			"group": "test",
+			"isBackground": false
+		}
+	]
+}
