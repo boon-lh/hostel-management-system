@@ -5,8 +5,7 @@ require_once '../shared/includes/db_connection.php';
 $errors = [];
 $success = false;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Get form data
+if ($_SERVER["REQUEST_METHOD"] === "POST") {    // Get form data
     $name = $_POST['name'] ?? '';
     $gender = $_POST['gender'] ?? '';
     $dob = $_POST['dob'] ?? '';
@@ -15,6 +14,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $contact_no = $_POST['contact_no'] ?? '';
     $email = $_POST['email'] ?? '';
     $citizenship = $_POST['citizenship'] ?? '';
+    // Handle the "Others" citizenship option
+    if ($citizenship === 'Others' && !empty($_POST['other_citizenship'])) {
+        $citizenship = htmlspecialchars($_POST['other_citizenship']);
+    }
     $address = $_POST['address'] ?? '';
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
@@ -157,15 +160,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <?php else: ?>
                             <form action="signup.php" method="POST" novalidate>
                                 <h5 class="form-section-title">Personal Information</h5>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="name">Full Name</label>
+                                <div class="form-row">                                    <div class="form-group col-md-6">
+                                        <label for="name">Full Name (Letters only)</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                                             </div>
-                                            <input type="text" name="name" id="name" class="form-control" required>
+                                            <input type="text" name="name" id="name" class="form-control" pattern="[A-Za-z ]{1,}" title="Name can only contain letters and spaces" required>
                                         </div>
+                                        <small class="form-text text-muted">Your name can only contain letters and spaces</small>
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="gender">Gender</label>
@@ -258,15 +261,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 </optgroup>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="contact_no">Contact Number</label>
+                                    </div>                                    <div class="form-group col-md-6">
+                                        <label for="contact_no">Contact Number (Numbers only)</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                             </div>
-                                            <input type="text" name="contact_no" id="contact_no" class="form-control" required>
+                                            <input type="text" name="contact_no" id="contact_no" class="form-control" pattern="[0-9]+" title="Contact number can only contain digits" required>
                                         </div>
+                                        <small class="form-text text-muted">Your contact number can only contain digits</small>
                                     </div>
                                 </div>
                                 
@@ -279,18 +282,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             </div>
                                             <input type="email" name="email" id="email" class="form-control" required>
                                         </div>
-                                    </div>
-                                    <div class="form-group col-md-6">
+                                    </div>                                    <div class="form-group col-md-6">
                                         <label for="citizenship">Citizenship</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-flag"></i></span>
                                             </div>
-                                            <select name="citizenship" id="citizenship" class="form-control" required>
+                                            <select name="citizenship" id="citizenship" class="form-control" required onchange="toggleOtherCitizenship()">
                                                 <option value="" selected disabled>Select Citizenship</option>
                                                 <option value="Malaysian">Malaysian</option>
                                                 <option value="Others">Others</option>
                                             </select>
+                                        </div>
+                                        <div id="otherCitizenshipContainer" style="display: none; margin-top: 10px;">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                                </div>
+                                                <input type="text" name="other_citizenship" id="other_citizenship" class="form-control" placeholder="Enter your nationality">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -327,24 +337,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </div>
                                 </div>
 
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
+                                <div class="form-row">                                    <div class="form-group col-md-6">
                                         <label for="emergency_relationship">Relationship</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-users"></i></span>
                                             </div>
-                                            <input type="text" name="emergency_relationship" id="emergency_relationship" class="form-control" required>
+                                            <select name="emergency_relationship" id="emergency_relationship" class="form-control" required>
+                                                <option value="" selected disabled>Select Relationship</option>
+                                                <option value="Parent">Parent</option>
+                                                <option value="Sibling">Sibling</option>
+                                                <option value="Legal Guardian">Legal Guardian</option>
+                                                <option value="Significant Other">Significant Other</option>
+                                                <option value="Friend">Friend</option>
+                                                <option value="Employer">Employer</option>
+                                                <option value="Other">Other</option>
+                                            </select>
                                         </div>
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="emergency_contact_no">Contact Number</label>
+                                    </div>                                    <div class="form-group col-md-6">
+                                        <label for="emergency_contact_no">Contact Number (Numbers only)</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                             </div>
-                                            <input type="text" name="emergency_contact_no" id="emergency_contact_no" class="form-control" required>
+                                            <input type="text" name="emergency_contact_no" id="emergency_contact_no" class="form-control" pattern="[0-9]+" title="Contact number can only contain digits" required>
                                         </div>
+                                        <small class="form-text text-muted">Contact number can only contain digits</small>
                                     </div>
                                 </div>
 
@@ -424,8 +442,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
-    <script>
+      <script>
         // Password strength indicator
         document.getElementById('password').addEventListener('input', function() {
             const password = this.value;
@@ -468,6 +485,59 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         strengthBar.classList.add('very-strong');
                         break;
                 }
+            }
+        });
+        
+        // Function to toggle the display of the "other citizenship" input field
+        function toggleOtherCitizenship() {
+            const citizenshipSelect = document.getElementById('citizenship');
+            const otherCitizenshipContainer = document.getElementById('otherCitizenshipContainer');
+            const otherCitizenshipInput = document.getElementById('other_citizenship');
+            
+            if (citizenshipSelect.value === 'Others') {
+                otherCitizenshipContainer.style.display = 'block';
+                otherCitizenshipInput.setAttribute('required', 'required');
+            } else {
+                otherCitizenshipContainer.style.display = 'none';
+                otherCitizenshipInput.removeAttribute('required');
+                otherCitizenshipInput.value = ''; // Clear the input value
+            }
+        }
+        
+        // Name validation - allow only alphabet characters and spaces
+        document.getElementById('name').addEventListener('input', function(e) {
+            // Replace any non-alphabetic characters (except spaces) with empty string
+            this.value = this.value.replace(/[^A-Za-z ]/g, '');
+        });
+        
+        // Emergency contact name validation - allow only alphabet characters and spaces
+        document.getElementById('emergency_name').addEventListener('input', function(e) {
+            // Replace any non-alphabetic characters (except spaces) with empty string
+            this.value = this.value.replace(/[^A-Za-z ]/g, '');
+        });
+        
+        // Contact number validation - allow only numeric characters
+        document.getElementById('contact_no').addEventListener('input', function(e) {
+            // Replace any non-numeric characters with empty string
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Emergency contact number validation - allow only numeric characters
+        document.getElementById('emergency_contact_no').addEventListener('input', function(e) {
+            // Replace any non-numeric characters with empty string
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Handle form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Check if "Others" is selected for citizenship and a value is provided for other_citizenship
+            const citizenshipSelect = document.getElementById('citizenship');
+            const otherCitizenshipInput = document.getElementById('other_citizenship');
+            
+            if (citizenshipSelect.value === 'Others' && !otherCitizenshipInput.value.trim()) {
+                e.preventDefault();
+                alert('Please specify your nationality.');
+                otherCitizenshipInput.focus();
             }
         });
     </script>
