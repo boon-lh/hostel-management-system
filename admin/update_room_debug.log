@@ -1,0 +1,81 @@
+
+
+----- 2025-06-19 18:23:39 -----
+POST data: Array
+(
+    [room_id] => 39
+    [status] => Occupied
+)
+
+Session data: Array
+(
+    [user_id] => 1
+    [user] => admin03
+    [fullname] => Aminah
+    [role] => admin
+)
+
+Database connection included
+Validated room_id: 39 and new_status: Occupied
+Check query: SELECT id, availability_status FROM rooms WHERE id = ? with room_id: 39
+Room exists check - rows: 1
+Current room data: Array
+(
+    [id] => 39
+    [availability_status] => Available
+)
+
+SQL Query: UPDATE rooms SET availability_status = ? WHERE id = ?
+Parameters: status=Occupied, id=39
+Execute result: true, Rows affected: 1
+Updated room data: Array
+(
+    [id] => 39
+    [availability_status] => Occupied
+)
+
+Request completed
+
+
+----- 2025-06-19 18:24:05 -----
+POST data: Array
+(
+    [room_id] => 39
+    [status] => Available
+)
+
+Session data: Array
+(
+    [user_id] => 1
+    [user] => admin03
+    [fullname] => Aminah
+    [role] => admin
+)
+
+Database connection included
+Raw POST data: Array
+(
+    [room_id] => 39
+    [status] => Available
+)
+
+Parsed room_id: 39, new_status: Available
+Validated room_id: 39 and new_status: Available
+Check query: SELECT id, availability_status FROM rooms WHERE id = ? with room_id: 39
+Room exists check - rows: 1
+Current room data: Array
+(
+    [id] => 39
+    [availability_status] => Occupied
+)
+
+SQL Query: UPDATE rooms SET availability_status = ? WHERE id = ?
+Parameters: status=Available, id=39
+Execute result: true, Rows affected: 1
+Updated room data: Array
+(
+    [id] => 39
+    [availability_status] => Available
+)
+
+Request completed

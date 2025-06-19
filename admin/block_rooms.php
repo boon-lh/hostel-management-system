@@ -516,37 +516,72 @@ require_once 'sidebar-admin.php';
             // Create form data
             const formData = new FormData();
             formData.append('room_id', roomId);
-            formData.append('status', newStatus);
+            formData.append('status', newStatus);            // Show loading indicator - updated for table view
+            const row = button.closest('tr');
+            console.log('Found row:', row); 
             
-            // Show loading indicator
-            const card = button.closest('.room-card');
-            const statusElement = card.querySelector('.room-status');
+            // Check if the row has the expected classes
+            if (row && !row.classList.contains('room-row')) {
+                console.warn('Row does not have room-row class, adding it');
+                row.classList.add('room-row');
+            }
+            
+            const statusCell = row.querySelector('td.status-col');
+            console.log('Found status cell:', statusCell);
+            
+            const statusElement = statusCell ? statusCell.querySelector('.status-pill') : null;
+            console.log('Found status element:', statusElement);
+            
+            if (!statusElement) {
+                console.error('Status element not found');
+                showNotification('Error: Could not find status element', 'error');
+                return;
+            }
+            
             const originalContent = statusElement.innerHTML;
             statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            
-            // Send AJAX request to update database
+              // Debug the form data before sending
+            console.log('Sending data to update:', {
+                room_id: roomId,
+                new_status: newStatus
+            });
+              // Send AJAX request to update database
             fetch('update_room_status.php', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                credentials: 'same-origin', // Include credentials (session cookies)
+                cache: 'no-cache' // Avoid caching
+            })            .then(response => {
+                console.log('Response status:', response.status);
+                // Check if the response is ok (status in the range 200-299)
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server responded with status ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
             })
-            .then(response => response.json())
             .then(data => {
+                console.log('Server response:', data);
                 if (data.success) {                    // Get the appropriate icon for the new status - simplified to 3 options
                     let statusIcon = 'fa-question-circle';
                     switch (newStatus) {
                         case 'Available': statusIcon = 'fa-check-circle'; break;
                         case 'Occupied': statusIcon = 'fa-user'; break;
                         case 'Under Maintenance': statusIcon = 'fa-tools'; break;
-                    }
-                      // Update UI on success
-                    statusElement.innerHTML = `<i class="fas ${statusIcon}"></i> ${newStatus}`;
-                    
-                    // Update status class
+                    }                    // Update UI on success
                     const newClass = newStatus.toLowerCase().replace(/\s+/g, '-');
-                    statusElement.className = `room-status status-${newClass}`;
+                    
+                    // Debug the elements we're trying to update
+                    console.log('Status element:', statusElement);
+                    console.log('Row element:', row);
+                    
+                    // Set new status content and class
+                    statusElement.innerHTML = `<i class="fas ${statusIcon}"></i> ${newStatus}`;
+                    statusElement.className = `status-pill status-${newClass}`;
                     
                     // Update dataset for filtering
-                    card.dataset.status = newStatus;
+                    row.dataset.status = newStatus;
                     
                     // Update the button's data attribute
                     button.setAttribute('data-current-status', newStatus);
@@ -581,9 +616,13 @@ require_once 'sidebar-admin.php';
                             updateStatWithAnimation(statCards[3], data.stats.maintenance_rooms);    // Maintenance
                         }
                     }
-                    
-                    // Show success notification
+                      // Show success notification
                     showNotification(`Room ${roomNumber} status updated to ${newStatus}`, 'success');
+                    
+                    // Check database state after update for debugging
+                    setTimeout(() => {
+                        checkRoomStatus(roomId);
+                    }, 1000);
                 } else {
                     // Restore original status on error
                     statusElement.innerHTML = originalContent;
@@ -598,6 +637,23 @@ require_once 'sidebar-admin.php';
                 console.error('Error:', error);
             });
         }
+        
+        // Reapply filters and pagination after status update
+        if (typeof applyFiltersAndPaginate === 'function') {
+            applyFiltersAndPaginate();
+        }
+    }
+    
+    // Debugging function to check room status in the database
+    function checkRoomStatus(roomId) {
+        fetch(`check_room_status.php?room_id=${roomId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Database room status check:', data);
+            })
+            .catch(error => {
+                console.error('Error checking room status:', error);
+            });
     }
     
     // Document ready function
