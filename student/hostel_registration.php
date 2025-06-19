@@ -29,7 +29,7 @@ $student_id = $_SESSION['user_id'];
 // Fetch available rooms and their features from database
 $rooms = [];
 
-// Define room types and their details (same as in admin panel)
+// Define room types for feature mapping
 $roomTypes = [
     'Single' => ['beds' => 1, 'bathroom' => 'Shared', 'rate' => 1200],
     'Double' => ['beds' => 2, 'bathroom' => 'Shared', 'rate' => 900],
@@ -37,6 +37,7 @@ $roomTypes = [
     'Suite' => ['beds' => 1, 'bathroom' => 'Private', 'rate' => 1800],
 ];
 
+// Define features for room types
 $features = [
     'Single' => ['Wi-Fi', 'Study Desk', 'Wardrobe', 'Fan'],
     'Double' => ['Wi-Fi', 'Study Desks (2)', 'Wardrobes (2)', 'Fan'],
@@ -44,37 +45,8 @@ $features = [
     'Suite' => ['Wi-Fi', 'Study Desk', 'Wardrobe', 'Air Conditioning', 'Mini Fridge']
 ];
 
-// Get blocks data (same structure as admin panel)
-$blocks = [
-    1 => [
-        'id' => 1,
-        'block_name' => 'Block A',
-        'gender_restriction' => 'Male',
-        'nationality_restriction' => 'Local',
-        'description' => 'Hostel block for local male students with standard facilities.',
-    ],
-    2 => [
-        'id' => 2,
-        'block_name' => 'Block B',
-        'gender_restriction' => 'Female',
-        'nationality_restriction' => 'Local',
-        'description' => 'Hostel block for local female students with standard facilities.',
-    ],
-    3 => [
-        'id' => 3,
-        'block_name' => 'Block C',
-        'gender_restriction' => 'Male',
-        'nationality_restriction' => 'International',
-        'description' => 'Hostel block for international male students with cultural integration facilities.',
-    ],
-    4 => [
-        'id' => 4,
-        'block_name' => 'Block D',
-        'gender_restriction' => 'Female',
-        'nationality_restriction' => 'International',
-        'description' => 'Hostel block for international female students with cultural integration facilities.',
-    ]
-];
+// Initialize blocks array - will be populated from database
+$blocks = [];
 
 // Check if the database tables exist
 $table_exists = false;
@@ -130,104 +102,8 @@ if ($table_exists) {
     }
 }
 
-// If no rooms were loaded from database, use the room structure from admin panel
-if (empty($rooms)) {
-    // Define room types and numbers for each block (all rooms available)
-    $blockSpecificRooms = [
-                1 => [ // Block A - 10 rooms, all available
-                    ['number' => 'A101', 'type' => 'Single', 'status' => 'Available'],
-                    ['number' => 'A102', 'type' => 'Single', 'status' => 'Available'],
-                    ['number' => 'A103', 'type' => 'Double', 'status' => 'Available'],
-                    ['number' => 'A104', 'type' => 'Double', 'status' => 'Available'],
-                    ['number' => 'A105', 'type' => 'Double', 'status' => 'Available'],
-                    ['number' => 'A106', 'type' => 'Double', 'status' => 'Available'],
-                    ['number' => 'A107', 'type' => 'Triple', 'status' => 'Available'],
-                    ['number' => 'A108', 'type' => 'Triple', 'status' => 'Available'],
-                    ['number' => 'A109', 'type' => 'Suite', 'status' => 'Available'],
-                    ['number' => 'A110', 'type' => 'Suite', 'status' => 'Available'],
-                ],
-                2 => [ // Block B - 10 rooms, all available
-                    ['number' => 'B101', 'type' => 'Single', 'status' => 'Available'],
-                    ['number' => 'B102', 'type' => 'Single', 'status' => 'Available'],
-                    ['number' => 'B103', 'type' => 'Single', 'status' => 'Available'],
-                    ['number' => 'B104', 'type' => 'Double', 'status' => 'Available'],
-                    ['number' => 'B105', 'type' => 'Double', 'status' => 'Available'],
-                    ['number' => 'B106', 'type' => 'Double', 'status' => 'Available'],
-                    ['number' => 'B107', 'type' => 'Triple', 'status' => 'Available'],
-                    ['number' => 'B108', 'type' => 'Triple', 'status' => 'Available'],
-                    ['number' => 'B109', 'type' => 'Suite', 'status' => 'Available'],
-                    ['number' => 'B110', 'type' => 'Suite', 'status' => 'Available'],
-                ],
-        3 => [ // Block C - 10 rooms, all available
-            ['number' => 'C101', 'type' => 'Double', 'status' => 'Available'],
-            ['number' => 'C102', 'type' => 'Double', 'status' => 'Available'],
-            ['number' => 'C103', 'type' => 'Double', 'status' => 'Available'],
-            ['number' => 'C104', 'type' => 'Double', 'status' => 'Available'],
-            ['number' => 'C105', 'type' => 'Triple', 'status' => 'Available'],
-            ['number' => 'C106', 'type' => 'Triple', 'status' => 'Available'],
-            ['number' => 'C107', 'type' => 'Triple', 'status' => 'Available'],
-            ['number' => 'C108', 'type' => 'Triple', 'status' => 'Available'],
-            ['number' => 'C109', 'type' => 'Suite', 'status' => 'Available'],
-            ['number' => 'C110', 'type' => 'Suite', 'status' => 'Available'],
-        ],
-        4 => [ // Block D - 10 rooms, all available
-            ['number' => 'D101', 'type' => 'Single', 'status' => 'Available'],
-            ['number' => 'D102', 'type' => 'Single', 'status' => 'Available'],
-            ['number' => 'D103', 'type' => 'Double', 'status' => 'Available'],
-            ['number' => 'D104', 'type' => 'Double', 'status' => 'Available'],
-            ['number' => 'D105', 'type' => 'Triple', 'status' => 'Available'],
-            ['number' => 'D106', 'type' => 'Triple', 'status' => 'Available'],
-            ['number' => 'D107', 'type' => 'Triple', 'status' => 'Available'],
-            ['number' => 'D108', 'type' => 'Suite', 'status' => 'Available'],
-            ['number' => 'D109', 'type' => 'Suite', 'status' => 'Available'],
-            ['number' => 'D110', 'type' => 'Suite', 'status' => 'Available'],
-        ]
-    ];
-    
-    // Generate rooms for all blocks
-    $roomId = 1;
-    foreach ($blockSpecificRooms as $blockId => $mockRooms) {
-        // Make sure we're only using valid blocks (1-4, which are A-D)
-        if ($blockId < 1 || $blockId > 4) continue;
-        
-        $block = $blocks[$blockId] ?? null;
-        if (!$block) continue;
-        
-        // Get the actual block name from our blocks array, ensuring consistency
-        $blockName = $block['block_name']; // This should be "Block A", "Block B", etc.
-        
-        foreach ($mockRooms as $room) {
-            $roomTypeInfo = $roomTypes[$room['type']] ?? $roomTypes['Single'];
-            $roomFeaturesList = $features[$room['type']] ?? $features['Single'];
-            
-            // Format features as comma-separated string
-            $featuresString = implode(", ", $roomFeaturesList);
-            
-            // Make sure room number starts with the correct block letter (A, B, C, or D)
-            $roomNumber = $room['number'];
-            // Extract the first character of block_name (should be "A", "B", "C", or "D")
-            $blockLetter = substr($blockName, -1); // Get last character of "Block X"
-            
-            // Ensure room number starts with correct block letter
-            if (!preg_match('/^' . $blockLetter . '/', $roomNumber)) {
-                // If not, replace the first character with the correct block letter
-                $roomNumber = $blockLetter . substr($roomNumber, 1);
-            }
-            
-            $rooms[] = [
-                "id" => $roomId++,
-                "block_id" => $blockId,
-                "block" => $blockName,
-                "room_number" => $roomNumber,
-                "type" => $room['type'],
-                "price" => $roomTypeInfo['rate'] . " MYR",
-                "features" => $featuresString,
-                "gender_restriction" => $block['gender_restriction'] ?? "None",
-                "nationality_restriction" => $block['nationality_restriction'] ?? "None", 
-                "availability" => $room['status']
-            ];}
-    }
-}
+// If no rooms were loaded from database, just display the default message
+// The template already has a message for when $rooms is empty
 
 // Handle registration form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register_room'])) {
@@ -437,10 +313,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register_room'])) {
         
         <?php if (isset($message)): ?>
             <div class="alert alert-<?php echo isset($message_type) ? $message_type : 'info'; ?>"><?php echo $message; ?></div>
-        <?php endif; ?>
-
-        <div class="room-list">
-            <?php if (!empty($rooms)): ?>                <?php foreach ($rooms as $room): ?>
+        <?php endif; ?>        <div class="room-list">
+            <?php if (!empty($rooms)): ?>
+                <?php foreach ($rooms as $room): ?>
                     <div class="room-card <?php echo ($room['availability'] !== 'Available') ? 'unavailable' : ''; ?>">
                         <div class="room-header">
                             <h3><i class="fas fa-door-open"></i> Room <?php echo htmlspecialchars($room['room_number']); ?> (<?php echo htmlspecialchars($room['block']); ?>)</h3>

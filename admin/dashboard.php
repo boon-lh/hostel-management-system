@@ -27,40 +27,19 @@ $residentsResult = $conn->query($residentsQuery);
 $residentsRow = $residentsResult->fetch_assoc();
 $totalResidents = $residentsRow['total_residents'];
 
-// 2. Occupancy Rate
+// 2. Occupancy Rate - Updated to reflect only confirmed occupied rooms
 $roomsQuery = "SELECT 
                 COUNT(*) as total_rooms,
-                SUM(CASE WHEN availability_status IN ('Occupied', 'Pending Confirmation') THEN 1 ELSE 0 END) as occupied_rooms
-               FROM rooms";
+                SUM(CASE WHEN availability_status = 'Occupied' THEN 1 ELSE 0 END) as occupied_rooms
+               FROM rooms 
+               WHERE availability_status NOT IN ('Under Maintenance')";
 $roomsResult = $conn->query($roomsQuery);
 $roomsRow = $roomsResult->fetch_assoc();
 $totalRooms = $roomsRow['total_rooms'];
 $occupiedRooms = $roomsRow['occupied_rooms'];
 $occupancyRate = ($totalRooms > 0) ? round(($occupiedRooms / $totalRooms) * 100) : 0;
 
-// 3. Pending Maintenance
-$maintenanceQuery = "SELECT COUNT(*) as pending_maintenance 
-                    FROM service_requests 
-                    WHERE request_type = 'maintenance' 
-                    AND status IN ('pending', 'approved', 'in_progress')";
-$maintenanceResult = $conn->query($maintenanceQuery);
-$maintenanceRow = $maintenanceResult->fetch_assoc();
-$pendingMaintenance = $maintenanceRow['pending_maintenance'];
-
-// 4. Monthly Revenue
-$month = date('m');
-$year = date('Y');
-$revenueQuery = "SELECT SUM(amount) as monthly_revenue 
-                FROM payments 
-                WHERE MONTH(payment_date) = ? 
-                AND YEAR(payment_date) = ? 
-                AND status = 'completed'";
-$revenueStmt = $conn->prepare($revenueQuery);
-$revenueStmt->bind_param("ii", $month, $year);
-$revenueStmt->execute();
-$revenueResult = $revenueStmt->get_result();
-$revenueRow = $revenueResult->fetch_assoc();
-$monthlyRevenue = $revenueRow['monthly_revenue'] ?: 0;
+// Queries for Pending Maintenance and Monthly Revenue have been removed
 
 // Recent Applications (hostel registrations)
 $applicationsQuery = "SELECT hr.id, hr.student_id, s.name, s.ic_number, hr.registration_date, hr.status 
@@ -92,6 +71,14 @@ $pendingRegistrationsResult = $conn->query($pendingRegistrationsQuery);
 $pendingRegistrationsCount = 0;
 if ($pendingRegistrationsResult && $pendingRegistrationsResult->num_rows > 0) {
     $pendingRegistrationsCount = $pendingRegistrationsResult->fetch_assoc()['count'];
+}
+
+// Count open complaints
+$openComplaintsQuery = "SELECT COUNT(*) as count FROM complaints WHERE status IN ('Open', 'In Progress')";
+$openComplaintsResult = $conn->query($openComplaintsQuery);
+$openComplaintsCount = 0;
+if ($openComplaintsResult && $openComplaintsResult->num_rows > 0) {
+    $openComplaintsCount = $openComplaintsResult->fetch_assoc()['count'];
 }
 
 // Complaints and Feedback
@@ -133,8 +120,7 @@ $requestsResult = null;
                 <p>Occupancy Rate</p>
             </div>
         </div>
-        
-        <div class="stat-card">
+          <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-clipboard-check"></i>
             </div>
@@ -151,23 +137,20 @@ $requestsResult = null;
         
         <div class="stat-card">
             <div class="stat-icon">
-                <i class="fas fa-tools"></i>
+                <i class="fas fa-comment-alt"></i>
             </div>
             <div class="stat-info">
-                <h3><?php echo $pendingMaintenance; ?></h3>
-                <p>Pending Maintenance</p>
+                <h3><?php echo $openComplaintsCount; ?></h3>
+                <p>Open Complaints</p>
             </div>
+            <?php if ($openComplaintsCount > 0): ?>
+            <a href="complaints.php?status=Open" class="stat-action">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <?php endif; ?>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-hand-holding-usd"></i>
-            </div>
-            <div class="stat-info">
-                <h3>RM <?php echo number_format($monthlyRevenue, 2); ?></h3>
-                <p>Monthly Revenue</p>
-            </div>
-        </div>
+  
+  
     </div>
 
     <!-- Dashboard Cards -->
@@ -246,15 +229,13 @@ $requestsResult = null;
                 </div>
             </div>
             <div class="card-content">
-                <div class="table-responsive">
-                    <table class="data-table">
+                <div class="table-responsive">                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Room No.</th>
                                 <th>Block</th>
                                 <th>Type</th>
                                 <th>Status</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -282,19 +263,13 @@ $requestsResult = null;
                                                     break;
                                                 default:
                                                     $roomStatusClass = 'status-reserved';
-                                            }
-                                            ?>
+                                            }                                            ?>
                                             <span class="status <?php echo $roomStatusClass; ?>"><?php echo $room['availability_status']; ?></span>
                                         </td>
-                                        <td class="action-buttons">
-                                            <a href="#"><i class="fas fa-eye"></i></a>
-                                            <a href="#"><i class="fas fa-edit"></i></a>
-                                        </td>
                                     </tr>
-                                <?php endwhile; ?>
-                            <?php else: ?>
+                                <?php endwhile; ?>                            <?php else: ?>
                                 <tr>
-                                    <td colspan="5" class="text-center">No rooms found</td>
+                                    <td colspan="4" class="text-center">No rooms found</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>

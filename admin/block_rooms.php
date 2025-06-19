@@ -55,17 +55,38 @@ $blockStmt->close();
 
 // Set page title and additional CSS files
 $pageTitle = "MMU Hostel Management - " . htmlspecialchars($block['block_name']) . " Rooms";
-$additionalCSS = ["css/block_rooms.css", "css/dashboard.css"];
+$additionalCSS = ["css/block_rooms.css", "css/dashboard.css", "css/room_management.css"];
 
 // Get rooms data from database
 $rooms = [];
 
-// Query to get rooms for this block
-$roomsQuery = "SELECT * FROM rooms WHERE block_id = ? ORDER BY room_number";
+// Get filter parameters
+$roomTypeFilter = isset($_GET['room_type']) ? $_GET['room_type'] : 'all';
+$statusFilter = isset($_GET['status']) ? $_GET['status'] : 'all';
+
+// Build WHERE clause for filters
+$whereClause = "block_id = ?";
+$params = array($block_id);
+$types = "i";
+
+if ($roomTypeFilter !== 'all') {
+    $whereClause .= " AND type = ?";
+    $params[] = $roomTypeFilter;
+    $types .= "s";
+}
+
+if ($statusFilter !== 'all') {
+    $whereClause .= " AND availability_status = ?";
+    $params[] = $statusFilter;
+    $types .= "s";
+}
+
+// Query to get rooms for this block with filters
+$roomsQuery = "SELECT * FROM rooms WHERE $whereClause ORDER BY room_number";
 $roomsStmt = $conn->prepare($roomsQuery);
 
 if ($roomsStmt) {
-    $roomsStmt->bind_param("i", $block_id);
+    $roomsStmt->bind_param($types, ...$params);
     $roomsStmt->execute();
     $roomsResult = $roomsStmt->get_result();
     
@@ -197,21 +218,25 @@ require_once 'sidebar-admin.php';
     </div>
     
     <!-- Rooms List -->
-    <div class="card">
-        <div class="card-header">
+    <div class="card">        <div class="card-header">
             <div class="card-title-area">
                 <div class="card-icon">
                     <i class="fas fa-door-open"></i>
                 </div>
                 <h2 class="card-title">Rooms</h2>
             </div>
-            <div class="card-actions">                <div class="filter-container">
+            <div class="card-actions">                <button type="button" id="addRoomBtn" class="action-btn primary-btn">
+                    <i class="fas fa-plus"></i> Add Room
+                </button>
+                <div class="filter-container">
                     <select id="roomTypeFilter" class="filter-select">
                         <option value="all">All Room Types</option>
                         <option value="Single">Single</option>
                         <option value="Double">Double</option>
                         <option value="Triple">Triple</option>
-                    </select>                    <select id="statusFilter" class="filter-select">
+                        <option value="Quad">Quad</option>
+                    </select>
+                    <select id="statusFilter" class="filter-select">
                         <option value="all">All Statuses</option>
                         <option value="Available">Available</option>
                         <option value="Occupied">Occupied</option>
@@ -220,8 +245,7 @@ require_once 'sidebar-admin.php';
                 </div>
             </div>
         </div>
-        <div class="card-body">
-            <?php if (empty($rooms)): ?>
+        <div class="card-body">            <?php if (empty($rooms)): ?>
                 <div class="no-data-container">
                     <div class="no-data-icon">
                         <i class="fas fa-door-closed"></i>
@@ -230,13 +254,37 @@ require_once 'sidebar-admin.php';
                     <p>There are no rooms assigned to this block yet.</p>
                 </div>
             <?php else: ?>
-                <div class="rooms-grid">                    <?php foreach ($rooms as $room): ?>                        <div class="room-card" data-room-type="<?= htmlspecialchars($room['type']) ?>" data-status="<?= htmlspecialchars($room['availability_status']) ?>">
-                            <div class="room-header">
-                                <h3><?= htmlspecialchars($room['room_number']) ?></h3>
+                <div class="table-responsive">
+                    <table class="rooms-table">
+                        <thead>
+                            <tr>                                <th class="room-number">Room No.</th>
+                                <th class="room-type">Type</th>
+                                <th class="room-capacity">Capacity</th>
+                                <th class="room-price">Price/Semester</th>
+                                <th class="room-status">Status</th>
+                                <th class="room-features">Features</th>
+                                <th class="room-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($rooms as $room): ?>                            <tr class="room-row" data-room-type="<?= htmlspecialchars($room['type']) ?>" data-status="<?= htmlspecialchars($room['availability_status']) ?>">
+                                <!-- Room Number -->
+                                <td class="room-number"><?= htmlspecialchars($room['room_number']) ?></td>
+                                
+                                <!-- Room Type -->
+                                <td class="room-type"><?= htmlspecialchars($room['type']) ?></td>
+                                
+                                <!-- Capacity -->
+                                <td class="room-capacity"><?= htmlspecialchars($room['capacity']) ?> person(s)</td>
+                                
+                                <!-- Price -->
+                                <td class="room-price">RM<?= number_format($room['price'], 2) ?></td>
+                                
+                                <!-- Status -->
                                 <?php 
                                 $statusClass = '';
                                 $statusIcon = '';
-                                  switch ($room['availability_status']) {
+                                switch ($room['availability_status']) {
                                     case 'Available':
                                         $statusClass = 'status-available';
                                         $statusIcon = 'fa-check-circle';
@@ -254,16 +302,13 @@ require_once 'sidebar-admin.php';
                                         $statusIcon = 'fa-question-circle';
                                 }
                                 ?>
-                                <span class="room-status <?= $statusClass ?>">
-                                    <i class="fas <?= $statusIcon ?>"></i> <?= htmlspecialchars($room['availability_status']) ?>
-                                </span>
-                            </div>
-                            <div class="room-details">
-                                <div class="room-info">
-                                    <p class="room-type"><strong>Type:</strong> <?= htmlspecialchars($room['type']) ?></p>
-                                    <p><strong>Capacity:</strong> <?= htmlspecialchars($room['capacity']) ?> person(s)</p>
-                                    <p class="room-price"><strong>Price:</strong> RM<?= number_format($room['price'], 2) ?>/semester</p>
-                                </div>
+                                <td class="room-status">
+                                    <span class="status-pill <?= $statusClass ?>">
+                                        <i class="fas <?= $statusIcon ?>"></i> <?= htmlspecialchars($room['availability_status']) ?>
+                                    </span>
+                                </td>
+                                
+                                <!-- Features -->
                                 <?php 
                                 // Parse features from database
                                 $featuresList = [];
@@ -289,17 +334,20 @@ require_once 'sidebar-admin.php';
                                             $featuresList = ['Study Desk', 'Wardrobe', 'Wi-Fi'];
                                     }
                                 }
-                                ?>
+                                ?>                                <td class="room-features">
+                                    <?php 
+                                    // Limit the number of features displayed to prevent overflow
+                                    $limitedFeatures = array_slice($featuresList, 0, 4);
+                                    $moreCount = count($featuresList) - count($limitedFeatures);
+                                    echo implode(", ", array_map('htmlspecialchars', $limitedFeatures));
+                                    if ($moreCount > 0) {
+                                        echo ' <span class="more-features" title="' . implode(", ", array_map('htmlspecialchars', array_slice($featuresList, 4))) . '">+' . $moreCount . ' more</span>';
+                                    }
+                                    ?>
+                                </td>
                                 
-                                <div class="room-features">
-                                    <p><strong>Features:</strong></p>
-                                    <ul class="features-list">
-                                        <?php foreach ($featuresList as $feature): ?>
-                                            <li><i class="fas fa-check"></i> <?= htmlspecialchars($feature) ?></li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>                                <div class="room-actions">
-                                    <!-- Edit Room Button -->
+                                <!-- Actions -->
+                                <td class="room-actions">
                                     <button type="button" 
                                             class="action-btn edit-room-btn" 
                                             title="Edit Room Status" 
@@ -307,17 +355,132 @@ require_once 'sidebar-admin.php';
                                             data-room-number="<?= htmlspecialchars($room['room_number']) ?>" 
                                             data-current-status="<?= htmlspecialchars($room['availability_status']) ?>" 
                                             onclick="editRoomStatus(this)">
-                                        <i class="fas fa-edit"></i> Edit
+                                        <i class="fas fa-edit"></i>
                                     </button>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                                </td>
+                            </tr>                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-info">
+                    Total: <?= count($rooms) ?> rooms
                 </div>
             <?php endif; ?>
         </div>
     </div>
 </div>
+
+<!-- Add Room Modal -->
+<div id="addRoomModal" class="modal">
+    <div class="modal-content" onclick="event.stopPropagation();">
+        <div class="modal-header">
+            <h3>Add New Room</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addRoomForm">
+                <input type="hidden" name="block_id" value="<?= $block_id ?>">
+                
+                <div class="form-group">
+                    <label for="roomNumber">Room Number <span class="required">*</span></label>
+                    <input type="text" id="roomNumber" name="room_number" required placeholder="e.g., A101">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="roomType">Room Type <span class="required">*</span></label>
+                        <select id="roomType" name="room_type" required onchange="updateCapacity()">
+                            <option value="Single">Single</option>
+                            <option value="Double">Double</option>
+                            <option value="Triple">Triple</option>
+                            <option value="Quad">Quad</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label for="capacity">Capacity <span class="required">*</span></label>
+                        <input type="number" id="capacity" name="capacity" min="1" max="4" value="1" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="price">Price (RM/semester) <span class="required">*</span></label>
+                        <input type="number" id="price" name="price" min="0" step="0.01" required placeholder="e.g., 1200.00">
+                    </div>
+                    <div class="form-group half">
+                        <label for="status">Initial Status</label>
+                        <select id="status" name="status">
+                            <option value="Available">Available</option>
+                            <option value="Under Maintenance">Under Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="features">Features (comma separated)</label>
+                    <input type="text" id="features" name="features" placeholder="e.g., Study Desk, Wardrobe, Wi-Fi">
+                    <small>Common features will be added automatically based on room type</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn secondary-btn" id="cancelAddRoomBtn">Cancel</button>
+                    <button type="submit" class="btn primary-btn">Add Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Inline CSS fix for modal display -->
+<style>
+    /* Override modal display styles for compatibility */
+    #addRoomModal {
+        display: none;
+        z-index: 9999 !important;
+    }
+    
+    #addRoomModal.show {
+        display: block !important;
+        opacity: 1 !important;
+    }
+    
+    /* Ensure modal content is visible and properly styled */
+    .modal-content {
+        max-height: 90vh;
+        max-width: 600px;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Form elements styling */
+    #addRoomForm .form-group {
+        margin-bottom: 15px;
+    }
+    
+    /* Ensure buttons are visible and properly styled */
+    .btn.primary-btn, .btn.secondary-btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn.primary-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .btn.secondary-btn {
+        background-color: #f1f1f1;
+        color: #333;
+    }
+    
+    .btn.primary-btn:hover {
+        background-color: #45a049;
+    }
+</style>
 
 <script>
     // Global function for editing room status - called directly from button onclick
@@ -428,36 +591,134 @@ require_once 'sidebar-admin.php';
         // Room filtering functionality
         const roomTypeFilter = document.getElementById('roomTypeFilter');
         const statusFilter = document.getElementById('statusFilter');
-        const roomCards = document.querySelectorAll('.room-card');
+        const roomRows = document.querySelectorAll('.room-row');
         
         // Setup notification container
         const notificationContainer = document.createElement('div');
         notificationContainer.className = 'notification-container';
-        document.body.appendChild(notificationContainer);
-        
-        // Apply filters function
+        document.body.appendChild(notificationContainer);        // Apply filters function
         function applyFilters() {
             const selectedRoomType = roomTypeFilter.value;
             const selectedStatus = statusFilter.value;
             
-            roomCards.forEach(card => {
-                const roomType = card.dataset.roomType;
-                const status = card.dataset.status;
+            // Save filters to URL params
+            const currentUrl = new URL(window.location.href);
+            if (selectedRoomType !== 'all') {
+                currentUrl.searchParams.set('room_type', selectedRoomType);
+            } else {
+                currentUrl.searchParams.delete('room_type');
+            }
+            
+            if (selectedStatus !== 'all') {
+                currentUrl.searchParams.set('status', selectedStatus);
+            } else {
+                currentUrl.searchParams.delete('status');
+            }
+            
+            // Get all room rows (tr elements) from the table
+            const roomRows = document.querySelectorAll('.room-row');
+            
+            // Filter rows based on selected filters
+            roomRows.forEach(row => {
+                const roomType = row.dataset.roomType;
+                const status = row.dataset.status;
                 
                 const roomTypeMatch = selectedRoomType === 'all' || roomType === selectedRoomType;
                 const statusMatch = selectedStatus === 'all' || status === selectedStatus;
                 
                 if (roomTypeMatch && statusMatch) {
-                    card.style.display = 'block';
+                    row.style.display = ''; // Show the row
                 } else {
-                    card.style.display = 'none';
+                    row.style.display = 'none'; // Hide the row
                 }
             });
+            
+            // Update table info to reflect filtered count
+            updateTableInfo();
         }
         
-        // Add event listeners for filters
+        // Function to update the table info showing visible rows count
+        function updateTableInfo() {
+            const visibleRows = document.querySelectorAll('.room-row:not([style*="display: none"])').length;
+            const totalRows = document.querySelectorAll('.room-row').length;
+            
+            const tableInfo = document.querySelector('.table-info');
+            if (tableInfo) {
+                tableInfo.textContent = `Showing ${visibleRows} of ${totalRows} rooms`;
+            }
+        }
+          // Add event listeners for filters
         roomTypeFilter.addEventListener('change', applyFilters);
         statusFilter.addEventListener('change', applyFilters);
+        
+        // Initialize the table info when page loads
+        updateTableInfo();
+          // Close all event listeners from the previous section
+    });
+    
+    // Add Room form submission - outside of the previous event listener context
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded');
+        const addRoomForm = document.getElementById('addRoomForm');
+        console.log('Form element found:', addRoomForm);
+        
+        if (addRoomForm) {
+            addRoomForm.addEventListener('submit', function(event) {
+                console.log('Form submit event triggered');
+                event.preventDefault(); // Prevent default form submission
+                
+                // Gather form data
+                const formData = new FormData(addRoomForm);
+                
+                // Show loading indicator on the submit button
+                const submitButton = addRoomForm.querySelector('.btn.primary-btn');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                submitButton.disabled = true;
+                
+                // Send AJAX request to add new room
+                fetch('add_room.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Server response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    // Restore button text and state
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    
+                    if (data.success) {
+                        // Close the modal
+                        hideAddRoomModal();
+                        
+                        // Optionally, refresh the room list or add the new room to the list
+                        location.reload(); // Simple way to refresh the page
+                        
+                        // Show success notification
+                        showNotification('New room added successfully', 'success');
+                    } else {
+                        // Show error notification
+                        showNotification('Failed to add room: ' + data.message, 'error');
+                        console.error('Add room error:', data.message);
+                    }
+                })                .catch(error => {
+                    // Restore button text and state
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    
+                    // Show detailed error notification
+                    const errorMessage = 'Error: ' + (error.message || 'Unknown error');
+                    showNotification(errorMessage, 'error');
+                    console.error('Error details:', error);
+                    
+                    // Display error in a more visible way for debugging
+                    alert('Error occurred: ' + errorMessage + '\nCheck console for details.');
+                });
+            });
+        }
     });
     
     // Function to show notifications
@@ -483,6 +744,146 @@ require_once 'sidebar-admin.php';
             }, 300);
         }, 3000);
     }
+      // Show Add Room modal
+    function showAddRoomModal() {
+        console.log('Show modal function called');
+        const modal = document.getElementById('addRoomModal');
+        if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'block'; // Adding direct style for compatibility
+            
+            // Optional: Reset the form
+            const form = modal.querySelector('form');
+            if (form) {
+                form.reset();
+                
+                // Set default values if needed
+                const roomTypeSelect = form.querySelector('select[name="room_type"]');
+                if (roomTypeSelect) {
+                    roomTypeSelect.value = 'Single'; // Default to Single
+                }
+                
+                const statusSelect = form.querySelector('select[name="status"]');
+                if (statusSelect) {
+                    statusSelect.value = 'Available'; // Default to Available
+                }
+            }
+        } else {
+            console.error('Modal element not found');
+        }
+    }
+    
+    // Hide Add Room modal
+    function hideAddRoomModal() {
+        console.log('Hide modal function called');
+        const modal = document.getElementById('addRoomModal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none'; // Adding direct style for compatibility
+        } else {
+            console.error('Modal element not found');
+        }
+    }
+    
+    // Update capacity input based on room type selection
+    function updateCapacity() {
+        const roomTypeSelect = document.getElementById('roomType');
+        const capacityInput = document.getElementById('capacity');
+        
+        if (roomTypeSelect && capacityInput) {
+            const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
+            const maxCapacity = selectedOption.getAttribute('data-capacity');
+            
+            // Update the max attribute of the capacity input
+            capacityInput.setAttribute('max', maxCapacity);
+            
+            // Optionally, adjust the current value if it exceeds the new max
+            if (parseInt(capacityInput.value) > parseInt(maxCapacity)) {
+                capacityInput.value = maxCapacity;
+            }
+        }
+    }
+    
+    // Make sure the Add Room button works correctly
+    document.addEventListener('DOMContentLoaded', function() {
+        const addRoomBtn = document.getElementById('addRoomBtn');
+        if (addRoomBtn) {
+            console.log('Add Room button found, adding direct event listener');
+            addRoomBtn.addEventListener('click', function() {
+                console.log('Add Room button clicked');
+                showAddRoomModal();
+            });
+        } else {
+            console.error('Add Room button not found');
+        }
+
+        // Add event listener to close modal button as well
+        const closeModalButtons = document.querySelectorAll('.close-modal');
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                console.log('Close modal button clicked');
+                hideAddRoomModal();
+            });
+        });
+
+        // Add event listener to close the modal when clicking outside it
+        document.getElementById('addRoomModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                console.log('Clicked outside modal content');
+                hideAddRoomModal();
+            }
+        });
+
+        // Add event listener for the cancel button
+        const cancelAddRoomBtn = document.getElementById('cancelAddRoomBtn');
+        if (cancelAddRoomBtn) {
+            cancelAddRoomBtn.addEventListener('click', function() {
+                console.log('Cancel button clicked');
+                hideAddRoomModal();
+            });
+        }
+    });
+    
+    // Initialize tooltips for features
+    document.addEventListener('mouseover', function(e) {
+        if (e.target && e.target.classList.contains('more-features')) {
+            const title = e.target.getAttribute('title');
+            if (title) {
+                // Create and show tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = title;
+                document.body.appendChild(tooltip);
+                
+                // Position tooltip
+                const rect = e.target.getBoundingClientRect();
+                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                tooltip.style.top = rect.bottom + 10 + 'px';
+                
+                // Store tooltip reference
+                e.target.tooltip = tooltip;
+                
+                // Remove title to prevent default tooltip
+                e.target.setAttribute('data-original-title', title);
+                e.target.removeAttribute('title');
+            }
+        }
+    });
+    
+    document.addEventListener('mouseout', function(e) {
+        if (e.target && e.target.classList.contains('more-features') && e.target.tooltip) {
+            // Remove tooltip
+            document.body.removeChild(e.target.tooltip);
+            e.target.tooltip = null;
+            
+            // Restore title
+            const originalTitle = e.target.getAttribute('data-original-title');
+            if (originalTitle) {
+                e.target.setAttribute('title', originalTitle);
+                e.target.removeAttribute('data-original-title');
+            }
+        }
+    });
 </script>
 
 <?php require_once '../shared/includes/footer.php'; ?>
