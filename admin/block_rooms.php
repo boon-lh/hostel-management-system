@@ -365,9 +365,18 @@ require_once 'sidebar-admin.php';
                                 </td>
                             </tr>                            <?php endforeach; ?>
                         </tbody>
-                    </table>
+                    </table>                </div>
+                <div class="table-pagination-container">
+                    <div class="table-info"></div>
+                    <div class="pagination-container">
+                        <div class="pagination" id="roomsPagination">
+                            <!-- Pagination links will be added here via JavaScript -->
+                        </div>
+                        <div class="pagination-info" id="paginationInfo">
+                            <!-- Pagination info will be added here via JavaScript -->
+                        </div>
+                    </div>
                 </div>
-                <div class="table-info">
                     Total: <?= count($rooms) ?> rooms
                 </div>
             <?php endif; ?>
@@ -603,8 +612,11 @@ require_once 'sidebar-admin.php';
         notificationContainer.className = 'notification-container';
         document.body.appendChild(notificationContainer);        // Apply filters function
         function applyFilters() {
+            console.log('Applying filters...');
             const selectedRoomType = roomTypeFilter.value;
             const selectedStatus = statusFilter.value;
+            
+            console.log('Filters:', selectedRoomType, selectedStatus);
             
             // Save filters to URL params
             const currentUrl = new URL(window.location.href);
@@ -620,8 +632,14 @@ require_once 'sidebar-admin.php';
                 currentUrl.searchParams.delete('status');
             }
             
+            // Update browser history without reloading the page
+            window.history.replaceState({}, '', currentUrl.toString());
+            
             // Get all room rows (tr elements) from the table
             const roomRows = document.querySelectorAll('.room-row');
+            console.log('Total room rows:', roomRows.length);
+            
+            let visibleCount = 0;
             
             // Filter rows based on selected filters
             roomRows.forEach(row => {
@@ -632,38 +650,232 @@ require_once 'sidebar-admin.php';
                 const statusMatch = selectedStatus === 'all' || status === selectedStatus;
                 
                 if (roomTypeMatch && statusMatch) {
-                    row.style.display = ''; // Show the row
+                    // This row matches the filter
+                    row.dataset.filtered = 'visible';
+                    visibleCount++;
                 } else {
-                    row.style.display = 'none'; // Hide the row
+                    // This row doesn't match the filter - hide it completely
+                    row.dataset.filtered = 'hidden';
+                    row.classList.add('pagination-hidden');
                 }
             });
+            
+            console.log('Visible rows after filtering:', visibleCount);
             
             // Update table info to reflect filtered count
             updateTableInfo();
         }
-        
-        // Function to update the table info showing visible rows count
+          // Pagination variables
+        let currentPage = 1;
+        const rowsPerPage = 10;
+          // Function to update the table info showing visible rows count
         function updateTableInfo() {
-            const visibleRows = document.querySelectorAll('.room-row:not([style*="display: none"])').length;
+            const filteredVisibleRows = document.querySelectorAll('.room-row[data-filtered="visible"]').length;
             const totalRows = document.querySelectorAll('.room-row').length;
             
             const tableInfo = document.querySelector('.table-info');
             if (tableInfo) {
-                tableInfo.textContent = `Showing ${visibleRows} of ${totalRows} rooms`;
+                tableInfo.textContent = `Showing ${filteredVisibleRows} of ${totalRows} rooms`;
+                console.log('Updated table info:', filteredVisibleRows, 'of', totalRows);
             }
         }
-          // Add event listeners for filters
-        roomTypeFilter.addEventListener('change', applyFilters);
-        statusFilter.addEventListener('change', applyFilters);
+          // Function to paginate visible rows
+        function paginateRows() {
+            console.log('Paginating rows...');
+            // Get all rows that are not hidden by filtering
+            const visibleRows = Array.from(document.querySelectorAll('.room-row')).filter(row => {
+                return row.dataset.filtered !== 'hidden';
+            });
+            
+            console.log('Total visible rows after filtering:', visibleRows.length);
+            const totalVisibleRows = visibleRows.length;
+            
+            // Calculate total pages needed
+            const totalPages = Math.ceil(totalVisibleRows / rowsPerPage);
+            console.log('Total pages needed:', totalPages);
+            
+            // Adjust current page if it's out of bounds
+            if (currentPage > totalPages) {
+                currentPage = totalPages > 0 ? totalPages : 1;
+            }
+            
+            console.log('Current page:', currentPage);
+              // First hide all rows that match the filter
+            visibleRows.forEach(row => {
+                // Hide for pagination purposes
+                row.classList.add('pagination-hidden');
+                // But make sure we keep the filtered state
+                if (row.dataset.filtered === 'visible') {
+                    row.style.display = 'none'; // Initially hide even filtered rows
+                }
+            });
+            
+            // Show only rows for the current page
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, totalVisibleRows);
+            
+            console.log('Showing rows from', startIndex, 'to', endIndex - 1);
+              for (let i = startIndex; i < endIndex; i++) {
+                if (visibleRows[i]) {
+                    visibleRows[i].classList.remove('pagination-hidden');
+                    visibleRows[i].style.display = ''; // Make visible
+                    console.log('Showing row:', visibleRows[i].querySelector('.room-number-col').textContent.trim());
+                }
+            }
+            
+            // Count actually visible rows
+            const actuallyVisibleRows = document.querySelectorAll('.room-row:not(.pagination-hidden):not([data-filtered="hidden"])').length;
+            console.log('Actually visible rows after pagination:', actuallyVisibleRows);
+            
+            // Update pagination info
+            const paginationInfo = document.getElementById('paginationInfo');
+            if (paginationInfo) {
+                paginationInfo.textContent = `Page ${currentPage} of ${totalPages > 0 ? totalPages : 1}`;
+                console.log('Updated pagination info');
+            }
+            
+            // Update pagination links
+            updatePaginationLinks(totalPages);
+        }
         
-        // Initialize the table info when page loads
+        // Function to update pagination links
+        function updatePaginationLinks(totalPages) {
+            const pagination = document.getElementById('roomsPagination');
+            if (!pagination) return;
+            
+            pagination.innerHTML = '';
+            
+            // Add Previous button
+            const prevBtn = document.createElement('a');
+            prevBtn.classList.add('pagination-link');
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.title = 'Previous Page';
+            
+            if (currentPage === 1) {
+                prevBtn.classList.add('disabled');
+            } else {
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        paginateRows();
+                    }
+                });
+            }
+            pagination.appendChild(prevBtn);
+            
+            // Determine which page numbers to show
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            // Adjust if we're near the end
+            if (endPage - startPage < 4 && startPage > 1) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            // Add first page if not included in the range
+            if (startPage > 1) {
+                const firstPage = document.createElement('a');
+                firstPage.classList.add('pagination-link');
+                firstPage.textContent = '1';
+                firstPage.addEventListener('click', () => {
+                    currentPage = 1;
+                    paginateRows();
+                });
+                pagination.appendChild(firstPage);
+                
+                // Add ellipsis if needed
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.classList.add('pagination-link', 'disabled');
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+            
+            // Add page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                const pageLink = document.createElement('a');
+                pageLink.classList.add('pagination-link');
+                if (i === currentPage) {
+                    pageLink.classList.add('active');
+                }
+                pageLink.textContent = i.toString();
+                pageLink.addEventListener('click', () => {
+                    currentPage = i;
+                    paginateRows();
+                });
+                pagination.appendChild(pageLink);
+            }
+            
+            // Add ellipsis and last page if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.classList.add('pagination-link', 'disabled');
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+                
+                const lastPage = document.createElement('a');
+                lastPage.classList.add('pagination-link');
+                lastPage.textContent = totalPages.toString();
+                lastPage.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    paginateRows();
+                });
+                pagination.appendChild(lastPage);
+            }
+            
+            // Add Next button
+            const nextBtn = document.createElement('a');
+            nextBtn.classList.add('pagination-link');
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.title = 'Next Page';
+            
+            if (currentPage === totalPages || totalPages === 0) {
+                nextBtn.classList.add('disabled');
+            } else {
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        paginateRows();
+                    }
+                });
+            }
+            pagination.appendChild(nextBtn);
+        }
+        
+        // Apply filters and pagination together
+        function applyFiltersAndPaginate() {
+            // Reset to first page when filters change
+            currentPage = 1;
+            
+            // Apply filters first
+            applyFilters();
+            
+            // Then apply pagination
+            paginateRows();
+        }
+          // Add event listeners for filters
+        roomTypeFilter.addEventListener('change', applyFiltersAndPaginate);
+        statusFilter.addEventListener('change', applyFiltersAndPaginate);
+        
+        // Initialize the table info and pagination when page loads
+        console.log('Initializing pagination...');
+        // First, mark all rows as visible for initial pagination
+        document.querySelectorAll('.room-row').forEach(row => {
+            row.dataset.filtered = 'visible';
+        });
         updateTableInfo();
-          // Close all event listeners from the previous section
+        paginateRows();
+
+        // Debug
+        console.log('Pagination setup complete');
     });
     
     // Add Room form submission - outside of the previous event listener context
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM fully loaded');
+        console.log('DOM fully loaded for room form');
         const addRoomForm = document.getElementById('addRoomForm');
         console.log('Form element found:', addRoomForm);
         

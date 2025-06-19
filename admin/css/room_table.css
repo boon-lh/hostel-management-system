@@ -309,10 +309,104 @@
 
 /* Table Info */
 .table-info {
-    padding: 10px 15px;
+    font-size: 14px;
+    color: #4a5568;
+    text-align: center;
+    padding: 5px 0;
+    margin-bottom: 5px;
+}
+
+/* Table Pagination Container */
+.table-pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+    padding: 15px 0;
+    background: #ffffff;
+    border-radius: 0 0 8px 8px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px 0;
+}
+
+#roomsPagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.pagination-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+    padding: 0 10px;
+    background-color: #fff;
+}
+
+.pagination-link:hover {
+    border-color: #4776e6;
+    color: #4776e6;
+    background-color: #f8fafc;
+}
+
+.pagination-link.active {
+    background: linear-gradient(135deg, #6e8efb 0%, #4776e6 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 2px 5px rgba(71, 118, 230, 0.3);
+}
+
+.pagination-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
+}
+
+.pagination-info {
     font-size: 13px;
     color: #718096;
-    text-align: right;
+    margin-top: 5px;
+    text-align: center;
+}
+
+/* Hidden rows for pagination */
+.pagination-hidden {
+    display: none !important;
+}
+
+/* Hide rows filtered out */
+.room-row[data-filtered="hidden"] {
+    display: none !important;
 }
 
 /* Responsive Styles */
