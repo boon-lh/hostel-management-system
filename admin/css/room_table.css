@@ -217,7 +217,7 @@
 .action-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 5px;
+    gap: 8px;
 }
 
 .action-btn {
@@ -252,6 +252,12 @@
 
 .delete-btn:hover {
     background-color: rgba(229, 62, 62, 0.1);
+    transform: translateY(-1px);
+}
+
+.delete-btn:active {
+    transform: translateY(1px);
+    background-color: rgba(229, 62, 62, 0.2);
 }
 
 .view-btn {

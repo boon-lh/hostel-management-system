@@ -349,8 +349,7 @@ require_once 'sidebar-admin.php';
                                         ?>
                                     </div>
                                 </td>
-                                
-                                <!-- Actions -->                                <td class="actions-col">
+                                  <!-- Actions -->                                <td class="actions-col">
                                     <div class="action-buttons">
                                         <button type="button" 
                                                 class="action-btn edit-btn" 
@@ -360,6 +359,14 @@ require_once 'sidebar-admin.php';
                                                 data-current-status="<?= htmlspecialchars($room['availability_status']) ?>" 
                                                 onclick="editRoomStatus(this)">
                                             <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" 
+                                                class="action-btn delete-btn" 
+                                                title="Delete Room" 
+                                                data-room-id="<?= $room['id'] ?>" 
+                                                data-room-number="<?= htmlspecialchars($room['room_number']) ?>" 
+                                                onclick="deleteRoom(this)">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -1157,6 +1164,125 @@ require_once 'sidebar-admin.php';
             }
         }
     });
+    
+    // Global function for deleting a room - called directly from button onclick
+    function deleteRoom(button) {
+        console.log('Delete button clicked', button);
+        
+        const roomId = button.getAttribute('data-room-id');
+        const roomNumber = button.getAttribute('data-room-number');
+        
+        console.log('Room data for deletion:', roomId, roomNumber);
+        
+        // Confirm deletion with the admin
+        if (!confirm(`Are you sure you want to delete Room ${roomNumber}?\n\nThis action cannot be undone. All room data will be permanently removed.`)) {
+            return; // User canceled the action
+        }
+        
+        // Create form data
+        const formData = new FormData();
+        formData.append('room_id', roomId);
+        
+        // Get the row for later removal
+        const row = button.closest('tr');
+        
+        // Show loading state on the button
+        const originalHTML = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          // Debug before sending
+        console.log('About to send delete request for room ID:', roomId);
+        
+        // Send AJAX request to delete room
+        fetch('delete_room.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            cache: 'no-cache'
+        })
+        .then(response => {
+            console.log('Delete response status:', response.status);
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`Server responded with status ${response.status}: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Server response for delete:', data);
+            
+            if (data.success) {
+                // Animate the row removal
+                row.style.transition = 'all 0.5s ease';
+                row.style.backgroundColor = '#ffdddd';
+                row.style.opacity = '0';
+                
+                setTimeout(() => {
+                    // Remove the row from DOM after animation
+                    row.remove();
+                    
+                    // Update stats if provided
+                    if (data.stats) {
+                        const statCards = document.querySelectorAll('.stat-item .stat-value');
+                        if (statCards.length >= 4) {
+                            // Update total rooms count
+                            statCards[0].textContent = data.stats.total_rooms;
+                            // Update available rooms count
+                            statCards[1].textContent = data.stats.available_rooms;
+                            // Update occupied rooms count
+                            statCards[2].textContent = data.stats.occupied_rooms;
+                            // Update maintenance rooms count
+                            statCards[3].textContent = data.stats.maintenance_rooms;
+                        }
+                    }
+                    
+                    // Update table info to reflect count changes
+                    if (typeof updateTableInfo === 'function') {
+                        updateTableInfo();
+                    }
+                    
+                    // Reapply filters and pagination after deletion
+                    if (typeof applyFiltersAndPaginate === 'function') {
+                        applyFiltersAndPaginate();
+                    }
+                    
+                    // Show success notification
+                    showNotification(`Room ${roomNumber} has been deleted`, 'success');
+                }, 500);
+            } else {
+                // Reset button state
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+                
+                // Show error notification
+                showNotification(data.message || 'Failed to delete room', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting room:', error);
+            
+            // Reset button state
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+              // Show detailed error notification with fallback option
+            const errorMsg = error.message || 'An error occurred while deleting the room';
+            showNotification('Error: ' + errorMsg, 'error');
+            
+            // Log additional details for debugging
+            console.error('Delete request failed for room ' + roomNumber + ' (ID: ' + roomId + ')');
+            
+            // Offer fallback option after a short delay
+            setTimeout(() => {
+                if (confirm('The delete request failed. Would you like to try an alternative method?')) {
+                    window.location.href = 'simple_delete_room.php?id=' + roomId;
+                }
+            }, 1500);
+        });
+    }
 </script>
 
-<?php require_once '../shared/includes/footer.php'; ?>
+<?php require_once '../shared/includes/footer.php'; ?>            <!-- Direct update form link for administrative use -->
+            <div style="margin: 10px 0; font-size: 12px; color: #666;">
+                <a href="direct_update_room.php">Direct Room Update Form</a>
+            </div>
