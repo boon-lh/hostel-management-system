@@ -378,119 +378,11 @@
     font-size: 12px;
 }
 
-/* Table Styles for Room List */
-.table-responsive {
-    overflow-x: auto;
-    width: 100%;
-    margin-bottom: 20px;
-    /* Ensure padding for scrollbar */
-    padding-bottom: 5px;
-    /* Add horizontal scrolling on small screens */
-    -webkit-overflow-scrolling: touch;
-}
+/* Table Styles have been moved to room_table.css */
 
-.rooms-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    /* Ensure table doesn't break on small screens */
-    min-width: 900px;
-    table-layout: fixed; /* Helps maintain consistent column widths */
-}
+/* Table header styles moved to room_table.css */
 
-.rooms-table thead {
-    background-color: #f1f3f5;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.rooms-table th {
-    padding: 15px;
-    font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #eaeaea;
-    white-space: nowrap;
-    position: relative;
-    font-size: 15px; /* Standardized font size for all headers */
-}
-
-/* Match column alignment for headers */
-.rooms-table th.room-status {
-    text-align: center;
-    font-size: 15px; /* Ensure status header has the same font size */
-    padding-right: 0; /* Remove padding to reduce gap */
-    width: 12%; /* Match the cell width */
-}
-
-.rooms-table th.room-actions {
-    text-align: center;
-    width: 10%; /* Match the cell width */
-    padding-left: 5px; /* Match cell padding */
-}
-
-.rooms-table th.room-features {
-    padding-left: 5px; /* Match cell padding */
-    padding-right: 5px; /* Match cell padding */
-    width: 25%; /* Match the cell width */
-}
-
-/* Match all header widths to their corresponding cells */
-.rooms-table th.room-number {
-    width: 12%;
-    min-width: 100px;
-}
-
-.rooms-table th.room-type {
-    width: 15%;
-    min-width: 80px;
-}
-
-.rooms-table th.room-capacity {
-    width: 10%;
-    min-width: 100px;
-}
-
-.rooms-table th.room-price {
-    width: 16%;
-    min-width: 120px;
-}
-
-.rooms-table td {
-    padding: 12px 10px; /* Consistent padding for all cells */
-    border-bottom: 1px solid #eaeaea;
-    vertical-align: middle;
-    word-wrap: break-word;
-    max-width: 300px; /* Maximum width for content cells */
-}
-
-.rooms-table tr:last-child td {
-    border-bottom: none;
-}
-
-.rooms-table tr:hover {
-    background-color: #f5f9ff;
-}
-
-/* Column Widths */
-.rooms-table .room-number {
-    width: 12%;
-    min-width: 100px;
-}
-
-.rooms-table .room-type {
-    width: 15%;
-    min-width: 80px;
-}
-
-.rooms-table .room-capacity {
-    width: 10%;
-    min-width: 100px;
-}
+/* Table row and column styles moved to room_table.css */
 
 .rooms-table .room-price {
     width: 16%;
@@ -685,3 +577,62 @@
         width: 100%;
     }
 }
+
+/* Add Room Button - Enhanced Visibility */
+#addRoomBtn {
+    padding: 10px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #4776e6 0%, #8E54E9 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(71, 118, 230, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+#addRoomBtn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#addRoomBtn i {
+    font-size: 14px;
+}
+
+#addRoomBtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(71, 118, 230, 0.5);
+}
+
+#addRoomBtn:hover:before {
+    opacity: 1;
+}
+
+#addRoomBtn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(71, 118, 230, 0.4);
+}
+
+/* 
+ * NOTE: All table-specific styles have been moved to room_table.css.
+ * This includes:
+ * - Table structure (rows, columns, headers)
+ * - Status pills
+ * - Features tags
+ * - Action buttons
+ * - Responsive table behavior
+ */

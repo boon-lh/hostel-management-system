@@ -55,7 +55,7 @@ $blockStmt->close();
 
 // Set page title and additional CSS files
 $pageTitle = "MMU Hostel Management - " . htmlspecialchars($block['block_name']) . " Rooms";
-$additionalCSS = ["css/block_rooms.css", "css/dashboard.css", "css/room_management.css"];
+$additionalCSS = ["css/block_rooms.css", "css/dashboard.css", "css/room_management.css", "css/room_table.css"];
 
 // Get rooms data from database
 $rooms = [];
@@ -224,8 +224,8 @@ require_once 'sidebar-admin.php';
                     <i class="fas fa-door-open"></i>
                 </div>
                 <h2 class="card-title">Rooms</h2>
-            </div>
-            <div class="card-actions">                <button type="button" id="addRoomBtn" class="action-btn primary-btn">
+            </div>            <div class="card-actions">
+                <button type="button" id="addRoomBtn">
                     <i class="fas fa-plus"></i> Add Room
                 </button>
                 <div class="filter-container">
@@ -255,30 +255,29 @@ require_once 'sidebar-admin.php';
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="rooms-table">
-                        <thead>
-                            <tr>                                <th class="room-number">Room No.</th>
-                                <th class="room-type">Type</th>
-                                <th class="room-capacity">Capacity</th>
-                                <th class="room-price">Price/Semester</th>
-                                <th class="room-status">Status</th>
-                                <th class="room-features">Features</th>
-                                <th class="room-actions">Actions</th>
+                    <table class="rooms-table">                        <thead>
+                            <tr>
+                                <th class="room-number-col">Room No.</th>
+                                <th class="room-type-col">Type</th>
+                                <th class="capacity-col">Capacity</th>
+                                <th class="price-col">Price/Semester</th>
+                                <th class="status-col">Status</th>
+                                <th class="features-col">Features</th>
+                                <th class="actions-col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($rooms as $room): ?>                            <tr class="room-row" data-room-type="<?= htmlspecialchars($room['type']) ?>" data-status="<?= htmlspecialchars($room['availability_status']) ?>">
-                                <!-- Room Number -->
-                                <td class="room-number"><?= htmlspecialchars($room['room_number']) ?></td>
+                            <?php foreach ($rooms as $room): ?>                            <tr class="room-row" data-room-type="<?= htmlspecialchars($room['type']) ?>" data-status="<?= htmlspecialchars($room['availability_status']) ?>">                                <!-- Room Number -->
+                                <td class="room-number-col"><span class="room-number"><?= htmlspecialchars($room['room_number']) ?></span></td>
                                 
                                 <!-- Room Type -->
-                                <td class="room-type"><?= htmlspecialchars($room['type']) ?></td>
+                                <td class="room-type-col"><span class="room-type"><?= htmlspecialchars($room['type']) ?></span></td>
                                 
                                 <!-- Capacity -->
-                                <td class="room-capacity"><?= htmlspecialchars($room['capacity']) ?> person(s)</td>
+                                <td class="capacity-col"><span class="room-capacity"><?= htmlspecialchars($room['capacity']) ?> person(s)</span></td>
                                 
                                 <!-- Price -->
-                                <td class="room-price">RM<?= number_format($room['price'], 2) ?></td>
+                                <td class="price-col"><span class="room-price">RM<?= number_format($room['price'], 2) ?></span></td>
                                 
                                 <!-- Status -->
                                 <?php 
@@ -301,8 +300,7 @@ require_once 'sidebar-admin.php';
                                         $statusClass = 'status-unknown';
                                         $statusIcon = 'fa-question-circle';
                                 }
-                                ?>
-                                <td class="room-status">
+                                ?>                                <td class="status-col">
                                     <span class="status-pill <?= $statusClass ?>">
                                         <i class="fas <?= $statusIcon ?>"></i> <?= htmlspecialchars($room['availability_status']) ?>
                                     </span>
@@ -334,29 +332,36 @@ require_once 'sidebar-admin.php';
                                             $featuresList = ['Study Desk', 'Wardrobe', 'Wi-Fi'];
                                     }
                                 }
-                                ?>                                <td class="room-features">
-                                    <?php 
-                                    // Limit the number of features displayed to prevent overflow
-                                    $limitedFeatures = array_slice($featuresList, 0, 4);
-                                    $moreCount = count($featuresList) - count($limitedFeatures);
-                                    echo implode(", ", array_map('htmlspecialchars', $limitedFeatures));
-                                    if ($moreCount > 0) {
-                                        echo ' <span class="more-features" title="' . implode(", ", array_map('htmlspecialchars', array_slice($featuresList, 4))) . '">+' . $moreCount . ' more</span>';
-                                    }
-                                    ?>
+                                ?>                                <td class="features-col">
+                                    <div class="room-features-list">
+                                        <?php 
+                                        // Limit the number of features displayed to prevent overflow
+                                        $limitedFeatures = array_slice($featuresList, 0, 4);
+                                        $moreCount = count($featuresList) - count($limitedFeatures);
+
+                                        // Display features as tags
+                                        foreach ($limitedFeatures as $feature) {
+                                            echo '<span class="feature-tag">' . htmlspecialchars($feature) . '</span>';
+                                        }
+                                        if ($moreCount > 0) {
+                                            echo '<span class="more-features" title="' . implode(", ", array_map('htmlspecialchars', array_slice($featuresList, 4))) . '">+' . $moreCount . ' more</span>';
+                                        }
+                                        ?>
+                                    </div>
                                 </td>
                                 
-                                <!-- Actions -->
-                                <td class="room-actions">
-                                    <button type="button" 
-                                            class="action-btn edit-room-btn" 
-                                            title="Edit Room Status" 
-                                            data-room-id="<?= $room['id'] ?>" 
-                                            data-room-number="<?= htmlspecialchars($room['room_number']) ?>" 
-                                            data-current-status="<?= htmlspecialchars($room['availability_status']) ?>" 
-                                            onclick="editRoomStatus(this)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                <!-- Actions -->                                <td class="actions-col">
+                                    <div class="action-buttons">
+                                        <button type="button" 
+                                                class="action-btn edit-btn" 
+                                                title="Edit Room Status" 
+                                                data-room-id="<?= $room['id'] ?>" 
+                                                data-room-number="<?= htmlspecialchars($room['room_number']) ?>" 
+                                                data-current-status="<?= htmlspecialchars($room['availability_status']) ?>" 
+                                                onclick="editRoomStatus(this)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>                            <?php endforeach; ?>
                         </tbody>

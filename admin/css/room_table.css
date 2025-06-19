@@ -1,0 +1,383 @@
+/* Room Table Styles */
+
+/* Table Container */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Table Styles */
+.rooms-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+/* Table Header */
+.rooms-table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e3e6f0;
+}
+
+.rooms-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 14px;
+    white-space: nowrap;
+    vertical-align: middle;
+    position: relative;
+    height: 50px;
+    box-sizing: border-box;
+}
+
+/* Ensure all column headers have consistent styling */
+.rooms-table th.room-number-col,
+.rooms-table th.room-type-col,
+.rooms-table th.capacity-col,
+.rooms-table th.price-col,
+.rooms-table th.status-col,
+.rooms-table th.features-col,
+.rooms-table th.actions-col {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Special case for actions column which should be right-aligned */
+.rooms-table th.actions-col {
+    justify-content: flex-end;
+}
+
+/* Column Widths */
+.rooms-table th.room-number-col,
+.rooms-table td.room-number-col {
+    width: 15%;
+}
+
+.rooms-table th.room-type-col,
+.rooms-table td.room-type-col {
+    width: 15%;
+}
+
+.rooms-table th.capacity-col,
+.rooms-table td.capacity-col {
+    width: 10%;
+}
+
+.rooms-table th.price-col,
+.rooms-table td.price-col {
+    width: 15%;
+}
+
+.rooms-table th.status-col,
+.rooms-table td.status-col {
+    width: 15%;
+}
+
+.rooms-table th.features-col,
+.rooms-table td.features-col {
+    width: 15%;
+}
+
+.rooms-table th.actions-col,
+.rooms-table td.actions-col {
+    width: 15%;
+    text-align: right;
+}
+
+/* Table Body */
+.rooms-table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s;
+}
+
+.rooms-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.rooms-table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    box-sizing: border-box; /* Match header box sizing */
+    height: 60px; /* Fixed height for consistency */
+}
+
+/* Room Number */
+.room-number {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Room Type */
+.room-type {
+    color: #4a5568;
+}
+
+/* Capacity */
+.room-capacity {
+    color: #4a5568;
+}
+
+/* Price */
+.room-price {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* Status Pills */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-available {
+    background-color: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
+    border: 1px solid rgba(72, 187, 120, 0.2);
+}
+
+.status-occupied {
+    background-color: rgba(237, 100, 166, 0.1);
+    color: #ed64a6;
+    border: 1px solid rgba(237, 100, 166, 0.2);
+}
+
+.status-maintenance {
+    background-color: rgba(237, 137, 54, 0.1);
+    color: #ed8936;
+    border: 1px solid rgba(237, 137, 54, 0.2);
+}
+
+.status-pending {
+    background-color: rgba(66, 153, 225, 0.1);
+    color: #4299e1;
+    border: 1px solid rgba(66, 153, 225, 0.2);
+}
+
+/* Features */
+.room-features-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 150px;
+}
+
+.feature-tag {
+    background-color: #f1f5f9;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.more-features {
+    font-size: 12px;
+    color: #718096;
+    cursor: pointer;
+}
+
+.features-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.features-tooltip .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.features-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.action-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn i {
+    margin-right: 4px;
+}
+
+.edit-btn {
+    color: #4299e1;
+}
+
+.edit-btn:hover {
+    background-color: rgba(66, 153, 225, 0.1);
+}
+
+.delete-btn {
+    color: #e53e3e;
+}
+
+.delete-btn:hover {
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.view-btn {
+    color: #805ad5;
+}
+
+.view-btn:hover {
+    background-color: rgba(128, 90, 213, 0.1);
+}
+
+/* Empty State */
+.no-rooms {
+    text-align: center;
+    padding: 30px;
+    color: #718096;
+}
+
+/* Table Actions Area */
+.table-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Table Filters */
+.table-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    color: #4a5568;
+    white-space: nowrap;
+}
+
+.filter-group select {
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+/* Table Info */
+.table-info {
+    padding: 10px 15px;
+    font-size: 13px;
+    color: #718096;
+    text-align: right;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .rooms-table th,
+    .rooms-table td {
+        padding: 10px;
+    }
+    
+    .action-btn {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .rooms-table th.capacity-col,
+    .rooms-table td.capacity-col,
+    .rooms-table th.price-col,
+    .rooms-table td.price-col {
+        display: none;
+    }
+    
+    .rooms-table th.room-number-col,
+    .rooms-table td.room-number-col,
+    .rooms-table th.room-type-col,
+    .rooms-table td.room-type-col {
+        width: 20%;
+    }
+    
+    .rooms-table th.status-col,
+    .rooms-table td.status-col,
+    .rooms-table th.features-col,
+    .rooms-table td.features-col,
+    .rooms-table th.actions-col,
+    .rooms-table td.actions-col {
+        width: 20%;
+    }
+    
+    .table-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .rooms-table-container {
+        margin-left: -10px;
+        margin-right: -10px;
+        width: calc(100% + 20px);
+    }
+    
+    .rooms-table th.features-col,
+    .rooms-table td.features-col {
+        display: none;
+    }
+    
+    .rooms-table th.room-number-col,
+    .rooms-table td.room-number-col,
+    .rooms-table th.room-type-col,
+    .rooms-table td.room-type-col,
+    .rooms-table th.status-col,
+    .rooms-table td.status-col,
+    .rooms-table th.actions-col,
+    .rooms-table td.actions-col {
+        width: 25%;
+    }
+}

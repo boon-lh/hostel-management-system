@@ -511,9 +511,10 @@ button.edit-room-btn {
 /* Card Actions */
 .card-actions {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     align-items: center;
     flex-wrap: wrap;
+    margin: 20px 0;
 }
 
 /* Filters */
