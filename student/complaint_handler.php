@@ -82,34 +82,28 @@ function handleComplaintSubmission($conn, $studentId) {
     global $success, $errors, $debug_log;
     
     file_put_contents($debug_log, date('Y-m-d H:i:s') . " - Processing submit_complaint action\n", FILE_APPEND);
-    
-    $subject = trim($_POST['subject'] ?? '');
+      $subject = trim($_POST['subject'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $complaint_type = $_POST['complaint_type'] ?? '';
     $priority = $_POST['priority'] ?? 'medium';
     
     // Debug log
     file_put_contents($debug_log, date('Y-m-d H:i:s') . " - Student ID: $studentId\n", FILE_APPEND);
     file_put_contents($debug_log, date('Y-m-d H:i:s') . " - Subject: $subject\n", FILE_APPEND);
-    file_put_contents($debug_log, date('Y-m-d H:i:s') . " - Type: $complaint_type\n", FILE_APPEND);
     
     // Server-side validation
     $form_errors = [];
     if (empty($subject)) $form_errors[] = "Subject is required";
     if (empty($description)) $form_errors[] = "Description is required";
-    if (empty($complaint_type)) $form_errors[] = "Issue type is required";
     
     if (!empty($form_errors)) {
         $errors = array_merge($errors, $form_errors);
         file_put_contents($debug_log, date('Y-m-d H:i:s') . " - Validation errors: " . implode(", ", $form_errors) . "\n", FILE_APPEND);
-    } else {
-        // Use the submitComplaint function
+    } else {        // Use the submitComplaint function
         $result = submitComplaint(
             $conn, 
             $studentId, 
             $subject, 
             $description, 
-            $complaint_type, 
             $priority, 
             isset($_FILES['attachment']) ? $_FILES['attachment'] : null
         );

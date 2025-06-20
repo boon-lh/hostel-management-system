@@ -103,31 +103,9 @@ require_once '../shared/includes/sidebar-student.php';
                     <div class="card-body">
                         <form id="complaintForm" action="complaints.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="submit_complaint">
-                            
-                            <div class="form-group">
+                              <div class="form-group">
                                 <label for="subject">Subject</label>
                                 <input type="text" class="form-control" id="subject" name="subject" placeholder="Brief subject of your complaint" required>
-                            </div><div class="form-group">
-                                <label for="complaint_type">Issue Type</label>
-                                <select class="form-control" id="complaint_type" name="complaint_type" required>
-                                    <option value="">-- Select Type --</option>
-                                    <optgroup label="Facilities & Maintenance">
-                                        <option value="hostel_facility">General Facility Issue</option>
-                                        <option value="maintenance">Maintenance Request</option>
-                                        <option value="furniture">Furniture Issue/Request</option>
-                                        <option value="internet">Internet Issue</option>
-                                        <option value="cleanliness">Cleanliness Issue</option>
-                                    </optgroup>
-                                    <optgroup label="Administrative & Personal">
-                                        <option value="roommate">Roommate Issue</option>
-                                        <option value="staff">Staff Behavior</option>
-                                        <option value="security">Security Issue</option>
-                                        <option value="cafeteria">Cafeteria Issue</option>
-                                        <option value="room_exchange">Room Exchange Request</option>
-                                        <option value="checkout">Check-out Request</option>
-                                    </optgroup>
-                                    <option value="other">Other</option>
-                                </select>
                             </div>
                             
                             <div class="form-group">
@@ -167,55 +145,20 @@ require_once '../shared/includes/sidebar-student.php';
                                 <p>You haven't submitted any complaints or service requests yet.</p>
                             </div>
                         <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-striped">
+                            <div class="table-responsive">                                <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Subject</th>
-                                            <th>Type</th>
-                                            <th>Status</th>
-                                            <th>Created</th>
-                                            <th>Actions</th>
+                                            <th style="width: 5%">ID</th>
+                                            <th style="width: 30%">Subject</th>
+                                            <th style="width: 15%">Status</th>
+                                            <th style="width: 15%">Created</th>
+                                            <th style="width: 35%">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach ($complaints as $complaint): ?>
-                                            <tr>
-                                                <td>#<?php echo $complaint['id']; ?></td>
+                                            <tr>                                                <td>#<?php echo $complaint['id']; ?></td>
                                                 <td><?php echo htmlspecialchars($complaint['subject']); ?></td>
-                                                <td>
-                                                    <?php 
-                                                    $type_badge = 'badge-info';
-                                                    $type_icon = '';
-                                                    switch ($complaint['complaint_type']) {
-                                                        case 'hostel_facility':
-                                                            $type_icon = '<i class="fas fa-building"></i> ';
-                                                            break;
-                                                        case 'roommate':
-                                                            $type_icon = '<i class="fas fa-user-friends"></i> ';
-                                                            break;
-                                                        case 'staff':
-                                                            $type_icon = '<i class="fas fa-user-tie"></i> ';
-                                                            break;
-                                                        case 'internet':
-                                                            $type_icon = '<i class="fas fa-wifi"></i> ';
-                                                            break;
-                                                        case 'cleanliness':
-                                                            $type_icon = '<i class="fas fa-broom"></i> ';
-                                                            break;
-                                                        case 'cafeteria':
-                                                            $type_icon = '<i class="fas fa-utensils"></i> ';
-                                                            break;
-                                                        case 'security':
-                                                            $type_icon = '<i class="fas fa-shield-alt"></i> ';
-                                                            break;
-                                                        default:
-                                                            $type_icon = '<i class="fas fa-question-circle"></i> ';
-                                                    }
-                                                    echo '<span class="badge ' . $type_badge . '">' . $type_icon . ucwords(str_replace('_', ' ', $complaint['complaint_type'])) . '</span>'; 
-                                                    ?>
-                                                </td>
                                                 <td>
                                                     <?php 
                                                     $status_class = 'badge-info';
