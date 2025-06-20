@@ -88,7 +88,6 @@ CREATE TABLE `complaints` (
   `student_id` int(11) NOT NULL,
   `subject` varchar(200) NOT NULL,
   `description` text NOT NULL,
-  `complaint_type` enum('hostel_facility','roommate','staff','internet','cleanliness','cafeteria','security','other') NOT NULL,
   `priority` enum('low','medium','high','urgent') NOT NULL DEFAULT 'medium',
   `status` enum('pending','in_progress','resolved','closed') NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),

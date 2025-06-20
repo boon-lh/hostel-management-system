@@ -3,6 +3,44 @@
  * Contains all the functions for complaint viewing, deletion, feedback, and form validation
  */
 
+// Initialize tooltips when the document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips if Bootstrap is loaded
+    if (typeof $ !== 'undefined' && typeof $.fn.tooltip !== 'undefined') {
+        $('[data-toggle="tooltip"]').tooltip();
+    } else {
+        // Basic tooltip implementation if Bootstrap is not available
+        const tooltips = document.querySelectorAll('[data-toggle="tooltip"]');
+        tooltips.forEach(tooltip => {
+            tooltip.addEventListener('mouseover', function() {
+                const title = this.getAttribute('title');
+                if (!title) return;
+                
+                const tooltipDiv = document.createElement('div');
+                tooltipDiv.className = 'custom-tooltip';
+                tooltipDiv.textContent = title;
+                
+                document.body.appendChild(tooltipDiv);
+                
+                const rect = this.getBoundingClientRect();
+                tooltipDiv.style.position = 'absolute';
+                tooltipDiv.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+                tooltipDiv.style.left = (rect.left + window.scrollX + (rect.width / 2) - (tooltipDiv.offsetWidth / 2)) + 'px';
+                tooltipDiv.style.backgroundColor = '#000';
+                tooltipDiv.style.color = '#fff';
+                tooltipDiv.style.padding = '5px 10px';
+                tooltipDiv.style.borderRadius = '3px';
+                tooltipDiv.style.fontSize = '12px';
+                tooltipDiv.style.zIndex = '1000';
+                
+                this.addEventListener('mouseout', function() {
+                    document.body.removeChild(tooltipDiv);
+                }, { once: true });
+            });
+        });
+    }
+});
+
 // View Complaint Modal Functions
 function viewComplaint(complaintId) {
     document.getElementById('complaintContent').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';

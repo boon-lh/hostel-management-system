@@ -10,12 +10,10 @@
             <i class="fas fa-home"></i> Dashboard
         </a>        <a href="hostel_registration.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'hostel_registration.php' ? 'active' : ''; ?>">
             <i class="fas fa-hotel"></i> Hostel Registration
-        </a>
-        <a href="my_registrations.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'my_registrations.php' ? 'active' : ''; ?>">
+        </a>        <a href="my_registrations.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'my_registrations.php' ? 'active' : ''; ?>">
             <i class="fas fa-history"></i> My Registrations
-        </a><a href="billing.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'billing.php' ? 'active' : ''; ?>">
-            <i class="fas fa-file-invoice"></i> Billing
-        </a>        <a href="complaints.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'complaints.php' ? 'active' : ''; ?>">
+        </a>
+        <a href="complaints.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'complaints.php' ? 'active' : ''; ?>">
             <i class="fas fa-comment-alt"></i> Complaints & Services
         </a>
         <a href="announcements.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'announcements.php' ? 'active' : ''; ?>">

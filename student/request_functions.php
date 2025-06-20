@@ -16,13 +16,12 @@
  * @param array $attachment File upload data from $_FILES
  * @return array Associative array with 'success' (bool) and 'message' (string) keys
  */
-function submitComplaint($conn, $studentId, $subject, $description, $complaintType, $priority = 'medium', $attachment = null) {
+function submitComplaint($conn, $studentId, $subject, $description, $priority = 'medium', $attachment = null) {
     $errors = [];
     
     // Basic validation
     if (empty($subject)) $errors[] = "Subject is required";
     if (empty($description)) $errors[] = "Description is required";
-    if (empty($complaintType)) $errors[] = "Complaint type is required";
     
     // File upload handling
     $attachment_path = "";
@@ -53,13 +52,12 @@ function submitComplaint($conn, $studentId, $subject, $description, $complaintTy
     
     // Insert complaint into database if no errors
     if (empty($errors)) {
-        try {
-            // Begin transaction
+        try {            // Begin transaction
             $conn->begin_transaction();
             
-            $stmt = $conn->prepare("INSERT INTO complaints (student_id, subject, description, complaint_type, priority, attachment_path) 
-                                VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("isssss", $studentId, $subject, $description, $complaintType, $priority, $attachment_path);
+            $stmt = $conn->prepare("INSERT INTO complaints (student_id, subject, description, priority, attachment_path) 
+                                VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("issss", $studentId, $subject, $description, $priority, $attachment_path);
             
             if ($stmt->execute()) {
                 $complaint_id = $conn->insert_id;
