@@ -148,9 +148,8 @@ $stmt->close();
                                                     <button type="submit" name="cancel_registration" class="btn btn-sm btn-danger">
                                                         <i class="fas fa-times"></i> Cancel
                                                     </button>
-                                                </form>
-                                            <?php elseif ($reg['status'] === 'Approved' && $reg['payment_status'] === 'Unpaid'): ?>
-                                                <a href="payment.php?reg_id=<?php echo $reg['id']; ?>" class="btn btn-sm btn-success">
+                                                </form>                                            <?php elseif ($reg['status'] === 'Approved' && $reg['payment_status'] === 'Unpaid'): ?>
+                                                <a href="../payment/payment.php?reg_id=<?php echo $reg['id']; ?>" class="btn btn-sm btn-success">
                                                     <i class="fas fa-money-bill"></i> Pay Now
                                                 </a>
                                             <?php elseif ($reg['status'] === 'Checked In'): ?>
