@@ -9,6 +9,21 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] !== "student") {
     exit();
 }
 
+// Fetch student details including gender and citizenship
+$student_gender = "";
+$student_citizenship = "";
+$student_id = $_SESSION['user_id'];
+$getStudentDetails = $conn->prepare("SELECT gender, citizenship FROM students WHERE id = ?");
+$getStudentDetails->bind_param("i", $student_id);
+$getStudentDetails->execute();
+$studentResult = $getStudentDetails->get_result();
+if ($studentResult->num_rows > 0) {
+    $studentData = $studentResult->fetch_assoc();
+    $student_gender = $studentData['gender'];
+    $student_citizenship = $studentData['citizenship'];
+}
+$getStudentDetails->close();
+
 // Check if the student already has an active registration
 // If yes, redirect them to my_registrations.php
 $student_id = $_SESSION['user_id'];
@@ -77,8 +92,7 @@ if ($table_exists) {
             $blocks[$row['id']] = $row;
         }
     }
-    
-    // Fetch rooms from the database (similar to admin panel)
+      // Fetch rooms from the database (similar to admin panel)
     $sql = "SELECT r.*, b.block_name, b.gender_restriction, b.nationality_restriction 
             FROM rooms r 
             JOIN hostel_blocks b ON r.block_id = b.id
@@ -96,18 +110,30 @@ if ($table_exists) {
             // Format features as comma-separated string
             $featuresString = implode(", ", $roomFeaturesList);
             
-            $rooms[] = [
-                "id" => isset($row["id"]) ? $row["id"] : $roomId++,
-                "block_id" => isset($row["block_id"]) ? $row["block_id"] : 1,
-                "block" => isset($row["block_name"]) ? $row["block_name"] : "Block A",
-                "room_number" => isset($row["room_number"]) ? $row["room_number"] : "",
-                "type" => $type,
-                "price" => (isset($row["rate_per_semester"]) ? $row["rate_per_semester"] : $roomTypeInfo['rate']) . " MYR",
-                "features" => isset($row["features"]) ? $row["features"] : $featuresString,
-                "gender_restriction" => isset($row["gender_restriction"]) ? $row["gender_restriction"] : "None",
-                "nationality_restriction" => isset($row["nationality_restriction"]) ? $row["nationality_restriction"] : "None",
-                "availability" => "Available" // Always set to "Available"
-            ];
+            // Get restriction data
+            $gender_restriction = isset($row["gender_restriction"]) ? $row["gender_restriction"] : "None";
+            $nationality_restriction = isset($row["nationality_restriction"]) ? $row["nationality_restriction"] : "None";
+              // Check if the student can access this room based on gender and citizenship restrictions
+            $gender_allowed = ($gender_restriction === "None" || $gender_restriction === $student_gender);
+            $nationality_allowed = ($nationality_restriction === "None" || 
+                                   ($nationality_restriction === "Local" && $student_citizenship === "Malaysian") ||
+                                   ($nationality_restriction === "International" && $student_citizenship === "Others"));
+            
+            // Only add the room to the list if the student meets the restrictions
+            if ($gender_allowed && $nationality_allowed) {
+                $rooms[] = [
+                    "id" => isset($row["id"]) ? $row["id"] : $roomId++,
+                    "block_id" => isset($row["block_id"]) ? $row["block_id"] : 1,
+                    "block" => isset($row["block_name"]) ? $row["block_name"] : "Block A",
+                    "room_number" => isset($row["room_number"]) ? $row["room_number"] : "",
+                    "type" => $type,
+                    "price" => (isset($row["rate_per_semester"]) ? $row["rate_per_semester"] : $roomTypeInfo['rate']) . " MYR",
+                    "features" => isset($row["features"]) ? $row["features"] : $featuresString,
+                    "gender_restriction" => $gender_restriction,
+                    "nationality_restriction" => $nationality_restriction,
+                    "availability" => "Available" // Always set to "Available"
+                ];
+            }
         }
     }
 }
@@ -228,6 +254,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register_room'])) {
         margin-bottom: 15px;
     }
 }
+
+/* Student profile info styles */
+.student-profile-info {
+    margin-bottom: 20px;
+}
+
+.student-profile-info .alert {
+    border-left: 4px solid #17a2b8;
+    background-color: rgba(23, 162, 184, 0.1);
+    border-radius: 0.25rem;
+}
+
+.student-profile-info h5 {
+    margin-bottom: 10px;
+    color: #17a2b8;
+}
+
+.student-profile-info p {
+    margin-bottom: 5px;
+}
+
+.student-profile-info strong {
+    color: #333;
+}
 </style>
 
 <div class="main-content">
@@ -323,7 +373,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register_room'])) {
         
         <?php if (isset($message)): ?>
             <div class="alert alert-<?php echo isset($message_type) ? $message_type : 'info'; ?>"><?php echo $message; ?></div>
-        <?php endif; ?>        <div class="room-list">
+        <?php endif; ?>
+        
+        <!-- Student profile information and room restriction notice -->
+        <div class="student-profile-info">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Room Availability Based on Your Profile</h5>                <p>Your profile details: 
+                    <strong>Gender:</strong> <?php echo !empty($student_gender) ? htmlspecialchars($student_gender) : 'Not specified'; ?> | 
+                    <strong>Citizenship:</strong> <?php echo !empty($student_citizenship) ? htmlspecialchars($student_citizenship) : 'Not specified'; ?>
+                </p>
+                <p><i class="fas fa-filter"></i> <strong>Note:</strong> The room list below only shows accommodations you are eligible for based on your gender and citizenship.</p>
+            </div>
+        </div>
+        
+        <div class="room-list">
             <?php if (!empty($rooms)): ?>
                 <?php foreach ($rooms as $room): ?>
                     <div class="room-card <?php echo ($room['availability'] !== 'Available') ? 'unavailable' : ''; ?>">
@@ -392,9 +455,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register_room'])) {
                             <?php endif; ?>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>No rooms are currently listed. Please check back later or contact administration.</p>
+                <?php endforeach; ?>            <?php else: ?>
+                <div class="alert alert-warning">
+                    <h5><i class="fas fa-exclamation-triangle"></i> No Rooms Available</h5>
+                    <p>There are no rooms currently available that match your profile restrictions. This might be because:</p>
+                    <ul>
+                        <li>No rooms are currently listed in the system</li>
+                        <li>The available rooms have gender or citizenship restrictions that don't match your profile</li>
+                        <li>All eligible rooms are currently occupied or pending confirmation</li>
+                    </ul>
+                    <p>Please check back later or contact the hostel administration for assistance.</p>
+                </div>
             <?php endif; ?>
         </div>
     </div>
