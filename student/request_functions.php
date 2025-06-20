@@ -547,3 +547,83 @@ function getAvailableRoomsForExchange($conn, $currentRoomId) {
     
     return $available_rooms;
 }
+
+/**
+ * Delete a complaint submitted by a student
+ * 
+ * @param mysqli $conn Database connection
+ * @param int $complaintId Complaint ID
+ * @param int $studentId Student ID for validation
+ * @return array Associative array with 'success' (bool) and 'message' (string) keys
+ */
+function deleteComplaint($conn, $complaintId, $studentId) {
+    // Validate inputs
+    if (empty($complaintId) || !is_numeric($complaintId)) {
+        return [
+            'success' => false,
+            'message' => "Invalid complaint ID"
+        ];
+    }
+
+    // Check if complaint belongs to student and is in a deletable state
+    $stmt = $conn->prepare("SELECT status FROM complaints WHERE id = ? AND student_id = ?");
+    $stmt->bind_param("ii", $complaintId, $studentId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        return [
+            'success' => false,
+            'message' => "Complaint not found or you don't have permission to delete it"
+        ];
+    }
+    
+    $complaint = $result->fetch_assoc();
+    
+    // Only allow deletion if complaint is in pending status
+    if ($complaint['status'] !== 'pending') {
+        return [
+            'success' => false,
+            'message' => "Only pending complaints can be deleted"
+        ];
+    }
+    
+    try {
+        // Begin transaction
+        $conn->begin_transaction();
+        
+        // Delete from complaint_status_history first (foreign key constraint)
+        $stmt = $conn->prepare("DELETE FROM complaint_status_history WHERE complaint_id = ?");
+        $stmt->bind_param("i", $complaintId);
+        $stmt->execute();
+        
+        // Then delete the complaint
+        $stmt = $conn->prepare("DELETE FROM complaints WHERE id = ? AND student_id = ?");
+        $stmt->bind_param("ii", $complaintId, $studentId);
+        $stmt->execute();
+        
+        if ($stmt->affected_rows === 0) {
+            // Rollback if no rows affected
+            $conn->rollback();
+            return [
+                'success' => false,
+                'message' => "Failed to delete complaint"
+            ];
+        }
+        
+        // Commit transaction
+        $conn->commit();
+        
+        return [
+            'success' => true,
+            'message' => "Complaint has been deleted successfully"
+        ];
+    } catch (Exception $e) {
+        // An exception occurred, rollback
+        $conn->rollback();
+        return [
+            'success' => false,
+            'message' => "Error deleting complaint: " . $e->getMessage()
+        ];
+    }
+}

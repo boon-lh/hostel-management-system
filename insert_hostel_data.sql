@@ -3,7 +3,7 @@
 
 USE hostel_management;
 
--- Insert the 4 hostel blocks as shown in the interface
+-- Insert the 4 hostel blocks 
 INSERT INTO `hostel_blocks` (`block_name`, `gender_restriction`, `nationality_restriction`, `description`, `created_at`) VALUES
 ('Block A', 'Male', 'Local', 'Hostel block for local male students with standard facilities.', NOW()),
 ('Block B', 'Female', 'Local', 'Hostel block for local female students with standard facilities.', NOW()),

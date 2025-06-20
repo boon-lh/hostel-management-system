@@ -15,12 +15,8 @@
             <i class="fas fa-history"></i> My Registrations
         </a><a href="billing.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'billing.php' ? 'active' : ''; ?>">
             <i class="fas fa-file-invoice"></i> Billing
-        </a>
-        <a href="complaints.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'complaints.php' ? 'active' : ''; ?>">
-            <i class="fas fa-comment-alt"></i> Complaints & Feedback
-        </a>
-        <a href="requests.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'requests.php' ? 'active' : ''; ?>">
-            <i class="fas fa-tools"></i> Service Requests
+        </a>        <a href="complaints.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'complaints.php' ? 'active' : ''; ?>">
+            <i class="fas fa-comment-alt"></i> Complaints & Services
         </a>
         <a href="announcements.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'announcements.php' ? 'active' : ''; ?>">
             <i class="fas fa-bullhorn"></i> Announcements

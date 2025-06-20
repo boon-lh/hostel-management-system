@@ -9,8 +9,13 @@ require_once '../shared/includes/db_connection.php';
 require_once 'request_functions.php';
 
 // Set page title and additional CSS files
-$pageTitle = "MMU Hostel Management - Complaints & Feedback";
+$pageTitle = "MMU Hostel Management - Complaints, Feedback & Service Requests";
 $additionalCSS = ["css/complaints.css"];
+$additionalJS = [
+    "https://code.jquery.com/jquery-3.6.0.min.js",
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js",
+    "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+];
 
 // Get student ID from session
 $username = $_SESSION["user"];
@@ -72,6 +77,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $errors[] = $result['message'];
         }
+    } else if (isset($_POST['action']) && $_POST['action'] === 'delete_complaint') {
+        $complaint_id = $_POST['complaint_id'] ?? 0;
+        
+        // Use the deleteComplaint function
+        $result = deleteComplaint($conn, $complaint_id, $studentId);
+        
+        if ($result['success']) {
+            $success = $result['message'];
+        } else {
+            $errors[] = $result['message'];
+        }
     }
 }
 
@@ -88,10 +104,9 @@ require_once '../shared/includes/sidebar-student.php';
 ?>
 
 <!-- Main Content -->
-<div class="main-content">
-    <div class="header">
-        <h1><i class="fas fa-comment-alt"></i> Complaints & Feedback</h1>
-        
+<div class="main-content">    <div class="header">
+        <h1><i class="fas fa-comment-alt"></i> Complaints & Service Requests</h1>
+        <p>Submit any issues, complaints, maintenance requests, or other hostel-related concerns here.</p>
     </div>
     
     <div class="complaints-container">
@@ -113,9 +128,8 @@ require_once '../shared/includes/sidebar-student.php';
         
         <div class="row">
             <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-plus-circle"></i> Submit New Complaint</h3>
+                <div class="card">                    <div class="card-header">
+                        <h3><i class="fas fa-plus-circle"></i> Submit New Complaint or Request</h3>
                     </div>
                     <div class="card-body">
                         <form action="complaints.php" method="POST" enctype="multipart/form-data">
@@ -124,19 +138,25 @@ require_once '../shared/includes/sidebar-student.php';
                             <div class="form-group">
                                 <label for="subject">Subject</label>
                                 <input type="text" class="form-control" id="subject" name="subject" placeholder="Brief subject of your complaint" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="complaint_type">Complaint Type</label>
+                            </div>                            <div class="form-group">
+                                <label for="complaint_type">Issue Type</label>
                                 <select class="form-control" id="complaint_type" name="complaint_type" required>
                                     <option value="">-- Select Type --</option>
-                                    <option value="hostel_facility">Hostel Facility Issue</option>
-                                    <option value="roommate">Roommate Issue</option>
-                                    <option value="staff">Staff Behavior</option>
-                                    <option value="internet">Internet Issue</option>
-                                    <option value="cleanliness">Cleanliness Issue</option>
-                                    <option value="cafeteria">Cafeteria Issue</option>
-                                    <option value="security">Security Issue</option>
+                                    <optgroup label="Facilities & Maintenance">
+                                        <option value="hostel_facility">General Facility Issue</option>
+                                        <option value="maintenance">Maintenance Request</option>
+                                        <option value="furniture">Furniture Issue/Request</option>
+                                        <option value="internet">Internet Issue</option>
+                                        <option value="cleanliness">Cleanliness Issue</option>
+                                    </optgroup>
+                                    <optgroup label="Administrative & Personal">
+                                        <option value="roommate">Roommate Issue</option>
+                                        <option value="staff">Staff Behavior</option>
+                                        <option value="security">Security Issue</option>
+                                        <option value="cafeteria">Cafeteria Issue</option>
+                                        <option value="room_exchange">Room Exchange Request</option>
+                                        <option value="checkout">Check-out Request</option>
+                                    </optgroup>
                                     <option value="other">Other</option>
                                 </select>
                             </div>
@@ -161,25 +181,22 @@ require_once '../shared/includes/sidebar-student.php';
                                 <input type="file" class="form-control-file" id="attachment" name="attachment">
                                 <small class="form-text text-muted">You can attach a photo or document (JPG, PNG, GIF, PDF) up to 5MB.</small>
                             </div>
-                            
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-paper-plane"></i> Submit Complaint
+                              <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-paper-plane"></i> Submit
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-8">
-                <div class="card">
+            <div class="col-md-8">                <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-list"></i> My Complaints</h3>
+                        <h3><i class="fas fa-list"></i> My Complaints & Requests</h3>
                     </div>
                     <div class="card-body">
-                        <?php if (empty($complaints)): ?>
-                            <div class="no-complaints-message">
+                        <?php if (empty($complaints)): ?>                            <div class="no-complaints-message">
                                 <i class="fas fa-info-circle"></i>
-                                <p>You haven't submitted any complaints yet.</p>
+                                <p>You haven't submitted any complaints or service requests yet.</p>
                             </div>
                         <?php else: ?>
                             <div class="table-responsive">
@@ -257,11 +274,16 @@ require_once '../shared/includes/sidebar-student.php';
                                                     echo '<span class="badge ' . $status_class . '">' . $status_icon . ucfirst(str_replace('_', ' ', $complaint['status'])) . '</span>';
                                                     ?>
                                                 </td>
-                                                <td><?php echo date('M j, Y', strtotime($complaint['created_at'])); ?></td>
-                                                <td>
+                                                <td><?php echo date('M j, Y', strtotime($complaint['created_at'])); ?></td>                                                <td>
                                                     <button class="btn btn-sm btn-primary" onclick="viewComplaint(<?php echo $complaint['id']; ?>)">
                                                         <i class="fas fa-eye"></i> View
                                                     </button>
+                                                    
+                                                    <?php if ($complaint['status'] === 'pending'): ?>
+                                                        <button class="btn btn-sm btn-danger" onclick="confirmDeleteComplaint(<?php echo $complaint['id']; ?>)">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </button>
+                                                    <?php endif; ?>
                                                     
                                                     <?php if ($complaint['status'] === 'resolved' && empty($complaint['rating'])): ?>
                                                         <button class="btn btn-sm btn-success" onclick="showFeedbackModal(<?php echo $complaint['id']; ?>)">
@@ -347,6 +369,31 @@ require_once '../shared/includes/sidebar-student.php';
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
                 <button type="button" class="btn btn-primary" onclick="submitFeedback()"><i class="fas fa-paper-plane"></i> Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="deleteModalLabel"><i class="fas fa-trash"></i> Delete Complaint</h4>
+                <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" onclick="closeDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this complaint? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <form action="complaints.php" method="POST">
+                    <input type="hidden" name="action" value="delete_complaint">
+                    <input type="hidden" name="complaint_id" id="delete_complaint_id">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
             </div>
         </div>
     </div>
@@ -674,6 +721,61 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Delete Complaint Functions
+function confirmDeleteComplaint(complaintId) {
+    // Set the complaint ID to the hidden input field in the delete confirmation form
+    document.getElementById('delete_complaint_id').value = complaintId;
+    
+    // Show the delete confirmation modal - works with both Bootstrap 4 and 5
+    var modal = document.getElementById('deleteConfirmationModal');
+    
+    // Try Bootstrap 5 method first
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        var bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback to jQuery for Bootstrap 4
+        $(modal).modal('show');
+    } else {
+        // Direct DOM manipulation as a fallback
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        // Create backdrop if it doesn't exist
+        var backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+}
+
+// Close delete confirmation modal
+function closeDeleteModal() {
+    var modal = document.getElementById('deleteConfirmationModal');
+    
+    // Try Bootstrap 5 method first
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        var bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
+        }
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback to jQuery for Bootstrap 4
+        $(modal).modal('hide');
+    } else {
+        // Direct DOM manipulation as a fallback
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        
+        // Remove backdrop
+        var backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            document.body.removeChild(backdrop);
+        }
+    }
+}
 </script>
 
 <?php
