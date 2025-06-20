@@ -55,16 +55,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_payment']) && 
     
     // Start transaction
     $conn->begin_transaction();
-    
-    try {
-        // 1. Create payment record
+      try {
+        // First create a bill for the room registration
+        $current_semester = "Current"; // Or determine dynamically
+        $current_academic_year = date('Y') . '/' . (date('Y') + 1);
+        $due_date = date('Y-m-d'); // Today's date
+        $room_id = $registration_data['room_id'];
+        
+        // Create a bill record
+        $bill_stmt = $conn->prepare("
+            INSERT INTO bills (student_id, room_id, semester, academic_year, amount, due_date, status)
+            VALUES (?, ?, ?, ?, ?, ?, 'paid')
+        ");
+        $bill_stmt->bind_param("iissds", $student_id, $room_id, $current_semester, $current_academic_year, $amount, $due_date);
+        $bill_stmt->execute();
+        $bill_id = $conn->insert_id;
+        $bill_stmt->close();
+        
+        // 1. Create payment record with the valid bill_id
         $payment_stmt = $conn->prepare("
             INSERT INTO payments (bill_id, student_id, amount, payment_method, reference_number, status, notes)
-            VALUES (?, ?, ?, ?, ?, 'completed', 'Room registration payment')
+            VALUES (?, ?, ?, ?, ?, 'completed', 'Room registration payment for Room " . $registration_data['room_number'] . "')
         ");
         
-        // Using 0 as bill_id since we're directly paying for registration, not a bill
-        $bill_id = 0;
         $payment_stmt->bind_param("iidss", $bill_id, $student_id, $amount, $payment_method, $reference_number);
         $payment_stmt->execute();
         $payment_id = $conn->insert_id;

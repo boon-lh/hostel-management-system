@@ -30,7 +30,7 @@ if (!isset($_POST['reg_id']) || !is_numeric($_POST['reg_id'])) {
     
     // Verify registration belongs to the logged-in student and is in "Approved" status with "Unpaid" payment status
     $stmt = $conn->prepare("
-        SELECT hr.*, r.price as rate_per_semester
+        SELECT hr.*, r.price as rate_per_semester, r.room_number
         FROM hostel_registrations hr
         JOIN rooms r ON hr.room_id = r.id
         WHERE hr.id = ? AND hr.student_id = ? AND hr.status = 'Approved' AND hr.payment_status = 'Unpaid'
@@ -45,11 +45,28 @@ if (!isset($_POST['reg_id']) || !is_numeric($_POST['reg_id'])) {
         $registration_data = $result->fetch_assoc();
         $amount = $registration_data['rate_per_semester'];
         $reference_number = 'PAY-' . time() . '-' . $reg_id;
+        $room_id = $registration_data['room_id'];
+        $room_number = $registration_data['room_number'];
         
         // Start transaction
         $conn->begin_transaction();
         
         try {
+            // Create a bill for this room registration payment
+            // This ensures we have a valid bill_id to use in the payments table
+            $current_semester = "Current"; // Or retrieve from system settings
+            $current_academic_year = date('Y') . '/' . (date('Y') + 1);
+            $due_date = date('Y-m-d'); // Today's date since payment is being made now
+            
+            $bill_stmt = $conn->prepare("
+                INSERT INTO bills (student_id, room_id, semester, academic_year, amount, due_date, status)
+                VALUES (?, ?, ?, ?, ?, ?, 'paid')
+            ");
+            $bill_stmt->bind_param("iissds", $student_id, $room_id, $current_semester, $current_academic_year, $amount, $due_date);
+            $bill_stmt->execute();
+            $bill_id = $conn->insert_id;
+            $bill_stmt->close();
+            
             // Update registration payment status
             $update_stmt = $conn->prepare("
                 UPDATE hostel_registrations 
@@ -62,17 +79,18 @@ if (!isset($_POST['reg_id']) || !is_numeric($_POST['reg_id'])) {
             $update_stmt->execute();
             $update_stmt->close();
             
-            // Add payment record
+            // Add payment record with valid bill_id
             $payment_stmt = $conn->prepare("
                 INSERT INTO payments (bill_id, student_id, amount, payment_method, reference_number, status, notes)
-                VALUES (0, ?, ?, ?, ?, 'completed', 'Room registration payment')
+                VALUES (?, ?, ?, ?, ?, 'completed', 'Room registration payment for Room " . $room_number . "')
             ");
             $payment_method = $_POST['payment_method'];
-            $payment_stmt->bind_param("idss", $student_id, $amount, $payment_method, $reference_number);
+            $payment_stmt->bind_param("iidss", $bill_id, $student_id, $amount, $payment_method, $reference_number);
             $payment_stmt->execute();
             $payment_id = $conn->insert_id;
             $payment_stmt->close();
-              // Create invoice record
+            
+            // Create invoice record
             $invoice_number = 'INV-' . date('Ymd') . '-' . $reg_id;
             $invoice_stmt = $conn->prepare("
                 INSERT INTO invoices (invoice_number, payment_id, student_id)

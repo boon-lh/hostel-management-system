@@ -16,8 +16,15 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] !== "student") {
 // Fetch student details
 $student_id = $_SESSION['user_id'];
 $student_name = $_SESSION['student_name'] ?? 'Student';
-$message = '';
-$message_type = '';
+// Check for any messages in the session
+$message = $_SESSION['message'] ?? '';
+$message_type = $_SESSION['message_type'] ?? '';
+
+// Clear session messages after retrieving them
+if (isset($_SESSION['message'])) {
+    unset($_SESSION['message']);
+    unset($_SESSION['message_type']);
+}
 
 // Handle cancellation requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_registration'])) {
@@ -96,11 +103,11 @@ $stmt->close();
         <?php endif; ?>
 
         <div class="card">
-            <div class="card-body">
-                <?php if (empty($registrations)): ?>
+            <div class="card-body">                <?php if (empty($registrations)): ?>
                     <div class="no-registrations">
                         <i class="fas fa-bed"></i>
                         <p>You don't have any room registrations yet.</p>
+                        <p class="text-muted">Each student can only register for one room at a time.</p>
                         <a href="hostel_registration.php" class="btn btn-primary">Register for a Room</a>
                     </div>
                 <?php else: ?>
@@ -167,8 +174,7 @@ $stmt->close();
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="registration-summary">
+                      <div class="registration-summary">
                         <h4>Status Legend</h4>
                         <div class="status-legend">
                             <div class="legend-item">
@@ -192,12 +198,6 @@ $stmt->close();
                                 <p>You cancelled this registration</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="text-center mt-4">
-                        <a href="hostel_registration.php" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Register Another Room
-                        </a>
                     </div>
                 <?php endif; ?>
             </div>

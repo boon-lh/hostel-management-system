@@ -2,10 +2,6 @@
 session_start();
 // Include database connection
 include_once '../shared/includes/db_connection.php';
-// Include header
-include_once '../shared/includes/header.php';
-// Include student sidebar
-include_once '../shared/includes/sidebar-student.php';
 
 // Check if student is logged in, otherwise redirect to login page
 if (!isset($_SESSION["user_id"]) || $_SESSION["role"] !== "student") {
@@ -13,17 +9,31 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] !== "student") {
     exit();
 }
 
+// Check if the student already has an active registration
+// If yes, redirect them to my_registrations.php
+$student_id = $_SESSION['user_id'];
+$checkActiveReg = $conn->prepare("SELECT COUNT(*) AS active_count FROM hostel_registrations 
+                                 WHERE student_id = ? AND status IN ('Pending', 'Approved', 'Checked In')");
+$checkActiveReg->bind_param("i", $student_id);
+$checkActiveReg->execute();
+$activeResult = $checkActiveReg->get_result();
+$activeCount = $activeResult->fetch_assoc()['active_count'];
+$checkActiveReg->close();
+
+// If student already has an active registration, redirect to my_registrations.php with a message
+if ($activeCount > 0) {
+    $_SESSION['message'] = "You already have an active room registration. One student can only register for one room at a time.";
+    $_SESSION['message_type'] = "warning";
+    header("Location: my_registrations.php");
+    exit();
+}
+
+// Include header and sidebar after the redirect check
+include_once '../shared/includes/header.php';
+include_once '../shared/includes/sidebar-student.php';
+
 // Debug block information - only visible to logged-in administrators
 $debug_mode = isset($_SESSION["role"]) && $_SESSION["role"] === "admin" && isset($_GET['debug']);
-
-// Fetch student details
-$student_id = $_SESSION['user_id'];
-// $stmt_student = $conn->prepare("SELECT * FROM students WHERE id = ?");
-// $stmt_student->bind_param("i", $student_id);
-// $stmt_student->execute();
-// $result_student = $stmt_student->get_result();
-// $student = $result_student->fetch_assoc();
-// $stmt_student->close();
 
 // --- Hostel Registration Logic ---
 // Fetch available rooms and their features from database

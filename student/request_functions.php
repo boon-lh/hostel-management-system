@@ -1,6 +1,6 @@
 <?php
 /**
- * Functions for handling student complaints, feedback, and service requests
+ * Functions for handling student complaints, feedback
  * in the Hostel Management System
  */
 
