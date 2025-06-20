@@ -5,23 +5,47 @@ if (!isset($_SESSION["user"]) || $_SESSION["role"] !== "student") {
     exit();
 }
 
-require_once '../shared/includes/db_connection.php';
-require_once 'request_functions.php';
-
 // Set page title and additional CSS files
 $pageTitle = "MMU Hostel Management - Complaints, Feedback & Service Requests";
 $additionalCSS = ["css/complaints.css"];
 $additionalJS = [
     "https://code.jquery.com/jquery-3.6.0.min.js",
     "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js",
-    "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js",
+    "js/complaints.js"  // Add our new complaints JS file
 ];
+
+// Initialize variables
+$errors = [];
+$success = "";
+$studentId = 0;
+$complaints = [];
+
+// Include database connection and functions
+require_once '../shared/includes/db_connection.php';
+require_once 'request_functions.php';
+
+// Flag to indicate this is the main file
+$included_from_main = true;
+
+// Process POST request using the handler
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    require_once 'complaint_handler.php';
+} else {
+    // Get complaint success/error messages from session (after redirect)
+    if (isset($_SESSION['complaint_success'])) {
+        $success = $_SESSION['complaint_success'];
+        unset($_SESSION['complaint_success']);
+    }
+    
+    if (isset($_SESSION['complaint_errors']) && is_array($_SESSION['complaint_errors'])) {
+        $errors = $_SESSION['complaint_errors'];
+        unset($_SESSION['complaint_errors']);
+    }
+}
 
 // Get student ID from session
 $username = $_SESSION["user"];
-$studentId = 0;
-$errors = [];
-$success = "";
 
 // Get student ID from database
 $stmt = $conn->prepare("SELECT id FROM students WHERE username = ?");
@@ -34,61 +58,6 @@ if ($result->num_rows > 0) {
     $studentId = $row['id'];
 } else {
     $errors[] = "Student information not found.";
-}
-
-// Initialize array to hold complaints
-$complaints = [];
-
-// Process complaint submission
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['action']) && $_POST['action'] === 'submit_complaint') {
-        $subject = trim($_POST['subject'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $complaint_type = $_POST['complaint_type'] ?? '';
-        $priority = $_POST['priority'] ?? 'medium';
-        
-        // Use the submitComplaint function
-        $result = submitComplaint(
-            $conn, 
-            $studentId, 
-            $subject, 
-            $description, 
-            $complaint_type, 
-            $priority, 
-            isset($_FILES['attachment']) ? $_FILES['attachment'] : null
-        );
-        
-        if ($result['success']) {
-            $success = $result['message'];
-        } else {
-            $errors[] = $result['message'];
-        }
-        
-    } else if (isset($_POST['action']) && $_POST['action'] === 'add_feedback') {
-        $complaint_id = $_POST['complaint_id'] ?? 0;
-        $rating = $_POST['rating'] ?? 0;
-        $feedback = trim($_POST['feedback'] ?? '');
-        
-        // Use the addComplaintFeedback function
-        $result = addComplaintFeedback($conn, $complaint_id, $studentId, $rating, $feedback);
-        
-        if ($result['success']) {
-            $success = $result['message'];
-        } else {
-            $errors[] = $result['message'];
-        }
-    } else if (isset($_POST['action']) && $_POST['action'] === 'delete_complaint') {
-        $complaint_id = $_POST['complaint_id'] ?? 0;
-        
-        // Use the deleteComplaint function
-        $result = deleteComplaint($conn, $complaint_id, $studentId);
-        
-        if ($result['success']) {
-            $success = $result['message'];
-        } else {
-            $errors[] = $result['message'];
-        }
-    }
 }
 
 // Fetch complaints for the student using the function
@@ -132,13 +101,13 @@ require_once '../shared/includes/sidebar-student.php';
                         <h3><i class="fas fa-plus-circle"></i> Submit New Complaint or Request</h3>
                     </div>
                     <div class="card-body">
-                        <form action="complaints.php" method="POST" enctype="multipart/form-data">
+                        <form id="complaintForm" action="complaints.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="submit_complaint">
                             
                             <div class="form-group">
                                 <label for="subject">Subject</label>
                                 <input type="text" class="form-control" id="subject" name="subject" placeholder="Brief subject of your complaint" required>
-                            </div>                            <div class="form-group">
+                            </div><div class="form-group">
                                 <label for="complaint_type">Issue Type</label>
                                 <select class="form-control" id="complaint_type" name="complaint_type" required>
                                     <option value="">-- Select Type --</option>
@@ -180,8 +149,7 @@ require_once '../shared/includes/sidebar-student.php';
                                 <label for="attachment">Attachment (optional)</label>
                                 <input type="file" class="form-control-file" id="attachment" name="attachment">
                                 <small class="form-text text-muted">You can attach a photo or document (JPG, PNG, GIF, PDF) up to 5MB.</small>
-                            </div>
-                              <button type="submit" class="btn btn-primary btn-block">
+                            </div>                              <button type="submit" class="btn btn-primary btn-block" id="submitComplaintBtn">
                                 <i class="fas fa-paper-plane"></i> Submit
                             </button>
                         </form>
@@ -399,384 +367,7 @@ require_once '../shared/includes/sidebar-student.php';
     </div>
 </div>
 
-<script>
-// View Complaint Modal Functions
-function viewComplaint(complaintId) {
-    document.getElementById('complaintContent').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
-    document.getElementById('complaintModal').style.display = 'block';
-    
-    // Fetch complaint details using AJAX
-    fetch('get_complaint.php?id=' + complaintId)
-        .then(response => {
-            if (!response.ok) {
-                // If response is not OK, get text and throw an error to be caught by .catch()
-                return response.text().then(text => {
-                    // Construct a more informative error message
-                    let errorMsg = `Server error: ${response.status} ${response.statusText}.`;
-                    // Sanitize text before putting it in <pre> to prevent XSS if it's HTML
-                    const sanitizedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    if (text) {
-                        errorMsg += ` Server response: <pre>${sanitizedText}</pre>`;
-                    }
-                    throw new Error(errorMsg);
-                });
-            }
-            return response.text(); // Get raw text first
-        })
-        .then(text => {
-            try {
-                const data = JSON.parse(text); // Try to parse as JSON
-                if (data.error) {
-                    document.getElementById('complaintContent').innerHTML = '<div class="alert alert-danger">' + data.error + '</div>';
-                } else {
-                    displayComplaintDetails(data);
-                }
-            } catch (e) {
-                // Handle JSON parsing error, display raw text (sanitized)
-                const sanitizedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                document.getElementById('complaintContent').innerHTML = '<div class="alert alert-danger">Error parsing server response. Raw response: <pre>' + sanitizedText + '</pre></div>';
-            }
-        })
-        .catch(error => {
-            // This will catch network errors and errors thrown from the .then() blocks
-            // The error.message might already contain HTML (<pre> tag), so it's used directly.
-            // If it's not pre-formatted, ensure it's properly displayed.
-            document.getElementById('complaintContent').innerHTML = '<div class="alert alert-danger">Failed to load complaint details. ' + error.message + '</div>';
-        });
-}
-
-function displayComplaintDetails(complaint) {
-    // Format dates
-    const createdDate = new Date(complaint.created_at).toLocaleDateString('en-US', { 
-        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-    });
-    const updatedDate = new Date(complaint.updated_at).toLocaleDateString('en-US', { 
-        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-    });
-    
-    // Status badge
-    let statusClass = 'badge-info';
-    let statusIcon = '<i class="fas fa-clock"></i> ';
-    switch (complaint.status) {
-        case 'pending':
-            statusClass = 'badge-warning';
-            break;
-        case 'in_progress':
-            statusClass = 'badge-info';
-            statusIcon = '<i class="fas fa-spinner fa-spin"></i> ';
-            break;
-        case 'resolved':
-            statusClass = 'badge-success';
-            statusIcon = '<i class="fas fa-check-circle"></i> ';
-            break;
-        case 'closed':
-            statusClass = 'badge-secondary';
-            statusIcon = '<i class="fas fa-lock"></i> ';
-            break;
-    }
-    
-    // Priority badge
-    let priorityClass = 'badge-info';
-    let priorityIcon = '<i class="fas fa-flag"></i> ';
-    switch (complaint.priority) {
-        case 'low':
-            priorityClass = 'badge-success';
-            break;
-        case 'medium':
-            priorityClass = 'badge-info';
-            break;
-        case 'high':
-            priorityClass = 'badge-warning';
-            break;
-        case 'urgent':
-            priorityClass = 'badge-danger';
-            priorityIcon = '<i class="fas fa-exclamation-triangle"></i> ';
-            break;
-    }
-    
-    // Format complaint type
-    const complaintType = complaint.complaint_type.replace(/_/g, ' ');
-    
-    // Attachment link
-    let attachmentHTML = '';
-    if (complaint.attachment_path) {
-        // Extract filename from path
-        const fileName = complaint.attachment_path.split('/').pop();
-        attachmentHTML = `
-            <div class="attachment-section">
-                <h5><i class="fas fa-paperclip"></i> Attachment</h5>
-                <div class="attachment-preview">
-                    <a href="../${complaint.attachment_path}" target="_blank" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-download"></i> View Attachment (${fileName})
-                    </a>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Resolution section
-    let resolutionHTML = '';
-    if (complaint.status === 'resolved' || complaint.status === 'closed') {
-        resolutionHTML = `
-            <div class="resolution-section">
-                <h5><i class="fas fa-check-circle"></i> Resolution</h5>
-                <p>${complaint.resolution_comments || 'No comments provided.'}</p>
-            </div>
-        `;
-    }
-    
-    // Feedback section
-    let feedbackHTML = '';
-    if (complaint.rating) {
-        // Generate star rating
-        let stars = '';
-        for (let i = 1; i <= 5; i++) {
-            const starClass = i <= complaint.rating ? 'fas fa-star rated' : 'far fa-star';
-            stars += `<i class="${starClass}"></i>`;
-        }
-        
-        feedbackHTML = `
-            <div class="feedback-section">
-                <h5><i class="fas fa-star"></i> Your Feedback</h5>
-                <div class="rating-display">
-                    ${stars}
-                    <span class="rating-value">${complaint.rating}/5</span>
-                </div>
-                <p class="feedback-text">${complaint.feedback || 'No feedback provided.'}</p>
-            </div>
-        `;
-    }
-    
-    // History section
-    let historyHTML = '';
-    if (complaint.history && complaint.history.length > 0) {
-        let historyItems = '';
-        complaint.history.forEach(item => {
-            const historyDate = new Date(item.created_at).toLocaleDateString('en-US', { 
-                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-            });
-            
-            let statusIconHistory = '<i class="fas fa-clock"></i> ';
-            switch (item.status) {
-                case 'in_progress':
-                    statusIconHistory = '<i class="fas fa-spinner"></i> ';
-                    break;
-                case 'resolved':
-                    statusIconHistory = '<i class="fas fa-check-circle"></i> ';
-                    break;
-                case 'closed':
-                    statusIconHistory = '<i class="fas fa-lock"></i> ';
-                    break;
-            }
-            
-            historyItems += `
-                <div class="timeline-item">
-                    <div class="timeline-marker ${item.status}">
-                        ${statusIconHistory}
-                    </div>
-                    <div class="timeline-content">
-                        <h6>Status changed to ${item.status.replace(/_/g, ' ')}</h6>
-                        <p class="timeline-date">${historyDate}</p>
-                        ${item.comments ? `<p class="timeline-comment">${item.comments}</p>` : ''}
-                    </div>
-                </div>
-            `;
-        });
-        
-        historyHTML = `
-            <div class="history-section">
-                <h5><i class="fas fa-history"></i> Status History</h5>
-                <div class="timeline">
-                    ${historyItems}
-                </div>
-            </div>
-        `;
-    }
-    
-    // Build the complete HTML
-    const complaintHTML = `
-        <div class="complaint-details">
-            <h3>${complaint.subject}</h3>
-            
-            <div class="complaint-meta">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Complaint ID:</strong> #${complaint.id}</p>
-                        <p><strong>Type:</strong> ${complaintType.charAt(0).toUpperCase() + complaintType.slice(1)}</p>
-                        <p><strong>Submitted:</strong> ${createdDate}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Status:</strong> <span class="badge ${statusClass}">${statusIcon}${complaint.status.replace(/_/g, ' ')}</span></p>
-                        <p><strong>Priority:</strong> <span class="badge ${priorityClass}">${priorityIcon}${complaint.priority}</span></p>
-                        <p><strong>Last Updated:</strong> ${updatedDate}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="complaint-description">
-                <h5><i class="fas fa-align-left"></i> Description</h5>
-                <div class="description-box">
-                    ${complaint.description.replace(/\n/g, '<br>')}
-                </div>
-            </div>
-            
-            ${attachmentHTML}
-            ${resolutionHTML}
-            ${feedbackHTML}
-            ${historyHTML}
-        </div>
-    `;
-    
-    document.getElementById('complaintContent').innerHTML = complaintHTML;
-}
-
-function closeComplaintModal() {
-    document.getElementById('complaintModal').style.display = 'none';
-}
-
-// Feedback Modal Functions
-function showFeedbackModal(complaintId) {
-    document.getElementById('feedback_complaint_id').value = complaintId;
-    document.getElementById('feedbackModal').style.display = 'block';
-    
-    // Reset rating
-    document.getElementById('rating').value = 0;
-    document.querySelectorAll('.rating-stars .fas').forEach(star => {
-        star.classList.remove('selected');
-    });
-    document.querySelector('.rating-text').textContent = 'Select a rating';
-}
-
-function closeFeedbackModal() {
-    document.getElementById('feedbackModal').style.display = 'none';
-}
-
-function submitFeedback() {
-    const rating = document.getElementById('rating').value;
-    if (rating === '0') {
-        alert('Please select a rating before submitting.');
-        return;
-    }
-    
-    document.getElementById('feedbackForm').submit();
-}
-
-// Star Rating System
-document.addEventListener('DOMContentLoaded', function() {
-    const stars = document.querySelectorAll('.rating-stars .fas');
-    const ratingInput = document.getElementById('rating');
-    const ratingText = document.querySelector('.rating-text');
-    
-    const ratingMessages = [
-        '',
-        'Very Dissatisfied',
-        'Dissatisfied',
-        'Neutral',
-        'Satisfied',
-        'Very Satisfied'
-    ];
-    
-    stars.forEach(star => {
-        star.addEventListener('mouseenter', function() {
-            const rating = this.getAttribute('data-rating');
-            
-            // Fill in stars up to the hovered one
-            stars.forEach(s => {
-                if (s.getAttribute('data-rating') <= rating) {
-                    s.classList.add('hovered');
-                } else {
-                    s.classList.remove('hovered');
-                }
-            });
-            
-            // Update rating text
-            ratingText.textContent = ratingMessages[rating];
-        });
-        
-        star.addEventListener('mouseleave', function() {
-            stars.forEach(s => {
-                s.classList.remove('hovered');
-            });
-            
-            // Restore selected rating text
-            const selectedRating = ratingInput.value;
-            ratingText.textContent = selectedRating > 0 ? ratingMessages[selectedRating] : 'Select a rating';
-        });
-        
-        star.addEventListener('click', function() {
-            const rating = this.getAttribute('data-rating');
-            ratingInput.value = rating;
-            
-            // Update selected stars
-            stars.forEach(s => {
-                if (s.getAttribute('data-rating') <= rating) {
-                    s.classList.add('selected');
-                } else {
-                    s.classList.remove('selected');
-                }
-            });
-            
-            // Update rating text
-            ratingText.textContent = ratingMessages[rating];
-        });
-    });
-});
-
-// Delete Complaint Functions
-function confirmDeleteComplaint(complaintId) {
-    // Set the complaint ID to the hidden input field in the delete confirmation form
-    document.getElementById('delete_complaint_id').value = complaintId;
-    
-    // Show the delete confirmation modal - works with both Bootstrap 4 and 5
-    var modal = document.getElementById('deleteConfirmationModal');
-    
-    // Try Bootstrap 5 method first
-    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        var bsModal = new bootstrap.Modal(modal);
-        bsModal.show();
-    } else if (typeof $ !== 'undefined' && $.fn.modal) {
-        // Fallback to jQuery for Bootstrap 4
-        $(modal).modal('show');
-    } else {
-        // Direct DOM manipulation as a fallback
-        modal.style.display = 'block';
-        modal.classList.add('show');
-        document.body.classList.add('modal-open');
-        
-        // Create backdrop if it doesn't exist
-        var backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        document.body.appendChild(backdrop);
-    }
-}
-
-// Close delete confirmation modal
-function closeDeleteModal() {
-    var modal = document.getElementById('deleteConfirmationModal');
-    
-    // Try Bootstrap 5 method first
-    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        var bsModal = bootstrap.Modal.getInstance(modal);
-        if (bsModal) {
-            bsModal.hide();
-        }
-    } else if (typeof $ !== 'undefined' && $.fn.modal) {
-        // Fallback to jQuery for Bootstrap 4
-        $(modal).modal('hide');
-    } else {
-        // Direct DOM manipulation as a fallback
-        modal.style.display = 'none';
-        modal.classList.remove('show');
-        document.body.classList.remove('modal-open');
-        
-        // Remove backdrop
-        var backdrop = document.querySelector('.modal-backdrop');
-        if (backdrop) {
-            document.body.removeChild(backdrop);
-        }
-    }
-}
-</script>
+<!-- All JavaScript functionality has been moved to js/complaints.js -->
 
 <?php
 // Include footer

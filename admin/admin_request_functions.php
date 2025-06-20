@@ -130,37 +130,97 @@ function getAdminComplaints($conn, $filters = [], $page = 1, $limit = 10) {
  * @param int $complaintId Complaint ID
  * @return array|false Complaint data or false if not found
  */
-function getAdminComplaintDetails($conn, $complaintId) {    // Get complaint details
+function getAdminComplaintDetails($conn, $complaintId) {    
+    // Simplest possible query that doesn't depend on optional tables
     $stmt = $conn->prepare("SELECT c.*, s.name as student_name, s.contact_no, s.email,
-                           r.room_number, r.block, 
-                           (SELECT name FROM admins WHERE id = c.resolved_by) as resolved_by_name
-                           FROM complaints c
-                           JOIN students s ON c.student_id = s.id
-                           LEFT JOIN student_room_assignments sra ON s.id = sra.student_id AND sra.status = 'active'
-                           LEFT JOIN rooms r ON sra.room_id = r.id
-                           WHERE c.id = ?");
-    $stmt->bind_param("i", $complaintId);
-    $stmt->execute();
-    $result = $stmt->get_result();
+                          NULL as room_number, NULL as block,
+                          (SELECT name FROM admins WHERE id = c.resolved_by) as resolved_by_name
+                          FROM complaints c
+                          JOIN students s ON c.student_id = s.id
+                          WHERE c.id = ?");$stmt->bind_param("i", $complaintId);
     
-    if ($result->num_rows === 0) {
-        return false;
-    }
-    
-    $complaint = $result->fetch_assoc();
-      // Get complaint status history
-    $stmt = $conn->prepare("SELECT csh.*, 
-                          (SELECT name FROM admins WHERE id = csh.changed_by) as changed_by_name
-                          FROM complaint_status_history csh
-                          WHERE csh.complaint_id = ?
-                          ORDER BY csh.created_at ASC");
-    $stmt->bind_param("i", $complaintId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
+    try {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            return false;
+        }
+        
+        $complaint = $result->fetch_assoc();
+    } catch (Exception $e) {
+        // Log the error
+        error_log("Error in getAdminComplaintDetails: " . $e->getMessage());
+        
+        // Fallback query with minimal fields if the first query failed
+        $fallbackStmt = $conn->prepare("SELECT c.*, s.name as student_name, s.contact_no, s.email
+                                        FROM complaints c
+                                        JOIN students s ON c.student_id = s.id
+                                        WHERE c.id = ?");
+        $fallbackStmt->bind_param("i", $complaintId);
+        $fallbackStmt->execute();
+        $fallbackResult = $fallbackStmt->get_result();
+        
+        if ($fallbackResult->num_rows === 0) {
+            return false;
+        }
+        
+        $complaint = $fallbackResult->fetch_assoc();
+        
+        // Add empty fields that might be expected
+        $complaint['room_number'] = null;
+        $complaint['block'] = null;
+        $complaint['resolved_by_name'] = null;
+    }// Get complaint status history
     $status_history = [];
-    while ($row = $result->fetch_assoc()) {
-        $status_history[] = $row;
+    
+    try {
+        // Check if the table exists
+        $historyTableExists = false;
+        $tablesResult = $conn->query("SHOW TABLES LIKE 'complaint_status_history'");
+        if ($tablesResult) {
+            $historyTableExists = $tablesResult->num_rows > 0;
+        }
+        
+        if ($historyTableExists) {
+            $stmt = $conn->prepare("SELECT csh.*, 
+                                  (SELECT name FROM admins WHERE id = csh.changed_by) as changed_by_name
+                                  FROM complaint_status_history csh
+                                  WHERE csh.complaint_id = ?
+                                  ORDER BY csh.created_at ASC");
+            $stmt->bind_param("i", $complaintId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            while ($row = $result->fetch_assoc()) {
+                $status_history[] = $row;
+            }
+        } else {
+            // If table doesn't exist, create a placeholder history entry
+            $status_history[] = [
+                'id' => 0,
+                'complaint_id' => $complaintId,
+                'status' => $complaint['status'],
+                'changed_by' => null,
+                'changed_by_name' => 'System',
+                'comments' => 'Status history not available',
+                'created_at' => $complaint['created_at']
+            ];
+        }
+    } catch (Exception $e) {
+        // Log error and provide an empty history array
+        error_log("Error getting complaint status history: " . $e->getMessage());
+        
+        // Create a placeholder history entry
+        $status_history[] = [
+            'id' => 0,
+            'complaint_id' => $complaintId,
+            'status' => $complaint['status'],
+            'changed_by' => null,
+            'changed_by_name' => 'System',
+            'comments' => 'Status history not available due to an error',
+            'created_at' => $complaint['created_at']
+        ];
     }
     
     $complaint['status_history'] = $status_history;
