@@ -98,9 +98,7 @@ require_once 'sidebar-admin.php';
             <ul>
                 <?php foreach ($errors as $error): ?>
                     <li><?= htmlspecialchars($error) ?></li>
-                <?php endforeach; ?>
-            </ul>
-            <p>If you're experiencing database table errors, please <a href="fix_complaints_view.php" class="alert-link">run the database fix script</a>.</p>
+                <?php endforeach; ?>            </ul>
         </div>
     <?php endif; ?>
       <?php if (!empty($success)): ?>
