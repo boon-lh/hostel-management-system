@@ -17,13 +17,26 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize the update status form with AJAX submission
  */
 function initializeUpdateStatusForm() {
+    // Main update status form
     const updateStatusForm = document.getElementById('update-status-form');
     if (updateStatusForm) {
+        console.log('Main update form found, attaching event listener');
         updateStatusForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            console.log('Main update form submitted');
             updateComplaintStatus(this);
         });
     }
+    
+    // Also attach to modal form if it exists
+    // This works for dynamically created forms by using event delegation
+    document.addEventListener('submit', function(e) {
+        if (e.target && e.target.id === 'modal-update-status-form') {
+            e.preventDefault();
+            console.log('Modal update form submitted via delegation');
+            updateComplaintStatus(e.target);
+        }
+    });
 
     // Add click listeners to quick status buttons
     document.querySelectorAll('.quick-status-update').forEach(button => {
@@ -140,13 +153,11 @@ function initializeUpdateStatusForm() {
         
         // Only show form if there are status options available
         if (statusOptions) {
-            updateFormHTML = `
-                <div class="update-status-section mt-4">
+            updateFormHTML = `                <div class="update-status-section mt-4">
                     <h5>Update Status</h5>
                     <form id="modal-update-status-form">
                         <input type="hidden" name="action" value="update_status">
                         <input type="hidden" name="complaint_id" value="${complaint.id}">
-                        
                         <div class="mb-3">
                             <label for="new_status_modal" class="form-label">New Status</label>
                             <select class="form-select" id="new_status_modal" name="new_status" required>
@@ -160,13 +171,15 @@ function initializeUpdateStatusForm() {
                             <textarea class="form-control" id="comments_modal" name="comments" rows="2" required 
                                 placeholder="Please provide details about this status update"></textarea>
                         </div>
-                        
-                        <div class="d-flex justify-content-end">
+                          <div class="d-flex justify-content-end">
                             <button type="submit" class="filter-btn">
                                 <i class="fas fa-save"></i> Update Status
                             </button>
                         </div>
                     </form>
+                    <div class="mt-3">
+                        <small class="text-muted">If update doesn't work, try using the <a href="direct_status_update.php" target="_blank">direct update tool</a>.</small>
+                    </div>
                 </div>
             `;
         }
@@ -288,12 +301,27 @@ function initializeUpdateStatusForm() {
         </div>
     `;    // Set the content
     modalBody.innerHTML = complaintHTML;
-    
-    // Initialize the form in the modal if it exists
+      // Initialize the form in the modal if it exists
     const modalForm = document.getElementById('modal-update-status-form');
     if (modalForm) {
+        console.log('Modal form found in displayed complaint, attaching event listener');
         modalForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Log the form values
+            const complaintId = this.querySelector('[name="complaint_id"]').value;
+            const newStatus = this.querySelector('[name="new_status"]').value;
+            const comments = this.querySelector('[name="comments"]').value;
+            console.log(`Submitting from modal: ID=${complaintId}, Status=${newStatus}, Comments=${comments}`);
+            
+            // Show submission message in the modal
+            const formArea = modalForm.parentNode;
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'alert alert-info mt-3';
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting update...';
+            formArea.appendChild(statusDiv);
+            
+            // Call the update function with a callback to show result in modal
             updateComplaintStatus(modalForm, true);
         });
     }
@@ -312,53 +340,113 @@ function initializeUpdateStatusForm() {
 
 /**
  * Update complaint status via AJAX
+ * @param {HTMLFormElement} form - The form element containing status update data
+ * @param {boolean} isModal - Whether this is called from a modal form
  */
-function updateComplaintStatus(form) {
+function updateComplaintStatus(form, isModal = false) {
+    console.log('updateComplaintStatus called with form:', form);
+    
+    // Verify form data
+    const complaintId = form.querySelector('[name="complaint_id"]').value;
+    const newStatus = form.querySelector('[name="new_status"]').value;
+    
+    console.log(`Updating complaint #${complaintId} to status "${newStatus}"`);
+    
+    if (!complaintId || !newStatus) {
+        showNotification('error', 'Missing complaint ID or status');
+        return;
+    }
+    
     // Disable the submit button to prevent multiple submissions
     const submitBtn = form.querySelector('[type="submit"]');
-    const originalBtnText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : 'Update';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    }
     
     // Get form data
     const formData = new FormData(form);
     
-    // Send AJAX request
-    fetch('complaint_ajax_handler.php', {
+    // Log the data being sent
+    for (let [key, value] of formData.entries()) {
+        console.log(`Form data: ${key} = ${value}`);
+    }
+    
+    // First try the direct status update tool for reliability
+    const directUpdateData = new FormData();
+    directUpdateData.append('complaint_id', complaintId);
+    directUpdateData.append('new_status', newStatus);
+    
+    // Try both approaches - first the direct tool, then the AJAX handler
+    fetch('direct_status_update.php', {
         method: 'POST',
-        body: formData
+        body: directUpdateData
+    })
+    .then(() => {
+        console.log('Direct update completed, now trying AJAX handler');
+        
+        // Now send request to AJAX handler
+        return fetch('complaint_ajax_handler.php', {
+            method: 'POST',
+            body: formData
+        });
     })
     .then(response => {
+        console.log('AJAX response status:', response.status);
+        
         if (!response.ok) {
             throw new Error(`Server responded with status: ${response.status}`);
         }
-        return response.json();
+        
+        return response.text().then(text => {
+            console.log('Raw response:', text);
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                // If response isn't valid JSON, create a default error object
+                return { 
+                    success: false, 
+                    message: 'Invalid JSON response from server. Check console for details.' 
+                };
+            }
+        });
     })
     .then(data => {
         if (data.success) {
             // Show success message
-            showNotification('success', data.message);
+            showNotification('success', data.message || 'Status updated successfully');
             
             // Redirect to refresh the page after a short delay
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
         } else {
-            // Show error message
-            showNotification('error', data.message || 'An error occurred while updating the complaint');
+            // Show error message but refresh anyway since direct update may have worked
+            showNotification('error', data.message || 'An error occurred with AJAX update - page will refresh to check status');
             
-            // Reset button
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
+            // Refresh anyway since the direct update may have worked
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
         }
     })
     .catch(error => {
-        // Show error message
-        showNotification('error', error.message);
+        console.error('Update error:', error);
+        // Show error message but refresh anyway
+        showNotification('error', `Error: ${error.message} - page will refresh to check status`);
         
-        // Reset button
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
+        // Reset button if operation fails
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+        
+        // Refresh anyway after a delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
     });
 }
 

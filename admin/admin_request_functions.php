@@ -126,12 +126,15 @@ function getAdminComplaints($conn, $filters = [], $page = 1, $limit = 10) {
  * @return array|false Complaint data or false if not found
  */
 function getAdminComplaintDetails($conn, $complaintId) {    
-    // Simplest possible query that doesn't depend on optional tables
-    $stmt = $conn->prepare("SELECT c.*, s.name as student_name, s.contact_no, s.email,
-                          NULL as room_number, NULL as block,
+    // Query that retrieves room and block information
+    $stmt = $conn->prepare("SELECT c.*, s.name as student_name, s.contact_no, s.email, 
+                          r.room_number, hb.block_name as block,
                           (SELECT name FROM admins WHERE id = c.resolved_by) as resolved_by_name
                           FROM complaints c
                           JOIN students s ON c.student_id = s.id
+                          LEFT JOIN hostel_registrations hr ON hr.student_id = s.id AND hr.status = 'Approved'
+                          LEFT JOIN rooms r ON hr.room_id = r.id
+                          LEFT JOIN hostel_blocks hb ON r.block_id = hb.id
                           WHERE c.id = ?");$stmt->bind_param("i", $complaintId);
     
     try {
@@ -146,8 +149,8 @@ function getAdminComplaintDetails($conn, $complaintId) {
     } catch (Exception $e) {
         // Log the error
         error_log("Error in getAdminComplaintDetails: " . $e->getMessage());
-        
-        // Fallback query with minimal fields if the first query failed
+          // Fallback query with minimal fields if the first query failed
+        // Try to get room and block info in a separate query
         $fallbackStmt = $conn->prepare("SELECT c.*, s.name as student_name, s.contact_no, s.email
                                         FROM complaints c
                                         JOIN students s ON c.student_id = s.id
@@ -162,9 +165,32 @@ function getAdminComplaintDetails($conn, $complaintId) {
         
         $complaint = $fallbackResult->fetch_assoc();
         
-        // Add empty fields that might be expected
-        $complaint['room_number'] = null;
-        $complaint['block'] = null;
+        // Try to get room and block in a separate query
+        try {
+            $roomStmt = $conn->prepare("SELECT r.room_number, hb.block_name as block
+                                       FROM hostel_registrations hr 
+                                       JOIN rooms r ON hr.room_id = r.id
+                                       JOIN hostel_blocks hb ON r.block_id = hb.id
+                                       WHERE hr.student_id = ? AND hr.status = 'Approved'
+                                       ORDER BY hr.registration_date DESC LIMIT 1");
+            $roomStmt->bind_param("i", $complaint['student_id']);
+            $roomStmt->execute();
+            $roomResult = $roomStmt->get_result();
+            
+            if ($roomResult->num_rows > 0) {
+                $roomData = $roomResult->fetch_assoc();
+                $complaint['room_number'] = $roomData['room_number'];
+                $complaint['block'] = $roomData['block'];
+            } else {
+                $complaint['room_number'] = null;
+                $complaint['block'] = null;
+            }
+        } catch (Exception $roomErr) {
+            error_log("Error getting room info in fallback: " . $roomErr->getMessage());
+            $complaint['room_number'] = null;
+            $complaint['block'] = null;
+        }
+        
         $complaint['resolved_by_name'] = null;
     }// Get complaint status history
     $status_history = [];
@@ -234,9 +260,12 @@ function getAdminComplaintDetails($conn, $complaintId) {
  * @return array Associative array with 'success' (bool) and 'message' (string) keys
  */
 function updateComplaintStatus($conn, $complaintId, $newStatus, $adminId, $comments = '') {
+    error_log("Starting status update: complaintId=$complaintId, newStatus=$newStatus, adminId=$adminId");
+    
     // Validate status
     $validStatuses = ['pending', 'in_progress', 'resolved', 'closed'];
     if (!in_array($newStatus, $validStatuses)) {
+        error_log("Invalid status: $newStatus");
         return [
             'success' => false,
             'message' => "Invalid status. Status must be one of: " . implode(', ', $validStatuses)
@@ -247,20 +276,94 @@ function updateComplaintStatus($conn, $complaintId, $newStatus, $adminId, $comme
     $conn->begin_transaction();
     
     try {
-        // Update complaint status
-        $stmt = $conn->prepare("UPDATE complaints SET status = ?, resolved_by = ? WHERE id = ?");
-        $stmt->bind_param("sii", $newStatus, $adminId, $complaintId);
-        $stmt->execute();
+        // Check if complaint exists first
+        $checkStmt = $conn->prepare("SELECT id, status FROM complaints WHERE id = ?");
+        $checkStmt->bind_param("i", $complaintId);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
         
-        if ($stmt->affected_rows === 0) {
-            throw new Exception("Complaint not found or no changes made");
+        if ($checkResult->num_rows === 0) {
+            throw new Exception("Complaint not found with ID: $complaintId");
         }
         
-        // Add status history entry
-        $stmt = $conn->prepare("INSERT INTO complaint_status_history (complaint_id, status, comments, changed_by) 
-                               VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("issi", $complaintId, $newStatus, $comments, $adminId);
-        $stmt->execute();
+        $currentStatus = $checkResult->fetch_assoc()['status'];
+        
+        // If new status is the same as current status, just update comments
+        $statusChanged = ($currentStatus !== $newStatus);
+        
+        error_log("Current status: $currentStatus, New status: $newStatus, Status changed: " . ($statusChanged ? "Yes" : "No"));
+          // Status field in complaints table is an enum, make sure we use the exact value
+        // Update complaint status - using direct query to see any SQL errors
+        $resolved_by = null;
+        if ($newStatus === 'resolved') {
+            $resolved_by = $adminId;
+        }
+        
+        // Log the query for debugging
+        $updateQuery = "UPDATE complaints SET status = '$newStatus'";
+        if ($resolved_by !== null) {
+            $updateQuery .= ", resolved_by = $resolved_by";
+        }
+        $updateQuery .= " WHERE id = $complaintId";
+        
+        error_log("Executing query: $updateQuery");
+        
+        if ($conn->query($updateQuery) === FALSE) {
+            error_log("SQL Error: " . $conn->error);
+            throw new Exception("Database error: " . $conn->error);
+        }
+        
+        $affectedRows = $conn->affected_rows;
+        error_log("Affected rows: $affectedRows");
+        
+        if ($affectedRows === 0 && $statusChanged) {
+            error_log("Warning: No rows affected when updating complaint status");
+            // We'll continue anyway since this might happen if the status was already set to this value
+        }
+        
+        // Check if complaint_status_history table exists
+        $historyTableExists = false;
+        $tablesResult = $conn->query("SHOW TABLES LIKE 'complaint_status_history'");
+        if ($tablesResult) {
+            $historyTableExists = ($tablesResult->num_rows > 0);
+        }
+        
+        error_log("History table exists: " . ($historyTableExists ? "Yes" : "No"));
+        
+        // Add status history entry if table exists
+        if ($historyTableExists) {
+            $stmt = $conn->prepare("INSERT INTO complaint_status_history (complaint_id, status, comments, changed_by) 
+                                   VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("issi", $complaintId, $newStatus, $comments, $adminId);
+            $stmt->execute();
+            error_log("Added history entry: {$stmt->affected_rows} row(s) inserted");
+        } else {
+            // If table doesn't exist, try to create it
+            try {
+                error_log("Attempting to create complaint_status_history table");
+                $conn->query("
+                    CREATE TABLE IF NOT EXISTS complaint_status_history (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        complaint_id INT NOT NULL,
+                        status VARCHAR(50) NOT NULL,
+                        comments TEXT,
+                        changed_by INT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (complaint_id) REFERENCES complaints(id)
+                    )
+                ");
+                
+                // Now try to insert the record
+                $stmt = $conn->prepare("INSERT INTO complaint_status_history (complaint_id, status, comments, changed_by) 
+                                       VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("issi", $complaintId, $newStatus, $comments, $adminId);
+                $stmt->execute();
+                error_log("Created history table and added entry: {$stmt->affected_rows} row(s) inserted");
+            } catch (Exception $e) {
+                error_log("Could not create history table: " . $e->getMessage());
+                // Continue even if we can't create the table - the main status update is more important
+            }
+        }
         
         // Commit transaction
         $conn->commit();

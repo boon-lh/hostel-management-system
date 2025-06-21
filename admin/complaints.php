@@ -93,8 +93,7 @@ require_once 'sidebar-admin.php';
     <?php 
     $pageHeading = "Complaints & Feedback Management";
     require_once 'admin-content-header.php'; 
-    ?>
-      <?php if (!empty($errors)): ?>
+    ?>      <?php if (!empty($errors)): ?>
         <div class="alert alert-danger">
             <ul>
                 <?php foreach ($errors as $error): ?>
@@ -104,12 +103,25 @@ require_once 'sidebar-admin.php';
             <p>If you're experiencing database table errors, please <a href="fix_complaints_view.php" class="alert-link">run the database fix script</a>.</p>
         </div>
     <?php endif; ?>
-    
-    <?php if (!empty($success)): ?>
+      <?php if (!empty($success)): ?>
         <div class="alert alert-success">
             <?= htmlspecialchars($success) ?>
         </div>
     <?php endif; ?>
+      <!-- Admin Tools Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <strong>Complaint Management</strong>
+        </div>
+        <div class="card-body">
+            <p>Use this tool to update complaint status directly:</p>
+            <div>
+                <a href="direct_status_update.php" class="btn btn-primary" target="_blank">
+                    <i class="fas fa-tools"></i> Update Complaint Status
+                </a>
+            </div>
+        </div>
+    </div>
     
     <?php if ($viewingComplaint && $complaintDetails): ?>
         <!-- Display complaint details -->
@@ -214,35 +226,16 @@ require_once 'sidebar-admin.php';
                                     <i class="fas fa-file"></i> Download Attachment
                                 </a>
                             <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
+                        </div>                        <?php endif; ?>
                         
-                        <h4 class="mt-4">Update Status</h4>
-                        <form id="update-status-form" class="mb-4">
-                            <input type="hidden" name="complaint_id" value="<?= $complaintDetails['id'] ?>">
-                            <input type="hidden" name="action" value="update_status">
-                            
-                            <div class="form-group">
-                                <label for="new_status">Change Status:</label>
-                                <select class="form-control" id="new_status" name="new_status">
-                                    <option value="">-- Select Status --</option>
-                                    <option value="pending" <?= $complaintDetails['status'] == 'pending' ? 'selected' : '' ?>>Pending</option>
-                                    <option value="in_progress" <?= $complaintDetails['status'] == 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                                    <option value="resolved" <?= $complaintDetails['status'] == 'resolved' ? 'selected' : '' ?>>Resolved</option>
-                                    <option value="closed" <?= $complaintDetails['status'] == 'closed' ? 'selected' : '' ?>>Closed</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="comments">Comments:</label>
-                                <textarea class="form-control" id="comments" name="comments" rows="3" 
-                                          placeholder="Add comments about this status change"></textarea>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Status
-                            </button>
-                        </form>
+                        <!-- Status Update Link -->
+                        <div class="alert alert-info mt-4">
+                            <h5>Need to update this complaint status?</h5>
+                            <p>Use our direct status update tool for reliable status updates:</p>
+                            <a href="direct_status_update.php?complaint_id=<?= $complaintDetails['id'] ?>" class="btn btn-primary" target="_blank">
+                                <i class="fas fa-edit"></i> Update Status for Complaint #<?= $complaintDetails['id'] ?>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 
@@ -503,9 +496,11 @@ require_once 'sidebar-admin.php';
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="complaintModalTitle">Complaint Details</h5>
+                <!-- Support both Bootstrap 4 and 5 close button styles -->
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="complaintModalContent">
                 <!-- Content will be loaded via AJAX -->
@@ -515,7 +510,8 @@ require_once 'sidebar-admin.php';
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <!-- Support both Bootstrap 4 and 5 dismiss attributes -->
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -531,6 +527,14 @@ require_once 'sidebar-admin.php';
 
 <!-- Notification Container -->
 <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<!-- Simple script for basic page functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Complaints page loaded - Status update now using direct tool only');
+});
+</script>
+</script>
 
 <?php 
 endif; // End of else statement for $viewingComplaint check
