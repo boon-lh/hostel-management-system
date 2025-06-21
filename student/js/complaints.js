@@ -44,7 +44,21 @@ document.addEventListener('DOMContentLoaded', function() {
 // View Complaint Modal Functions
 function viewComplaint(complaintId) {
     document.getElementById('complaintContent').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
-    document.getElementById('complaintModal').style.display = 'block';
+    
+    // Try Bootstrap 5 modal first
+    const modal = document.getElementById('complaintModal');
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback to Bootstrap 4
+        $(modal).modal('show');
+    } else {
+        // Direct DOM fallback
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
     
     // Fetch complaint details using AJAX
     fetch('get_complaint.php?id=' + complaintId)
@@ -132,9 +146,6 @@ function displayComplaintDetails(complaint) {
             priorityIcon = '<i class="fas fa-exclamation-triangle"></i> ';
             break;
     }
-    
-    // Format complaint type
-    const complaintType = complaint.complaint_type.replace(/_/g, ' ');
     
     // Attachment link
     let attachmentHTML = '';
@@ -231,8 +242,7 @@ function displayComplaintDetails(complaint) {
             </div>
         `;
     }
-    
-    // Build the complete HTML
+      // Build the complete HTML
     const complaintHTML = `
         <div class="complaint-details">
             <h3>${complaint.subject}</h3>
@@ -241,7 +251,6 @@ function displayComplaintDetails(complaint) {
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>Complaint ID:</strong> #${complaint.id}</p>
-                        <p><strong>Type:</strong> ${complaintType.charAt(0).toUpperCase() + complaintType.slice(1)}</p>
                         <p><strong>Submitted:</strong> ${createdDate}</p>
                     </div>
                     <div class="col-md-6">
@@ -358,14 +367,13 @@ function closeDeleteModal() {
 // Form validation functions
 function validateComplaintForm() {
     const subject = document.getElementById('subject');
-    const complaintType = document.getElementById('complaint_type');
     const description = document.getElementById('description');
     
     let isValid = true;
     let errorMessages = [];
     
     // Reset previous error states
-    [subject, complaintType, description].forEach(field => {
+    [subject, description].forEach(field => {
         if (field) {
             field.classList.remove('is-invalid');
         }
@@ -376,13 +384,6 @@ function validateComplaintForm() {
         isValid = false;
         errorMessages.push('Subject is required');
         if (subject) subject.classList.add('is-invalid');
-    }
-    
-    // Validate complaint type
-    if (!complaintType || !complaintType.value) {
-        isValid = false;
-        errorMessages.push('Issue Type is required');
-        if (complaintType) complaintType.classList.add('is-invalid');
     }
     
     // Validate description

@@ -35,6 +35,8 @@ if (!isset($pageTitle)) {
             <link rel="stylesheet" href="<?php echo $cssPath; ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+      <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
       <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">    <!-- Additional JavaScript, should be defined in the including file -->
     <?php if (isset($additionalJS) && is_array($additionalJS)): ?>

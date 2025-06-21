@@ -1,0 +1,106 @@
+/* Simplified dashboard styles for ensuring visibility */
+
+/* Main layout specific to the dashboard */
+.main-content {
+    margin-left: 250px;
+    padding: 20px 30px;
+    min-height: calc(100vh - 60px);
+    background: #f5f7fa;
+    width: calc(100% - 250px);
+    box-sizing: border-box;
+    position: relative; /* Ensure proper z-index stacking */
+    z-index: 1;
+}
+
+/* Dashboard grid container */
+.dashboard-grid {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 25px;
+}
+
+/* For modern browsers that support grid */
+@supports (display: grid) {
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+    }
+}
+
+/* Card styles */
+.dashboard-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 20px;
+    flex: 1;
+    min-width: 0;
+}
+
+.dashboard-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    background: #f8f9fc;
+    border-bottom: 1px solid #e0e6ed;
+}
+
+.dashboard-card .card-content {
+    padding: 20px;
+    flex: 1;
+}
+
+/* FAQ specific styles */
+.faq-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e0e6ed;
+    padding-bottom: 10px;
+}
+
+.faq-question {
+    cursor: pointer;
+    font-weight: 500;
+    color: #2c3e50;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.faq-question i {
+    margin-right: 10px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.faq-answer {
+    display: none;
+    padding: 0 0 15px 25px;
+    color: #7f8c8d;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Quick links */
+.quick-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fc;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #2c3e50;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.quick-link:hover {
+    background: #eef1fa;
+    color: #6e8efb;
+}

@@ -216,12 +216,14 @@ require_once '../shared/includes/sidebar-student.php';
 </div>
 
 <!-- Complaint View Modal -->
-<div class="modal" id="complaintModal">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="complaintModal" tabindex="-1" role="dialog" aria-labelledby="complaintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title"><i class="fas fa-comment-alt"></i> Complaint Details</h4>
-                <button type="button" class="close" onclick="closeComplaintModal()">&times;</button>
+                <h4 class="modal-title" id="complaintModalLabel"><i class="fas fa-comment-alt"></i> Complaint Details</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeComplaintModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body" id="complaintContent">
                 <!-- Complaint content will be dynamically inserted here -->
@@ -230,36 +232,40 @@ require_once '../shared/includes/sidebar-student.php';
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeComplaintModal()">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeComplaintModal()">Close</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Feedback Modal -->
-<div class="modal" id="feedbackModal">
-    <div class="modal-dialog">
+<div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title"><i class="fas fa-star"></i> Rate Your Experience</h4>
-                <button type="button" class="close" onclick="closeFeedbackModal()">&times;</button>
+                <h4 class="modal-title" id="feedbackModalLabel"><i class="fas fa-star"></i> Rate Your Experience</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeFeedbackModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="feedbackForm" method="POST" action="complaints.php">
                     <input type="hidden" name="action" value="add_feedback">
                     <input type="hidden" name="complaint_id" id="feedback_complaint_id" value="">
                     
-                    <div class="feedback-info">
-                        <div class="feedback-icon">
-                            <i class="fas fa-info-circle"></i>
-                        </div>
-                        <div class="feedback-text">
-                            <p>Your feedback helps us improve our services. Please rate your satisfaction with how your complaint was handled.</p>
+                    <div class="feedback-info mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="feedback-icon me-3">
+                                <i class="fas fa-info-circle text-info"></i>
+                            </div>
+                            <div class="feedback-text">
+                                <p class="mb-0">Your feedback helps us improve our services. Please rate your satisfaction with how your complaint was handled.</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>How satisfied are you with the resolution?</label>
+                    <div class="form-group mb-3">
+                        <label class="form-label">How satisfied are you with the resolution?</label>
                         <div class="rating-stars">
                             <i class="fas fa-star" data-rating="1"></i>
                             <i class="fas fa-star" data-rating="2"></i>
@@ -268,17 +274,17 @@ require_once '../shared/includes/sidebar-student.php';
                             <i class="fas fa-star" data-rating="5"></i>
                         </div>
                         <input type="hidden" id="rating" name="rating" value="0" required>
-                        <div class="rating-text">Select a rating</div>
+                        <div class="rating-text mt-2">Select a rating</div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="feedback">Your Feedback</label>
+                        <label for="feedback" class="form-label">Your Feedback</label>
                         <textarea class="form-control" id="feedback" name="feedback" rows="4" placeholder="Please share your thoughts on how your complaint was handled" required></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeFeedbackModal()">Cancel</button>
                 <button type="button" class="btn btn-primary" onclick="submitFeedback()"><i class="fas fa-paper-plane"></i> Submit Feedback</button>
             </div>
         </div>
