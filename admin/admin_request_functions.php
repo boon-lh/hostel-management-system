@@ -33,25 +33,20 @@ function getAdminComplaints($conn, $filters = [], $page = 1, $limit = 10) {
         $params[] = $filters['priority'];
         $types .= "s";
     }
-    
-    if (!empty($filters['complaint_type'])) {
-        $whereClause[] = "c.complaint_type = ?";
-        $params[] = $filters['complaint_type'];
-        $types .= "s";
-    }
+      // Removed complaint_type filter as it no longer exists in the database
     
     if (!empty($filters['student_id'])) {
         $whereClause[] = "c.student_id = ?";
         $params[] = $filters['student_id'];
         $types .= "i";
     }
-    
-    if (!empty($filters['search'])) {
+      if (!empty($filters['search'])) {
         $search = "%" . $filters['search'] . "%";
-        $whereClause[] = "(c.subject LIKE ? OR c.description LIKE ?)";
+        $whereClause[] = "(c.id LIKE ? OR c.subject LIKE ? OR c.description LIKE ?)";
         $params[] = $search;
         $params[] = $search;
-        $types .= "ss";
+        $params[] = $search;
+        $types .= "sss";
     }
       // Calculate offset for pagination
     $offset = ($page - 1) * $limit;

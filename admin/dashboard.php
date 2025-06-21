@@ -82,7 +82,7 @@ if ($openComplaintsResult && $openComplaintsResult->num_rows > 0) {
 }
 
 // Complaints and Feedback
-$complaintsQuery = "SELECT c.id, c.subject, c.description, c.complaint_type, c.status, c.created_at, 
+$complaintsQuery = "SELECT c.id, c.subject, c.description, c.status, c.created_at, c.priority,
                     s.name as student_name, s.id as student_id  
                    FROM complaints c
                    JOIN students s ON c.student_id = s.id
@@ -169,14 +169,12 @@ $requestsResult = null;
             </div>
             <div class="card-content">
                 <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
+                    <table class="data-table">                        <thead>
                             <tr>
                                 <th>Student ID</th>
                                 <th>Name</th>
                                 <th>Date</th>
                                 <th>Status</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -194,13 +192,6 @@ $requestsResult = null;
                                             else if ($app['status'] == 'Cancelled by Student') $statusClass = 'status-cancelled';
                                             ?>
                                             <span class="status <?php echo $statusClass; ?>"><?php echo $app['status']; ?></span>
-                                        </td>                                        <td class="action-buttons">
-                                            <a href="student_details.php?id=<?php echo $app['student_id']; ?>" title="View Student Details"><i class="fas fa-user"></i></a>
-                                            <a href="room_registrations.php?id=<?php echo $app['id']; ?>" title="View Registration Details"><i class="fas fa-clipboard-check"></i></a>
-                                            <?php if($app['status'] == 'Pending'): ?>
-                                                <a href="room_registrations.php?action=approve&id=<?php echo $app['id']; ?>" title="Approve Registration"><i class="fas fa-check text-success"></i></a>
-                                                <a href="room_registrations.php?action=reject&id=<?php echo $app['id']; ?>" title="Reject Registration"><i class="fas fa-times text-danger"></i></a>
-                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -345,14 +336,11 @@ $requestsResult = null;
             <div class="card-content">
                 <div class="table-responsive">
                     <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Student</th>
+                        <thead>                            <tr>                                <th>Student</th>
                                 <th>Subject</th>
-                                <th>Type</th>
+                                <th>Priority</th>
                                 <th>Date</th>
                                 <th>Status</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -361,7 +349,7 @@ $requestsResult = null;
                                     <tr>
                                         <td><?php echo htmlspecialchars($complaint['student_name']); ?></td>
                                         <td><?php echo htmlspecialchars($complaint['subject']); ?></td>
-                                        <td><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $complaint['complaint_type']))); ?></td>
+                                        <td><?php echo htmlspecialchars(ucfirst($complaint['priority'])); ?></td>
                                         <td><?php echo date('M d, Y', strtotime($complaint['created_at'])); ?></td>
                                         <td>
                                             <?php 
@@ -374,17 +362,10 @@ $requestsResult = null;
                                                 <?php echo ucfirst(str_replace('_', ' ', $complaint['status'])); ?>
                                             </span>
                                         </td>
-                                        <td class="action-buttons">
-                                            <a href="complaints.php?id=<?php echo $complaint['id']; ?>"><i class="fas fa-eye"></i></a>
-                                            <?php if ($complaint['status'] != 'resolved' && $complaint['status'] != 'closed'): ?>
-                                                <a href="#"><i class="fas fa-reply"></i></a>
-                                            <?php endif; ?>
-                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="6" class="text-center">No complaints or feedback found</td>
+                            <?php else: ?>                                <tr>
+                                    <td colspan="5" class="text-center">No complaints or feedback found</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>

@@ -10,7 +10,13 @@ require_once '../shared/includes/db_connection.php';
 require_once 'admin_request_functions.php';
 
 // Set page title and additional CSS files
-$pageTitle = "MMU Hostel Management - Complaints & Feedback";
+$pageTitle = "MMU Hostel Management - Com                                        <th>ID</th>
+                                        <th>Student</th>
+                                        <th>Subject</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>& Feedback";
 $additionalCSS = ["css/dashboard.css", "css/complaints.css"];
 $additionalJS = ["js/complaints.js"];
 
@@ -64,9 +70,7 @@ if (isset($_GET['priority']) && !empty($_GET['priority'])) {
     $filters['priority'] = $_GET['priority'];
 }
 
-if (isset($_GET['complaint_type']) && !empty($_GET['complaint_type'])) {
-    $filters['complaint_type'] = $_GET['complaint_type'];
-}
+// Removed complaint_type filter as it no longer exists in the database
 
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $filters['search'] = $_GET['search'];
@@ -144,15 +148,7 @@ require_once 'sidebar-admin.php';
                             <tr>
                                 <th>Block:</th>
                                 <td><?= $complaintDetails['block'] ? htmlspecialchars($complaintDetails['block']) : 'N/A' ?></td>
-                            </tr>
-                            <tr>
-                                <th>Type:</th>
-                                <td>
-                                    <span class="status status-in-progress">
-                                        <?= htmlspecialchars(ucwords(str_replace('_', ' ', $complaintDetails['complaint_type']))) ?>
-                                    </span>
-                                </td>
-                            </tr>
+                            </tr>                            <!-- Type row removed as it's no longer in the database -->
                             <tr>
                                 <th>Priority:</th>
                                 <td>
@@ -388,21 +384,8 @@ require_once 'sidebar-admin.php';
                                         <option value="medium" <?= isset($_GET['priority']) && $_GET['priority'] === 'medium' ? 'selected' : '' ?>>Medium</option>
                                         <option value="low" <?= isset($_GET['priority']) && $_GET['priority'] === 'low' ? 'selected' : '' ?>>Low</option>
                                     </select>
-                                </div>
-                                <div class="filter-control">
-                                    <label for="complaint_type" class="filter-label">Type:</label>
-                                    <select class="filter-select" id="complaint_type" name="complaint_type">
-                                        <option value="">All</option>
-                                        <option value="maintenance" <?= isset($_GET['complaint_type']) && $_GET['complaint_type'] === 'maintenance' ? 'selected' : '' ?>>Maintenance</option>
-                                        <option value="cleanliness" <?= isset($_GET['complaint_type']) && $_GET['complaint_type'] === 'cleanliness' ? 'selected' : '' ?>>Cleanliness</option>
-                                        <option value="roommate" <?= isset($_GET['complaint_type']) && $_GET['complaint_type'] === 'roommate' ? 'selected' : '' ?>>Roommate</option>
-                                        <option value="security" <?= isset($_GET['complaint_type']) && $_GET['complaint_type'] === 'security' ? 'selected' : '' ?>>Security</option>
-                                        <option value="noise" <?= isset($_GET['complaint_type']) && $_GET['complaint_type'] === 'noise' ? 'selected' : '' ?>>Noise</option>
-                                        <option value="other" <?= isset($_GET['complaint_type']) && $_GET['complaint_type'] === 'other' ? 'selected' : '' ?>>Other</option>
-                                    </select>
-                                </div>
-                                <div class="search-form">
-                                    <input type="text" name="search" class="search-input" placeholder="Search by ID, subject or type..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                                </div><div class="search-form">
+                                    <input type="text" name="search" class="search-input" placeholder="Search by ID, subject or description..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                                 </div>
                                 <button type="submit" class="filter-btn apply-filters-btn">
                                     <i class="fas fa-search"></i> Search & Filter
@@ -427,7 +410,6 @@ require_once 'sidebar-admin.php';
                                         <th>#ID</th>
                                         <th>Student</th>
                                         <th>Subject</th>
-                                        <th>Type</th>
                                         <th>Priority</th>
                                         <th>Status</th>
                                         <th>Date</th>
@@ -438,13 +420,7 @@ require_once 'sidebar-admin.php';
                                     <?php foreach ($complaints as $c): ?>
                                     <tr>
                                         <td><?= $c['id'] ?></td>
-                                        <td><?= htmlspecialchars($c['student_name']) ?></td>
-                                        <td><?= htmlspecialchars($c['subject']) ?></td>
-                                        <td>
-                                            <span class="status status-in-progress">
-                                                <?= htmlspecialchars(ucwords(str_replace('_', ' ', $c['complaint_type']))) ?>
-                                            </span>
-                                        </td>
+                                        <td><?= htmlspecialchars($c['student_name']) ?></td>                                        <td><?= htmlspecialchars($c['subject']) ?></td>
                                         <td>
                                             <?php
                                             $priorityClass = '';
@@ -479,13 +455,6 @@ require_once 'sidebar-admin.php';
                                            title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        
-                                        <?php if ($c['status'] === 'pending'): ?>
-                                        <a href="#" class="action-btn edit-btn quick-status-update" 
-                                           data-id="<?= $c['id'] ?>" data-status="in_progress" title="Mark In Progress">
-                                            <i class="fas fa-tools"></i>
-                                        </a>
-                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
