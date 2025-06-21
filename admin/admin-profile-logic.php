@@ -39,9 +39,6 @@ if ($stmt) {
 // Handle profile picture upload
 require_once "../shared/includes/profile-picture-handler.php";
 
-// Handle password change
-require_once "../shared/includes/password-handler.php";
-
 // Handle profile update
 require_once "../shared/includes/profile-update-handler.php";
 

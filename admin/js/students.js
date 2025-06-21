@@ -21,12 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('.student-form')) {
         initializeFormValidation();
     }
-    
-    // Add export button functionality
-    const exportButton = document.querySelector('.btn-export');
-    if (exportButton) {
-        exportButton.addEventListener('click', exportStudentData);
-    }
+      // Export functionality has been removed
     
     // Setup table hover effects
     setupTableHoverEffects();
@@ -106,44 +101,7 @@ function filterStudentTable(searchTerm) {
 /**
  * Export student data to CSV
  */
-function exportStudentData() {
-    try {
-        const table = document.querySelector('.student-table');
-        if (!table) throw new Error('Student table not found');
-
-        const rows = Array.from(table.querySelectorAll('tbody tr')).filter(row => 
-            row.style.display !== 'none' && !row.classList.contains('no-results')
-        );
-
-        if (rows.length === 0) {
-            throw new Error('No students to export');
-        }
-
-        const headers = Array.from(table.querySelectorAll('thead th'))
-            .map(th => th.textContent.trim())
-            .filter(header => header !== 'Actions');
-
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => 
-                Array.from(row.querySelectorAll('td'))
-                    .slice(0, -1) // Remove actions column
-                    .map(cell => `"${cell.textContent.trim()}"`)
-                    .join(',')
-            )
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', 'students.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        handleError(error, 'exporting student data');
-    }
-}
+// Export function has been removed
 
 /**
  * Download CSV file

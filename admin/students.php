@@ -91,8 +91,7 @@ require_once 'sidebar-admin.php';
                 </div><div class="header-actions">                    
                     <div class="search-container">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">                    </div>
-                    <div class="sort-buttons">
+                        <input type="text" id="student-search" placeholder="Search by ID, name, course or email...">                    </div>                    <div class="sort-buttons">
                         <label for="sort-select">Sort by:</label>
                         <select id="sort-select" class="sort-select">
                             <option value="id">Student ID</option>
@@ -105,10 +104,6 @@ require_once 'sidebar-admin.php';
                             <i class="fas fa-sort-up"></i>
                         </button>
                     </div>
-                    <button class="btn-export">
-                        <i class="fas fa-file-export"></i>
-                        <span>Export List</span>
-                    </button>
                 </div>            
             </div>            
             <div class="table-responsive" role="region" aria-label="Students List">                <table class="data-table" id="students-table" aria-label="Students Information Table">

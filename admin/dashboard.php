@@ -73,14 +73,6 @@ if ($pendingRegistrationsResult && $pendingRegistrationsResult->num_rows > 0) {
     $pendingRegistrationsCount = $pendingRegistrationsResult->fetch_assoc()['count'];
 }
 
-// Count open complaints
-$openComplaintsQuery = "SELECT COUNT(*) as count FROM complaints WHERE status IN ('Open', 'In Progress')";
-$openComplaintsResult = $conn->query($openComplaintsQuery);
-$openComplaintsCount = 0;
-if ($openComplaintsResult && $openComplaintsResult->num_rows > 0) {
-    $openComplaintsCount = $openComplaintsResult->fetch_assoc()['count'];
-}
-
 // Complaints and Feedback
 $complaintsQuery = "SELECT c.id, c.subject, c.description, c.status, c.created_at, c.priority,
                     s.name as student_name, s.id as student_id  
@@ -89,6 +81,14 @@ $complaintsQuery = "SELECT c.id, c.subject, c.description, c.status, c.created_a
                    ORDER BY c.created_at DESC
                    LIMIT 3";
 $complaintsResult = $conn->query($complaintsQuery);
+
+// Count total complaints
+$totalComplaintsQuery = "SELECT COUNT(*) as total_complaints FROM complaints";
+$totalComplaintsResult = $conn->query($totalComplaintsQuery);
+$totalComplaints = 0;
+if ($totalComplaintsResult && $totalComplaintsResult->num_rows > 0) {
+    $totalComplaints = $totalComplaintsResult->fetch_assoc()['total_complaints'];
+}
 
 // Remove reference to old $requestsResult variable to avoid errors
 $requestsResult = null;
@@ -119,8 +119,7 @@ $requestsResult = null;
                 <h3><?php echo $occupancyRate; ?>%</h3>
                 <p>Occupancy Rate</p>
             </div>
-        </div>
-          <div class="stat-card">
+        </div>        <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-clipboard-check"></i>
             </div>
@@ -140,16 +139,10 @@ $requestsResult = null;
                 <i class="fas fa-comment-alt"></i>
             </div>
             <div class="stat-info">
-                <h3><?php echo $openComplaintsCount; ?></h3>
-                <p>Open Complaints</p>
+                <h3><?php echo $totalComplaints; ?></h3>
+                <p>Total Complaints</p>
             </div>
-            <?php if ($openComplaintsCount > 0): ?>
-            <a href="complaints.php?status=Open" class="stat-action">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-            <?php endif; ?>
         </div>
-  
   
     </div>
 

@@ -70,21 +70,15 @@ require_once 'sidebar-admin.php';
                     <i class="fas fa-file-invoice-dollar"></i>
                     <h2>Financial Records</h2>
                 </div>
-                <div class="header-actions">
-                    <div class="search-container">
+                <div class="header-actions">                    <div class="search-container">
                         <i class="fas fa-search"></i>
                         <input type="text" id="finance-search" placeholder="Search by Student ID, Name, Semester...">
                     </div>
-                    <button class="btn-export" title="Export to CSV">
-                        <i class="fas fa-file-export"></i>
-                        <span>Export List</span>
-                    </button>
                 </div>
             </div>
 
             <div class="table-responsive">
-                <table class="data-table" id="finance-table">
-                    <thead>
+                <table class="data-table" id="finance-table">                    <thead>
                         <tr>
                             <th>Student ID</th>
                             <th>Name</th>
@@ -95,7 +89,6 @@ require_once 'sidebar-admin.php';
                             <th>Paid Amount (RM)</th>
                             <th>Balance (RM)</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,23 +124,12 @@ require_once 'sidebar-admin.php';
                                             default:
                                                 $statusClass = 'status-inactive';
                                         }
-                                        ?>
-                                        <span class="status <?php echo $statusClass; ?>"><?php echo ucfirst(str_replace('_', ' ', $status)); ?></span>
-                                    </td>                                    
-                                    <td class="action-buttons">                                        
-                                        <button 
-                                            onclick="viewBillDetails(<?php echo $finance['student_id']; ?>)"
-                                            class="action-btn" 
-                                            data-type="view"
-                                            title="View Bill Details">
-                                            <i class="fas fa-file-invoice"></i>
-                                        </button>
+                                        ?>                                        <span class="status <?php echo $statusClass; ?>"><?php echo ucfirst(str_replace('_', ' ', $status)); ?></span>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                            <?php endforeach; ?>                        <?php else: ?>
                             <tr>
-                                <td colspan="10" class="text-center">No financial information found</td>
+                                <td colspan="9" class="text-center">No financial information found</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>

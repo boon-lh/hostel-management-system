@@ -105,21 +105,7 @@ require_once 'sidebar-admin.php';
         <div class="alert alert-success">
             <?= htmlspecialchars($success) ?>
         </div>
-    <?php endif; ?>
-      <!-- Admin Tools Section -->
-    <div class="card mb-4">
-        <div class="card-header bg-light">
-            <strong>Complaint Management</strong>
-        </div>
-        <div class="card-body">
-            <p>Use this tool to update complaint status directly:</p>
-            <div>
-                <a href="direct_status_update.php" class="btn btn-primary" target="_blank">
-                    <i class="fas fa-tools"></i> Update Complaint Status
-                </a>
-            </div>
-        </div>
-    </div>
+    <?php endif; ?>      <!-- Complaints content starts here -->
     
     <?php if ($viewingComplaint && $complaintDetails): ?>
         <!-- Display complaint details -->
@@ -224,15 +210,19 @@ require_once 'sidebar-admin.php';
                                     <i class="fas fa-file"></i> Download Attachment
                                 </a>
                             <?php endif; ?>
-                        </div>                        <?php endif; ?>
-                        
-                        <!-- Status Update Link -->
-                        <div class="alert alert-info mt-4">
-                            <h5>Need to update this complaint status?</h5>
-                            <p>Use our direct status update tool for reliable status updates:</p>
-                            <a href="direct_status_update.php?complaint_id=<?= $complaintDetails['id'] ?>" class="btn btn-primary" target="_blank">
-                                <i class="fas fa-edit"></i> Update Status for Complaint #<?= $complaintDetails['id'] ?>
-                            </a>
+                        </div>                        <?php endif; ?>                        <!-- Status Update Link -->
+                        <div class="card mt-4 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <i class="fas fa-edit me-2"></i> Status Update
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Need to update this complaint status?</h5>
+                                <p>Click the button below to change the status of this complaint:</p>
+                                <a href="direct_status_update.php?complaint_id=<?= $complaintDetails['id'] ?>" class="btn btn-primary btn-lg" target="_blank">
+                                    <i class="fas fa-edit me-2"></i> Update Status for Complaint #<?= $complaintDetails['id'] ?>
+                                </a>
+                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -515,14 +505,6 @@ require_once 'sidebar-admin.php';
     </div>
 </div>
 
-<!-- Hidden form for quick status updates -->
-<form id="quick-update-form" style="display: none;">
-    <input type="hidden" name="action" value="update_status">
-    <input type="hidden" id="quick_complaint_id" name="complaint_id" value="">
-    <input type="hidden" id="quick_new_status" name="new_status" value="">
-    <textarea id="quick_comments" name="comments" style="display: none;"></textarea>
-</form>
-
 <!-- Notification Container -->
 <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
@@ -531,7 +513,6 @@ require_once 'sidebar-admin.php';
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Complaints page loaded - Status update now using direct tool only');
 });
-</script>
 </script>
 
 <?php 

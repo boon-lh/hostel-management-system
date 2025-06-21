@@ -222,75 +222,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: profile.php?reset=true");
         exit();
     }
-    
-    // Handle password change
-    if (isset($_POST["change_password"])) {
-        $current_password = $_POST["current_password"];
-        $new_password = $_POST["new_password"];
-        $confirm_password = $_POST["confirm_password"];
-        $username = $_SESSION["user"];
-        
-        // Basic validation
-        if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
-            $_SESSION["profile_message"] = "All password fields are required!";
-            $_SESSION["profile_message_type"] = "error";
-            header("Location: profile.php?reset=true");
-            exit();
-        }
-        
-        if ($new_password !== $confirm_password) {
-            $_SESSION["profile_message"] = "New password and confirmation do not match!";
-            $_SESSION["profile_message_type"] = "error";
-            header("Location: profile.php?reset=true");
-            exit();
-        }
-        
-        // Verify the current password
-        $password_sql = "SELECT password FROM admins WHERE username = ?";
-        $password_stmt = $conn->prepare($password_sql);
-        $password_stmt->bind_param("s", $username);
-        $password_stmt->execute();
-        $password_result = $password_stmt->get_result();
-        
-        if ($password_result->num_rows > 0) {
-            $user_data = $password_result->fetch_assoc();
-            $stored_password = $user_data["password"];
-            
-            // Verify current password
-            if (password_verify($current_password, $stored_password)) {
-                // Hash the new password
-                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                
-                // Update the password
-                $update_password_sql = "UPDATE admins SET password = ? WHERE username = ?";
-                $update_password_stmt = $conn->prepare($update_password_sql);
-                $update_password_stmt->bind_param("ss", $hashed_password, $username);
-                
-                if ($update_password_stmt->execute()) {
-                    $_SESSION["profile_message"] = "Password changed successfully!";
-                    $_SESSION["profile_message_type"] = "success";
-                    error_log("Password changed successfully for admin: $username");
-                } else {
-                    $_SESSION["profile_message"] = "Error updating password: " . $conn->error;
-                    $_SESSION["profile_message_type"] = "error";
-                    error_log("Error updating password for admin $username: " . $conn->error);
-                }
-                
-                $update_password_stmt->close();
-            } else {
-                $_SESSION["profile_message"] = "Current password is incorrect!";
-                $_SESSION["profile_message_type"] = "error";
-            }
-        } else {
-            $_SESSION["profile_message"] = "User not found!";
-            $_SESSION["profile_message_type"] = "error";
-        }
-        
-        $password_stmt->close();
-          // Redirect after password change to avoid resubmission
-        header("Location: profile.php?reset=true");
-        exit();
-    }
+      // Password change functionality has been removed
 }
 
 // Check if there's a message in session and display it, then clear it
@@ -380,56 +312,17 @@ require_once 'sidebar-admin.php';
                     <p><i class="fas fa-phone"></i> <?php echo isset($admin['contact_no']) && !empty($admin['contact_no']) ? $admin['contact_no'] : 'No phone set'; ?></p>
                     <p><i class="fas fa-building"></i> Office: <?php echo isset($admin['office_number']) && !empty($admin['office_number']) ? $admin['office_number'] : 'No office set'; ?></p>
                 </div>
-                </div>
-
-                <div class="profile-tabs">
+                </div>                <div class="profile-tabs">
                     <div class="profile-tab active" data-tab="edit-profile">
                         <i class="fas fa-user-edit"></i> Edit Profile
                     </div>
-                    <div class="profile-tab" data-tab="security">
-                        <i class="fas fa-lock"></i> Security
-                    </div>
                 </div>                <?php
                 display_profile_edit_form($name, $email, $phone, $office_number, $_SESSION["user"]);
-                display_security_form();
                 ?>
             </div>
         </div>
     </div>    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab functionality
-            const tabs = document.querySelectorAll('.profile-tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Clear form values if switching tabs to prevent data persistence
-                    const activeTabId = document.querySelector('.profile-tab.active').getAttribute('data-tab');
-                    const clickedTabId = this.getAttribute('data-tab');
-                    
-                    // Only reset forms if we're actually changing tabs
-                    if (activeTabId !== clickedTabId) {
-                        // Reset forms in the tab we're leaving
-                        const activeForms = document.querySelectorAll(`#${activeTabId} form`);
-                        activeForms.forEach(form => {
-                            form.reset();
-                        });
-                        
-                        // Also clear password fields for security
-                        const passwordFields = document.querySelectorAll(`#${activeTabId} input[type="password"]`);
-                        passwordFields.forEach(field => {
-                            field.value = '';
-                        });
-                    }
-                    
-                    tabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const tabContentId = this.getAttribute('data-tab');
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.getElementById(tabContentId).classList.add('active');
-                });
-            });
+        document.addEventListener('DOMContentLoaded', function() {            // Tab functionality simplified - only one tab exists now
             
             // Add form validation for profile update
             const profileForm = document.querySelector('#edit-profile form');
@@ -476,53 +369,7 @@ require_once 'sidebar-admin.php';
                     }
                 });
             }
-            
-            // Add form validation for password change
-            const passwordForm = document.querySelector('#security form');
-            if (passwordForm) {
-                passwordForm.addEventListener('submit', function(e) {
-                    const currentPassword = document.getElementById('current_password');
-                    const newPassword = document.getElementById('new_password');
-                    const confirmPassword = document.getElementById('confirm_password');
-                    
-                    // Validate current password
-                    if (!currentPassword.value.trim()) {
-                        alert('Please enter your current password');
-                        currentPassword.focus();
-                        e.preventDefault();
-                        return;
-                    }
-                    
-                    // Validate new password
-                    if (!newPassword.value.trim()) {
-                        alert('Please enter your new password');
-                        newPassword.focus();
-                        e.preventDefault();
-                        return;
-                    }
-                    
-                    // Check password length
-                    if (newPassword.value.length < 8) {
-                        alert('Password should be at least 8 characters');
-                        newPassword.focus();
-                        e.preventDefault();
-                        return;
-                    }
-                    
-                    // Validate confirmation
-                    if (newPassword.value !== confirmPassword.value) {
-                        alert('New password and confirmation do not match');
-                        confirmPassword.focus();
-                        e.preventDefault();
-                        return;
-                    }
-                    
-                    // Disable the submit button to prevent double submission
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-                });
-            }
+              // Password change validation has been removed
             
             // Profile picture upload
             const changeProfilePictureBtn = document.getElementById('changeProfilePicture');
