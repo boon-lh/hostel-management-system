@@ -364,19 +364,70 @@ textarea.form-control {
     color: #e0a800;
 }
 
-/* Responsive adjustments */
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
+/* Improved Modal and Rating Styles */
+.modal {
+    z-index: 1050;
 }
 
-.col-md-4, .col-md-8 {
-    position: relative;
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal-open {
+    overflow: hidden;
+}
+
+.rating-stars {
+    display: flex;
+    padding: 10px 0;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.rating-stars .fas.fa-star {
+    color: #ccc;
+    margin-right: 5px;
+    transition: color 0.2s ease;
+}
+
+.rating-stars .fas.fa-star.selected,
+.rating-stars .fas.fa-star.hovered {
+    color: #ffc107;
+}
+
+.rating-text {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Fix for Bootstrap close button */
+.btn-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: 0.25em;
+    color: #000;
+    border: 0;
+    border-radius: 0.25rem;
+    opacity: .5;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+
+.btn-close:hover {
+    opacity: .75;
+}
+
+/* For responsive modals */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: 95%;
+    }
+    
+    .rating-stars {
+        font-size: 20px;
+    }
 }
 
 @media (min-width: 768px) {

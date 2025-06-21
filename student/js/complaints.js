@@ -279,13 +279,56 @@ function displayComplaintDetails(complaint) {
 }
 
 function closeComplaintModal() {
-    document.getElementById('complaintModal').style.display = 'none';
+    const modal = document.getElementById('complaintModal');
+    
+    // Try Bootstrap 5 method first
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
+        }
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback to jQuery for Bootstrap 4
+        $(modal).modal('hide');
+    } else {
+        // Direct DOM manipulation as a fallback
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        
+        // Remove backdrop if present
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            document.body.removeChild(backdrop);
+        }
+    }
 }
 
 // Feedback Modal Functions
 function showFeedbackModal(complaintId) {
     document.getElementById('feedback_complaint_id').value = complaintId;
-    document.getElementById('feedbackModal').style.display = 'block';
+    
+    // Get the modal
+    const modal = document.getElementById('feedbackModal');
+    
+    // Try Bootstrap 5 method first
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback to jQuery for Bootstrap 4
+        $(modal).modal('show');
+    } else {
+        // Direct DOM manipulation as a fallback
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        // Create backdrop if it doesn't exist
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
     
     // Reset rating
     document.getElementById('rating').value = 0;
@@ -296,7 +339,29 @@ function showFeedbackModal(complaintId) {
 }
 
 function closeFeedbackModal() {
-    document.getElementById('feedbackModal').style.display = 'none';
+    const modal = document.getElementById('feedbackModal');
+    
+    // Try Bootstrap 5 method first
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
+        }
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback to jQuery for Bootstrap 4
+        $(modal).modal('hide');
+    } else {
+        // Direct DOM manipulation as a fallback
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        
+        // Remove backdrop if present
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            document.body.removeChild(backdrop);
+        }
+    }
 }
 
 function submitFeedback() {
